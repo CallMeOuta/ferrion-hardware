@@ -1,7 +1,7 @@
 //! Fbbootlogd renders the boot log and presents it on VT1.
 //!
-//! In the future it could display a boot splash like plymouth instead of a boot log when booting
-//! in quiet mode.
+//! When the bootloader boots quietly (`QUIET=1` in the kernel environment) it draws a boot splash
+//! instead, like plymouth, and keeps the log behind it; any key shows the log.
 
 use std::collections::VecDeque;
 use std::io::{self, Read};
@@ -14,6 +14,10 @@ use event::EventQueue;
 use graphics_ipc::DrmHandle;
 use inputd::{ConsumerHandle, ConsumerHandleEvent};
 use orbclient::{Event, EventOption};
+
+use crate::splash::Splash;
+
+mod splash;
 
 event::user_data! {
     enum Source {
@@ -38,7 +42,10 @@ fn daemon(daemon: daemon::Daemon) -> ! {
     };
 
     let input_handle = ConsumerHandle::bootlog_vt().expect("fbbootlogd: Failed to open vt");
-    let mut bootlog = Fbbootlog::new();
+    let splash = std::fs::read_to_string("/scheme/sys/env")
+        .ok()
+        .and_then(|env| Splash::from_env(&env));
+    let mut bootlog = Fbbootlog::new(splash);
     bootlog.handle_handoff(&input_handle, &event_queue);
 
     event_queue
@@ -122,17 +129,33 @@ struct Fbbootlog {
     display_map: Option<V2DisplayMap>,
     text_screen: TextScreen,
     shift: bool,
+    /// Drawn instead of the log until a key is pressed, in a quiet boot.
+    splash: Option<Splash>,
 }
 
 impl Fbbootlog {
-    fn new() -> Self {
+    fn new(splash: Option<Splash>) -> Self {
         let mut config = term::Config::default();
         config.scrolling_history = 1000;
 
+        let mut text_screen = TextScreen::new(None, config);
+        if splash.is_some() {
+            text_screen.hide();
+        }
+
         Self {
             display_map: None,
-            text_screen: TextScreen::new(None, config),
+            text_screen,
             shift: false,
+            splash,
+        }
+    }
+
+    fn draw_splash(&mut self) {
+        if let (Some(splash), Some(map)) = (&self.splash, &mut self.display_map) {
+            if let Err(err) = splash.draw(map) {
+                eprintln!("fbbootlogd: failed to draw the splash: {err}");
+            }
         }
     }
 
@@ -161,6 +184,7 @@ impl Fbbootlog {
                     )
                     .expect("fbbootlogd: failed to subscribe to drm events");
                 self.display_map = Some(display_map);
+                self.draw_splash();
             }
             Err(err) => {
                 eprintln!("fbbootlogd: failed to open display: {}", err);
@@ -172,6 +196,17 @@ impl Fbbootlog {
     }
 
     fn handle_input(&mut self, ev: &Event) {
+        // Any key during the splash shows the log instead
+        if self.splash.is_some() {
+            if let EventOption::Key(key_event) = ev.to_option() {
+                if key_event.pressed {
+                    self.splash = None;
+                    self.text_screen.show(self.display_map.as_mut());
+                }
+            }
+            return;
+        }
+
         match ev.to_option() {
             EventOption::Key(key_event) => {
                 if key_event.scancode == 0x2A || key_event.scancode == 0x36 {
@@ -217,7 +252,7 @@ impl Fbbootlog {
     fn handle_display_event(&mut self) {
         if let Some(map) = &mut self.display_map {
             match self.text_screen.handle_display_event(map) {
-                Ok(()) => {}
+                Ok(()) => self.draw_splash(),
                 Err(err) => {
                     eprintln!("fbbootlogd: failed to create or map framebuffer: {}", err);
                     return;
@@ -227,6 +262,13 @@ impl Fbbootlog {
     }
 
     fn handle_logs(&mut self, buf: &[u8]) {
+        if self
+            .splash
+            .as_mut()
+            .is_some_and(|splash| splash.take_logs(buf))
+        {
+            self.draw_splash();
+        }
         if let Some(map) = &mut self.display_map {
             self.text_screen.write(map, buf, &mut VecDeque::new());
         }

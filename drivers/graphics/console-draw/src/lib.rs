@@ -130,6 +130,17 @@ impl V2DisplayMap {
         self.display_handle.as_fd()
     }
 
+    /// Draws on the displays through `f`, which gets the pixels (0xAARRGGBB), the stride, the
+    /// width and the height, then presents the whole screen. A boot splash draws this way.
+    pub fn draw(&mut self, f: impl FnOnce(&mut [u32], usize, usize, usize)) -> io::Result<()> {
+        let damage = self.with_console_map(|map| {
+            let pixels = unsafe { &mut *map.offscreen };
+            f(pixels, map.stride, map.width, map.height);
+            ClipRect::new(0, 0, map.width as u16, map.height as u16)
+        });
+        self.dirty_fb(damage)
+    }
+
     fn with_console_map(&mut self, f: impl FnOnce(DisplayMap) -> ClipRect) -> ClipRect {
         let min_width = self
             .displays
@@ -270,6 +281,8 @@ pub struct TextScreen {
     colors: Colors,
     font: ConsoleFont,
     term_input: Rc<RefCell<Vec<u8>>>,
+    /// Set while something else owns the screen: output is kept but not drawn.
+    hidden: bool,
 }
 
 impl TextScreen {
@@ -341,11 +354,28 @@ impl TextScreen {
             last_cursor: Point::new(Line(0), Column(0)),
             font: font.unwrap_or_else(|| ConsoleFont::new(FONT.to_vec(), 8, 16)),
             term_input,
+            hidden: false,
         }
     }
 
     pub fn scroll_display(&mut self, scroll: Scroll) {
         self.term.scroll_display(scroll);
+    }
+
+    /// Stops drawing, while something else such as a boot splash owns the screen; output is
+    /// still taken and kept.
+    pub fn hide(&mut self) {
+        self.hidden = true;
+    }
+
+    /// Draws again from now on, starting with the whole screen.
+    pub fn show(&mut self, map: Option<&mut V2DisplayMap>) {
+        self.hidden = false;
+        if let Some(map) = map {
+            let damage =
+                map.with_console_map(|mut console_map| self.redraw(&mut console_map, true));
+            map.dirty_fb(damage).unwrap();
+        }
     }
 
     fn lookup_color(term_colors: &Colors, default_colors: &Colors, color: Color) -> u32 {
@@ -419,10 +449,16 @@ impl TextScreen {
 
             self.redraw(&mut console_map, false)
         });
-        map.dirty_fb(damage).unwrap();
+        if !self.hidden {
+            map.dirty_fb(damage).unwrap();
+        }
     }
 
     fn redraw(&mut self, map: &mut DisplayMap, force_damage: bool) -> ClipRect {
+        if self.hidden {
+            return ClipRect::new(0, 0, 0, 0);
+        }
+
         let mut min_changed_x = map.width / self.font.width;
         let mut max_changed_x = 0;
         let mut min_changed_y = map.height / self.font.height;
