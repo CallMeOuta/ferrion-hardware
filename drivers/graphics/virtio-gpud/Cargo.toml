@@ -10,6 +10,7 @@ log.workspace = true
 static_assertions.workspace = true
 futures.workspace = true
 anyhow.workspace = true
+libc.workspace = true
 
 common = { path = "../../common" }
 daemon = { path = "../../../daemon" }

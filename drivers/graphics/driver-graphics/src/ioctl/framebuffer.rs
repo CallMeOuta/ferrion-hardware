@@ -98,6 +98,7 @@ pub(super) fn mode_dirtyfb<T: GraphicsAdapter>(
     active_vt: usize,
     handle: &mut DrmHandle<T>,
     data: redox_ioctl::drm::DrmModeFbDirtyCmd<'_>,
+    pending: &mut Option<crate::PendingFrame>,
 ) -> Result<usize, Error> {
     let fb_id = KmsObjectId(data.fb_id());
     let fb = objects.get_framebuffer(fb_id)?;
@@ -121,12 +122,7 @@ pub(super) fn mode_dirtyfb<T: GraphicsAdapter>(
         .clip(fb.width, fb.height);
 
     if handle.vt == active_vt {
-        for plane in objects.planes() {
-            let state = plane.state.lock().unwrap().clone();
-            if state.fb.as_ref() == Some(&fb) {
-                adapter.set_plane(&objects, plane, state, Some(damage))?;
-            }
-        }
+        *pending = adapter.dirty_framebuffer(objects, &fb, damage)?;
     }
 
     Ok(0)

@@ -20,8 +20,12 @@
 // cc https://docs.mesa3d.org/drivers/venus.html
 // cc https://docs.mesa3d.org/drivers/virgl.html
 
-use std::os::fd::AsRawFd;
+use std::fs::File;
+use std::io::{Read, Write};
+use std::os::fd::{AsRawFd, FromRawFd};
 use std::sync::atomic::{AtomicU32, Ordering};
+use std::sync::Arc;
+use std::task::{Wake, Waker};
 
 use driver_graphics::GraphicsAdapter;
 use event::{user_data, EventQueue};
@@ -29,6 +33,22 @@ use pcid_interface::PciFunctionHandle;
 use virtio_core::utils::VolatileCell;
 
 mod scheme;
+
+struct FrameWake(File);
+
+impl Wake for FrameWake {
+    fn wake(self: Arc<Self>) {
+        self.wake_by_ref();
+    }
+
+    fn wake_by_ref(self: &Arc<Self>) {
+        match (&self.0).write(&[1]) {
+            Ok(_) => {}
+            Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => {}
+            Err(error) => panic!("virtio-gpud: failed to wake frame dispatcher: {error}"),
+        }
+    }
+}
 
 //const VIRTIO_GPU_F_VIRGL: u32 = 0;
 const VIRTIO_GPU_F_EDID: u32 = 1;
@@ -538,6 +558,13 @@ fn daemon(daemon: daemon::Daemon, mut pcid_handle: PciFunctionHandle) -> anyhow:
     // FIXME change the initnsmgr to not block on openat for the target scheme.
     let event_queue: EventQueue<Source> =
         EventQueue::new().expect("virtio-gpud: failed to create event queue");
+    let mut pipe = [-1; 2];
+    if unsafe { libc::pipe2(pipe.as_mut_ptr(), libc::O_NONBLOCK | libc::O_CLOEXEC) } != 0 {
+        return Err(std::io::Error::last_os_error().into());
+    }
+    // pipe2 succeeded, transferring ownership of these two new descriptors.
+    let mut frame_ready = unsafe { File::from_raw_fd(pipe[0]) };
+    let frame_waker = Waker::from(Arc::new(FrameWake(unsafe { File::from_raw_fd(pipe[1]) })));
 
     let mut scheme = scheme::GpuScheme::new(
         format!("pci:{}", pcid_handle.config().func.addr),
@@ -546,6 +573,7 @@ fn daemon(daemon: daemon::Daemon, mut pcid_handle: PciFunctionHandle) -> anyhow:
         cursor_queue.clone(),
         device.transport.clone(),
         has_edid,
+        frame_waker,
     )?;
     daemon.ready();
 
@@ -553,6 +581,7 @@ fn daemon(daemon: daemon::Daemon, mut pcid_handle: PciFunctionHandle) -> anyhow:
         enum Source {
             Scheme,
             Interrupt,
+            FrameCompletion,
         }
     }
 
@@ -570,6 +599,13 @@ fn daemon(daemon: daemon::Daemon, mut pcid_handle: PciFunctionHandle) -> anyhow:
             event::EventFlags::READ,
         )
         .unwrap();
+    event_queue
+        .subscribe(
+            frame_ready.as_raw_fd() as usize,
+            Source::FrameCompletion,
+            event::EventFlags::READ,
+        )
+        .unwrap();
 
     libredox::call::setrens(0, 0).expect("virtio-gpud: failed to enter null namespace");
 
@@ -583,6 +619,22 @@ fn daemon(daemon: daemon::Daemon, mut pcid_handle: PciFunctionHandle) -> anyhow:
                 scheme
                     .tick()
                     .expect("virtio-gpud: failed to process scheme events");
+                futures::executor::block_on(scheme.adapter().unref_all_delayed());
+            }
+            Source::FrameCompletion => {
+                let mut bytes = [0; 64];
+                loop {
+                    match frame_ready.read(&mut bytes) {
+                        Ok(0) => panic!("virtio-gpud: frame completion pipe closed"),
+                        Ok(_) => {}
+                        Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => break,
+                        Err(error) if error.kind() == std::io::ErrorKind::Interrupted => continue,
+                        Err(error) => panic!("virtio-gpud: frame completion read failed: {error}"),
+                    }
+                }
+                scheme
+                    .tick()
+                    .expect("virtio-gpud: failed to complete frame requests");
                 futures::executor::block_on(scheme.adapter().unref_all_delayed());
             }
             Source::Interrupt => loop {

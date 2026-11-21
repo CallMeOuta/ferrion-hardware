@@ -25,6 +25,7 @@ pub(crate) fn call_ioctl<T: GraphicsAdapter>(
     handle: &mut DrmHandle<T>,
     cmd: u64,
     payload: &mut [u8],
+    pending: &mut Option<crate::PendingFrame>,
 ) -> syscall::Result<usize> {
     match cmd {
         ipc::VERSION => ipc::DrmVersion::with(payload, |data| driver_info::version(adapter, data)),
@@ -117,7 +118,7 @@ pub(crate) fn call_ioctl<T: GraphicsAdapter>(
             framebuffer::mode_rm_fb(adapter, objects, active_vt, vts, handle, data)
         }),
         ipc::MODE_DIRTYFB => ipc::DrmModeFbDirtyCmd::with(payload, |data| {
-            framebuffer::mode_dirtyfb(adapter, objects, active_vt, handle, data)
+            framebuffer::mode_dirtyfb(adapter, objects, active_vt, handle, data, pending)
         }),
         ipc::MODE_CREATE_DUMB => ipc::DrmModeCreateDumb::with(payload, |mut data| {
             if data.bpp() != 32 || data.flags() != 0 {

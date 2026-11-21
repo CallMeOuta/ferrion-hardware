@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use drm_sys::DRM_CLIENT_NAME_MAX_LEN;
 use graphics_ipc::redox_uapi_exts::RedoxDrmEventConnectorHotplug;
-use redox_scheme::CallerCtx;
+use redox_scheme::{CallerCtx, Id};
 use scheme_utils::{FpathWriter, ResourceSync};
 use syscall::{EFAULT, EINVAL, ENOENT, Error, EventFlags, MapFlags, Result};
 
@@ -35,6 +35,7 @@ pub(crate) struct DrmHandle<T: GraphicsAdapter> {
     pub(crate) fbs: BTreeMap<KmsObjectId, KmsRcObjectRef<KmsFramebuffer<T>>>,
     pub(crate) next_buffer_id: u32,
     pub(crate) buffers: HashMap<u32, Arc<T::Buffer>>,
+    pub(crate) pending_frames: HashMap<Id, crate::PendingFrame>,
     events: VecDeque<Box<[u8]>>,
     requested_events: EventFlags,
     notified_read: bool,
@@ -52,6 +53,7 @@ impl<T: GraphicsAdapter> DrmHandle<T> {
             fbs: BTreeMap::new(),
             next_buffer_id: 0,
             buffers: HashMap::new(),
+            pending_frames: HashMap::new(),
             events: VecDeque::new(),
             requested_events: EventFlags::empty(),
             notified_read: true,
@@ -142,8 +144,16 @@ impl<T: GraphicsAdapter> ResourceSync for DrmHandle<T> {
         scheme_data: &mut Self::SchemeData,
         payload: &mut [u8],
         metadata: &[u64],
-        _ctx: &CallerCtx,
+        ctx: &CallerCtx,
     ) -> Result<usize> {
+        if let Some(frame) = self.pending_frames.get(&ctx.id) {
+            let Some(result) = frame.take() else {
+                return Err(Error::new(syscall::EWOULDBLOCK));
+            };
+            self.pending_frames.remove(&ctx.id);
+            return result;
+        }
+        let mut pending = None;
         let res = ioctl::call_ioctl(
             &mut scheme_data.adapter,
             &mut scheme_data.objects,
@@ -152,9 +162,15 @@ impl<T: GraphicsAdapter> ResourceSync for DrmHandle<T> {
             self,
             metadata[0],
             payload,
+            &mut pending,
         );
         scheme_data.objects.remove_all_deferred();
-        res
+        if let Some(frame) = pending {
+            self.pending_frames.insert(ctx.id, frame);
+            Err(Error::new(syscall::EWOULDBLOCK))
+        } else {
+            res
+        }
     }
 
     fn call_with_handles(

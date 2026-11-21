@@ -1,15 +1,21 @@
+use std::collections::VecDeque;
 use std::fmt;
+use std::future::Future;
+use std::pin::Pin;
 use std::sync::mpsc::{self, Receiver, Sender};
 use std::sync::Arc;
+use std::task::{Context, Poll, Waker};
 
 use common::dma::Dma;
 use common::sgl;
 use driver_graphics::kms::connector::{KmsConnectorDriver, KmsConnectorStatus};
 use driver_graphics::kms::crtc::{KmsCrtc, KmsCrtcState};
+use driver_graphics::kms::framebuffer::KmsFramebuffer;
 use driver_graphics::kms::objects::{KmsObjectId, KmsObjects};
 use driver_graphics::kms::plane::{KmsPlane, KmsPlaneDriver, KmsPlaneState};
+use driver_graphics::kms::rc_object::KmsRcObjectRef;
 use driver_graphics::{
-    Buffer as DrmBuffer, Damage, DumbBufferConfig, GraphicsAdapter, GraphicsScheme,
+    Buffer as DrmBuffer, Damage, DumbBufferConfig, GraphicsAdapter, GraphicsScheme, PendingFrame,
 };
 use syscall::{EINVAL, EIO, ENOMEM, PAGE_SIZE};
 use virtio_core::spec::{Buffer, ChainBuilder, DescriptorFlags};
@@ -106,6 +112,8 @@ pub struct VirtGpuAdapter<'a> {
     unref_rx: Receiver<ResourceId>,
     displays: Vec<Display>,
     hidden_cursor: Option<Arc<VirtGpuFramebuffer>>,
+    pending_frames: VecDeque<Pin<Box<dyn Future<Output = ()>>>>,
+    frame_waker: Waker,
 }
 
 impl<'a> fmt::Debug for VirtGpuAdapter<'a> {
@@ -117,6 +125,12 @@ impl<'a> fmt::Debug for VirtGpuAdapter<'a> {
 }
 
 impl<'a> VirtGpuAdapter<'a> {
+    fn finish_pending_frames(&mut self) {
+        while let Some(frame) = self.pending_frames.pop_front() {
+            futures::executor::block_on(frame);
+        }
+    }
+
     pub async fn update_displays(&mut self) -> Result<(), Error> {
         let display_info = self.get_display_info().await?;
         let raw_displays = &display_info.display_info[..self.config.num_scanouts() as usize];
@@ -168,13 +182,20 @@ impl<'a> VirtGpuAdapter<'a> {
         &self,
         request: Dma<T>,
     ) -> Result<Dma<ControlHeader>, Error> {
+        Self::send_control(&self.control_queue, request).await
+    }
+
+    async fn send_control<T: Send + 'static>(
+        queue: &Queue,
+        request: Dma<T>,
+    ) -> Result<Dma<ControlHeader>, Error> {
         let header = Dma::new(ControlHeader::default())?;
         let command = ChainBuilder::new()
             .chain(Buffer::new(request))
             .chain(Buffer::new(header).flags(DescriptorFlags::WRITE_ONLY))
             .build();
 
-        let (_, [_, header]) = self.control_queue.send(command).await.into_parts();
+        let (_, [_, header]) = queue.send(command).await.into_parts();
         Ok(header.into_inner())
     }
 
@@ -483,8 +504,79 @@ impl<'a> GraphicsAdapter for VirtGpuAdapter<'a> {
         state: KmsCrtcState<Self>,
         _connector_ids: &[KmsObjectId],
     ) -> syscall::Result<()> {
+        self.finish_pending_frames();
         *crtc.state.lock().unwrap() = state;
         Ok(())
+    }
+
+    fn dirty_framebuffer(
+        &mut self,
+        objects: &KmsObjects<Self>,
+        fb: &KmsRcObjectRef<KmsFramebuffer<Self>>,
+        damage: Damage,
+    ) -> syscall::Result<Option<PendingFrame>> {
+        // A bounded FIFO keeps transfer/flush pairs in submission order. The
+        // ioctl stays pending until the device finishes, preserving buffer reuse.
+        if self.pending_frames.len() == 16 {
+            return Err(syscall::Error::new(syscall::EWOULDBLOCK));
+        }
+        let mut primary = false;
+        for plane in objects.planes() {
+            let state = plane.state.lock().unwrap().clone();
+            if state.fb.as_ref() != Some(fb) {
+                continue;
+            }
+            if plane.driver_data.is_cursor {
+                self.set_plane(objects, plane, state, Some(damage))?;
+            } else if state.crtc_id.is_some() {
+                primary = true;
+            }
+        }
+        if !primary {
+            return Ok(None);
+        }
+        let queue = self.control_queue.clone();
+        let buffer = fb.buffer.clone();
+        let (width, height) = (fb.width, fb.height);
+        let pending = PendingFrame::new(self.frame_waker.clone());
+        let done = pending.clone();
+        self.pending_frames.push_back(Box::pin(async move {
+            let result = async {
+                let transfer = Dma::new(XferToHost2d::new(
+                    buffer.id,
+                    GpuRect::new(0, 0, width, height),
+                    0,
+                ))?;
+                let header = Self::send_control(&queue, transfer).await?;
+                if header.ty != CommandTy::RespOkNodata {
+                    return Err(refused(header.ty));
+                }
+                let flush = Dma::new(ResourceFlush::new(buffer.id, damage.into()))?;
+                let header = Self::send_control(&queue, flush).await?;
+                if header.ty != CommandTy::RespOkNodata {
+                    return Err(refused(header.ty));
+                }
+                Ok(0)
+            }
+            .await
+            .map_err(|error| {
+                syscall::Error::new(match error {
+                    Error::SyscallError(error) => error.errno(),
+                    _ => EIO,
+                })
+            });
+            done.complete(result);
+        }));
+        Ok(Some(pending))
+    }
+
+    fn poll_pending(&mut self, cx: &mut Context<'_>) {
+        while let Some(frame) = self.pending_frames.front_mut() {
+            if frame.as_mut().poll(cx) == Poll::Pending {
+                break;
+            }
+            self.pending_frames.pop_front();
+        }
     }
 
     fn set_plane(
@@ -494,6 +586,9 @@ impl<'a> GraphicsAdapter for VirtGpuAdapter<'a> {
         new_plane_state: KmsPlaneState<Self>,
         damage: Option<Damage>,
     ) -> syscall::Result<()> {
+        if !plane.driver_data.is_cursor {
+            self.finish_pending_frames();
+        }
         futures::executor::block_on(async {
             let Some(crtc_id) = new_plane_state.crtc_id else {
                 // FIXME disable output?
@@ -615,6 +710,7 @@ impl<'a> GpuScheme {
         cursor_queue: Arc<Queue>,
         transport: Arc<dyn Transport>,
         has_edid: bool,
+        waker: Waker,
     ) -> Result<GraphicsScheme<VirtGpuAdapter<'a>>, Error> {
         let (unref_tx, unref_rx) = mpsc::channel();
         let adapter = VirtGpuAdapter {
@@ -628,12 +724,15 @@ impl<'a> GpuScheme {
             unref_rx,
             displays: vec![],
             hidden_cursor: None,
+            pending_frames: VecDeque::new(),
+            frame_waker: waker.clone(),
         };
 
-        Ok(GraphicsScheme::new(
+        Ok(GraphicsScheme::new_with_waker(
             adapter,
             "display.virtio-gpu".to_owned(),
             false,
+            waker,
         ))
     }
 }

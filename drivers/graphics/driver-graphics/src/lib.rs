@@ -1,12 +1,14 @@
 #![feature(macro_metavar_expr)]
 
+use std::cell::Cell;
 use std::cmp;
 use std::collections::HashMap;
 use std::fmt::Debug;
 use std::fs::File;
 use std::io::{self, Write};
 use std::marker::PhantomData;
-use std::ops::ControlFlow;
+use std::rc::Rc;
+use std::task::{Context, Waker};
 
 use graphics_ipc::redox_uapi_exts::{
     REDOX_DRM_EVENT_CONNECTOR_HOTPLUG, RedoxDrmEventConnectorHotplug,
@@ -15,7 +17,9 @@ use inputd::{DisplayHandle, VtEvent, VtEventKind};
 use libredox::Fd;
 use redox_scheme::scheme::{SchemeSync, register_scheme_inner};
 use redox_scheme::{CallerCtx, Response, SignalBehavior, Socket};
-use scheme_utils::{Blocking, FpathWriter, ResourceOpenResult, ResourceSync, resource_scheme};
+use scheme_utils::{
+    FpathWriter, ReadinessBased, ResourceOpenResult, ResourceSync, resource_scheme,
+};
 use syscall::schemev2::NewFdFlags;
 use syscall::{EINVAL, Error, EventFlags, Result};
 
@@ -138,6 +142,23 @@ pub trait GraphicsAdapter: Sized + Debug {
         // None means entire framebuffer is damaged
         damage: Option<Damage>,
     ) -> syscall::Result<()>;
+
+    fn dirty_framebuffer(
+        &mut self,
+        objects: &KmsObjects<Self>,
+        fb: &kms::rc_object::KmsRcObjectRef<kms::framebuffer::KmsFramebuffer<Self>>,
+        damage: Damage,
+    ) -> Result<Option<PendingFrame>> {
+        for plane in objects.planes() {
+            let state = plane.state.lock().unwrap().clone();
+            if state.fb.as_ref() == Some(fb) {
+                self.set_plane(objects, plane, state, Some(damage))?;
+            }
+        }
+        Ok(None)
+    }
+
+    fn poll_pending(&mut self, _cx: &mut Context<'_>) {}
 }
 
 pub trait Buffer: Debug {
@@ -148,14 +169,42 @@ pub trait Framebuffer: Debug {}
 
 impl Framebuffer for () {}
 
+#[derive(Clone, Debug)]
+pub struct PendingFrame {
+    result: Rc<Cell<Option<Result<usize>>>>,
+    waker: Waker,
+}
+
+impl PendingFrame {
+    pub fn new(waker: Waker) -> Self {
+        Self {
+            result: Rc::default(),
+            waker,
+        }
+    }
+
+    pub fn complete(&self, result: Result<usize>) {
+        self.result.set(Some(result));
+        self.waker.wake_by_ref();
+    }
+
+    fn take(&self) -> Option<Result<usize>> {
+        self.result.take()
+    }
+}
+
 pub struct GraphicsScheme<T: GraphicsAdapter> {
     inner: GraphicsSchemeImpl<T>,
     _inputd_handle: DisplayHandle,
-    handler: Blocking<Box<Socket>>,
+    handler: ReadinessBased<Box<Socket>>,
 }
 
 impl<T: GraphicsAdapter> GraphicsScheme<T> {
-    pub fn new(mut adapter: T, scheme_name: String, early: bool) -> Self {
+    pub fn new(adapter: T, scheme_name: String, early: bool) -> Self {
+        Self::new_with_waker(adapter, scheme_name, early, Waker::noop().clone())
+    }
+
+    pub fn new_with_waker(mut adapter: T, scheme_name: String, early: bool, waker: Waker) -> Self {
         assert!(scheme_name.starts_with("display"));
         let socket = Socket::nonblock().expect("failed to create graphics scheme");
 
@@ -174,6 +223,7 @@ impl<T: GraphicsAdapter> GraphicsScheme<T> {
             scheme_name.clone(),
             GraphicsSchemeData {
                 adapter,
+                waker,
                 disable_graphical_debug,
                 objects,
                 active_vt: 0,
@@ -199,7 +249,7 @@ impl<T: GraphicsAdapter> GraphicsScheme<T> {
         Self {
             inner,
             _inputd_handle: display_handle,
-            handler: Blocking::new(Box::new(socket), 16),
+            handler: ReadinessBased::new(Box::new(socket), 16),
         }
     }
 
@@ -255,17 +305,34 @@ impl<T: GraphicsAdapter> GraphicsScheme<T> {
     /// This needs to be called each time there is a new event on the scheme
     /// file.
     pub fn tick(&mut self) -> io::Result<()> {
+        {
+            let data = self.inner.scheme_data_mut();
+            data.adapter
+                .poll_pending(&mut Context::from_waker(&data.waker));
+        }
+        self.handler.poll_all_requests(&mut self.inner)?;
         loop {
-            match self
-                .handler
-                .process_requests_nonblocking(&mut self.inner)
-                .expect("driver-graphics: failed to process requests")
+            let count = self.handler.read_and_process_requests_with_cancel(
+                &mut self.inner,
+                |id, inner| {
+                    for (_, resource) in inner.handles_mut_and_scheme_data().0 {
+                        if let GraphicsResource::DrmHandle(handle) = resource {
+                            handle.pending_frames.remove(&id);
+                        }
+                    }
+                },
+            )?;
             {
-                ControlFlow::Continue(()) => {}
-                ControlFlow::Break(()) => break,
+                let data = self.inner.scheme_data_mut();
+                data.adapter
+                    .poll_pending(&mut Context::from_waker(&data.waker));
             }
-
+            self.handler.poll_all_requests(&mut self.inner)?;
+            self.handler.write_responses()?;
             self.post_events();
+            if count == 0 {
+                break;
+            }
         }
 
         Ok(())
@@ -305,6 +372,7 @@ resource_scheme! {
 
 struct GraphicsSchemeData<T: GraphicsAdapter> {
     adapter: T,
+    waker: Waker,
 
     disable_graphical_debug: Option<File>,
     objects: KmsObjects<T>,
