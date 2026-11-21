@@ -34,6 +34,9 @@ mod buffer;
 mod handle;
 mod ioctl;
 pub mod kms;
+mod render;
+
+pub use render::{RenderDevice, RenderFeatures};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Damage {
@@ -159,6 +162,13 @@ pub trait GraphicsAdapter: Sized + Debug {
     }
 
     fn poll_pending(&mut self, _cx: &mut Context<'_>) {}
+
+    /// The GPU's render side, or None for an adapter without one. When the adapter has one at
+    /// start, the scheme registers the render name `gpu.<driver>` beside `display.<driver>`
+    /// (FerrionOS, render.rs).
+    fn render_device(&mut self) -> Option<&mut dyn RenderDevice> {
+        None
+    }
 }
 
 pub trait Buffer: Debug {
@@ -235,6 +245,9 @@ impl<T: GraphicsAdapter> GraphicsScheme<T> {
         let cap_id = inner.scheme_root().expect("failed to get this scheme root");
         register_scheme_inner(&socket, &scheme_name, cap_id)
             .expect("failed to register graphics scheme root");
+        if inner.scheme_data_mut().adapter.render_device().is_some() {
+            render::register_render_root(&mut inner, &socket, &scheme_name);
+        }
 
         let control_cap = inner
             .new_handle_fd(
@@ -367,6 +380,8 @@ resource_scheme! {
         Control(Control<T>),
         DrmHandle(DrmHandle<T>),
         DrmBuffer(DrmBuffer<T>),
+        RenderRoot(render::RenderRoot<T>),
+        RenderHandle(render::RenderHandle<T>),
     }
 }
 

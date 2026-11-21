@@ -32,6 +32,7 @@ use event::{user_data, EventQueue};
 use pcid_interface::PciFunctionHandle;
 use virtio_core::utils::VolatileCell;
 
+mod render;
 mod scheme;
 
 struct FrameWake(File);
@@ -50,11 +51,11 @@ impl Wake for FrameWake {
     }
 }
 
-//const VIRTIO_GPU_F_VIRGL: u32 = 0;
+const VIRTIO_GPU_F_VIRGL: u32 = 0;
 const VIRTIO_GPU_F_EDID: u32 = 1;
 //const VIRTIO_GPU_F_RESOURCE_UUID: u32 = 2;
-//const VIRTIO_GPU_F_RESOURCE_BLOB: u32 = 3;
-//const VIRTIO_GPU_F_CONTEXT_INIT: u32 = 4;
+const VIRTIO_GPU_F_RESOURCE_BLOB: u32 = 3;
+const VIRTIO_GPU_F_CONTEXT_INIT: u32 = 4;
 
 const VIRTIO_GPU_EVENT_DISPLAY: u32 = 1 << 0;
 const VIRTIO_GPU_MAX_SCANOUTS: usize = 16;
@@ -540,6 +541,20 @@ fn daemon(daemon: daemon::Daemon, mut pcid_handle: PciFunctionHandle) -> anyhow:
     if has_edid {
         device.transport.ack_driver_feature(VIRTIO_GPU_F_EDID);
     }
+    // FerrionOS: the 3D features render handles need (render.rs), each when the device offers it.
+    let ack = |feature| {
+        let offered = device.transport.check_device_feature(feature);
+        if offered {
+            device.transport.ack_driver_feature(feature);
+        }
+        offered
+    };
+    let features = render::Features {
+        virgl: ack(VIRTIO_GPU_F_VIRGL),
+        resource_blob: ack(VIRTIO_GPU_F_RESOURCE_BLOB),
+        context_init: ack(VIRTIO_GPU_F_CONTEXT_INIT),
+    };
+    log::info!("virtio-gpu: {features:?}");
     device.transport.finalize_features();
 
     // Queue for sending control commands.
@@ -573,6 +588,7 @@ fn daemon(daemon: daemon::Daemon, mut pcid_handle: PciFunctionHandle) -> anyhow:
         cursor_queue.clone(),
         device.transport.clone(),
         has_edid,
+        features,
         frame_waker,
     )?;
     daemon.ready();

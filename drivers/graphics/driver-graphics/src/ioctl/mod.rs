@@ -15,6 +15,7 @@ mod driver_info;
 mod framebuffer;
 mod plane;
 mod property;
+pub(crate) mod virtgpu;
 
 pub(crate) fn call_ioctl<T: GraphicsAdapter>(
     adapter: &mut T,

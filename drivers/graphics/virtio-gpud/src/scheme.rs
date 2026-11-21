@@ -16,6 +16,7 @@ use driver_graphics::kms::plane::{KmsPlane, KmsPlaneDriver, KmsPlaneState};
 use driver_graphics::kms::rc_object::KmsRcObjectRef;
 use driver_graphics::{
     Buffer as DrmBuffer, Damage, DumbBufferConfig, GraphicsAdapter, GraphicsScheme, PendingFrame,
+    RenderDevice,
 };
 use syscall::{EINVAL, EIO, ENOMEM, PAGE_SIZE};
 use virtio_core::spec::{Buffer, ChainBuilder, DescriptorFlags};
@@ -114,6 +115,7 @@ pub struct VirtGpuAdapter<'a> {
     hidden_cursor: Option<Arc<VirtGpuFramebuffer>>,
     pending_frames: VecDeque<Pin<Box<dyn Future<Output = ()>>>>,
     frame_waker: Waker,
+    render: Option<crate::render::VirtGpuRender>,
 }
 
 impl<'a> fmt::Debug for VirtGpuAdapter<'a> {
@@ -570,6 +572,12 @@ impl<'a> GraphicsAdapter for VirtGpuAdapter<'a> {
         Ok(Some(pending))
     }
 
+    fn render_device(&mut self) -> Option<&mut dyn RenderDevice> {
+        self.render
+            .as_mut()
+            .map(|render| render as &mut dyn RenderDevice)
+    }
+
     fn poll_pending(&mut self, cx: &mut Context<'_>) {
         while let Some(frame) = self.pending_frames.front_mut() {
             if frame.as_mut().poll(cx) == Poll::Pending {
@@ -710,9 +718,15 @@ impl<'a> GpuScheme {
         cursor_queue: Arc<Queue>,
         transport: Arc<dyn Transport>,
         has_edid: bool,
+        features: crate::render::Features,
         waker: Waker,
     ) -> Result<GraphicsScheme<VirtGpuAdapter<'a>>, Error> {
         let (unref_tx, unref_rx) = mpsc::channel();
+        let render = crate::render::VirtGpuRender::new(
+            control_queue.clone(),
+            features,
+            config.num_capsets.get(),
+        );
         let adapter = VirtGpuAdapter {
             unique,
             config,
@@ -726,6 +740,7 @@ impl<'a> GpuScheme {
             hidden_cursor: None,
             pending_frames: VecDeque::new(),
             frame_waker: waker.clone(),
+            render,
         };
 
         Ok(GraphicsScheme::new_with_waker(
