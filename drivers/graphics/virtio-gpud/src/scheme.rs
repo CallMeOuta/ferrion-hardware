@@ -11,7 +11,7 @@ use driver_graphics::kms::plane::{KmsPlane, KmsPlaneDriver, KmsPlaneState};
 use driver_graphics::{
     Buffer as DrmBuffer, Damage, DumbBufferConfig, GraphicsAdapter, GraphicsScheme,
 };
-use syscall::PAGE_SIZE;
+use syscall::{EINVAL, EIO, ENOMEM, PAGE_SIZE};
 use virtio_core::spec::{Buffer, ChainBuilder, DescriptorFlags};
 use virtio_core::transport::{Error, Queue, Transport};
 
@@ -26,6 +26,16 @@ impl Into<GpuRect> for Damage {
             height: self.height,
         }
     }
+}
+
+/// The error a program gets when the device refuses a resource command.
+fn refused(ty: CommandTy) -> Error {
+    let errno = if ty == CommandTy::RespErrOutOfMemory {
+        ENOMEM
+    } else {
+        EINVAL
+    };
+    Error::SyscallError(libredox::error::Error::new(errno))
 }
 
 #[derive(Debug)]
@@ -230,7 +240,9 @@ impl<'a> VirtGpuAdapter<'a> {
             height,
         ))?;
         let header = self.send_request(request).await?;
-        assert_eq!(header.ty, CommandTy::RespOkNodata);
+        if header.ty != CommandTy::RespOkNodata {
+            return Err(refused(header.ty));
+        }
         Ok(res_id)
     }
 
@@ -258,7 +270,9 @@ impl<'a> VirtGpuAdapter<'a> {
 
         let (_, [_, _, header]) = self.control_queue.send(command).await.into_parts();
         let header: Dma<ControlHeader> = header.into_inner();
-        assert_eq!(header.ty, CommandTy::RespOkNodata);
+        if header.ty != CommandTy::RespOkNodata {
+            return Err(refused(header.ty));
+        }
         Ok(())
     }
 
@@ -277,21 +291,22 @@ impl<'a> VirtGpuAdapter<'a> {
 
         // Create a host resource using `VIRTIO_GPU_CMD_RESOURCE_CREATE_2D`.
         let res_id = self.resource_create_2d(width, height).await?;
+        // Owned before the backing is attached, so that dropping it on failure unrefs the
+        // resource.
+        let framebuffer = VirtGpuFramebuffer {
+            unref_tx: self.unref_tx.clone(),
+            id: res_id,
+            sgl,
+            width,
+            height,
+        };
 
         // Use the allocated framebuffer from the guest ram, and attach it as backing
         // storage to the resource just created, using `VIRTIO_GPU_CMD_RESOURCE_ATTACH_BACKING`.
-        self.resource_attach_backing(res_id, &sgl).await?;
+        self.resource_attach_backing(res_id, &framebuffer.sgl)
+            .await?;
 
-        Ok((
-            VirtGpuFramebuffer {
-                unref_tx: self.unref_tx.clone(),
-                id: res_id,
-                sgl,
-                width,
-                height,
-            },
-            width * 4,
-        ))
+        Ok((framebuffer, width * 4))
     }
 
     async fn update_cursor(
@@ -440,9 +455,16 @@ impl<'a> GraphicsAdapter for VirtGpuAdapter<'a> {
         })
     }
 
-    fn create_dumb_buffer(&mut self, width: u32, height: u32) -> (Self::Buffer, u32) {
-        futures::executor::block_on(async {
-            self.create_dumb_buffer_inner(width, height).await.unwrap()
+    fn create_dumb_buffer(
+        &mut self,
+        width: u32,
+        height: u32,
+    ) -> syscall::Result<(Self::Buffer, u32)> {
+        futures::executor::block_on(self.create_dumb_buffer_inner(width, height)).map_err(|err| {
+            syscall::Error::new(match err {
+                Error::SyscallError(err) => err.errno(),
+                Error::InCapable(_) => EIO,
+            })
         })
     }
 

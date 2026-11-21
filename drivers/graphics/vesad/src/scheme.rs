@@ -7,7 +7,7 @@ use driver_graphics::kms::crtc::{KmsCrtc, KmsCrtcState};
 use driver_graphics::kms::objects::{KmsObjectId, KmsObjects};
 use driver_graphics::kms::plane::{KmsPlane, KmsPlaneState};
 use driver_graphics::{Buffer, Damage, DumbBufferConfig, GraphicsAdapter};
-use syscall::PAGE_SIZE;
+use syscall::{Error, EINVAL, ENOMEM, PAGE_SIZE};
 
 #[derive(Debug)]
 pub struct FbAdapter {
@@ -88,11 +88,15 @@ impl GraphicsAdapter for FbAdapter {
         Ok(())
     }
 
-    fn create_dumb_buffer(&mut self, width: u32, height: u32) -> (Self::Buffer, u32) {
-        (
-            GraphicScreen::new(width as usize, height as usize),
+    fn create_dumb_buffer(
+        &mut self,
+        width: u32,
+        height: u32,
+    ) -> syscall::Result<(Self::Buffer, u32)> {
+        Ok((
+            GraphicScreen::new(width as usize, height as usize)?,
             width * 4,
-        )
+        ))
     }
 
     fn map_dumb_buffer(&mut self, framebuffer: &Self::Buffer) -> *mut u8 {
@@ -224,29 +228,33 @@ pub struct GraphicScreen {
 }
 
 impl GraphicScreen {
-    fn new(width: usize, height: usize) -> GraphicScreen {
-        let len = width * height;
-        let layout = Self::layout(len);
+    fn new(width: usize, height: usize) -> syscall::Result<GraphicScreen> {
+        let len = width.checked_mul(height).ok_or(Error::new(EINVAL))?;
+        let layout = Self::layout(len).ok_or(Error::new(EINVAL))?;
         let ptr = unsafe { alloc::alloc_zeroed(layout) };
         let ptr = ptr::slice_from_raw_parts_mut(ptr.cast(), len);
-        let ptr = NonNull::new(ptr).unwrap_or_else(|| alloc::handle_alloc_error(layout));
+        let ptr = NonNull::new(ptr).ok_or(Error::new(ENOMEM))?;
 
-        GraphicScreen { width, height, ptr }
+        Ok(GraphicScreen { width, height, ptr })
     }
 
+    /// Whole pages, so that a mapping of the last page shows nothing else of the heap.
     #[inline]
-    fn layout(len: usize) -> Layout {
+    fn layout(len: usize) -> Option<Layout> {
         // optimizes to an integer mul
-        Layout::array::<u32>(len)
-            .unwrap()
-            .align_to(PAGE_SIZE)
-            .unwrap()
+        Some(
+            Layout::array::<u32>(len)
+                .ok()?
+                .align_to(PAGE_SIZE)
+                .ok()?
+                .pad_to_align(),
+        )
     }
 }
 
 impl Drop for GraphicScreen {
     fn drop(&mut self) {
-        let layout = Self::layout(self.ptr.len());
+        let layout = Self::layout(self.ptr.len()).unwrap();
         unsafe { alloc::dealloc(self.ptr.as_ptr().cast(), layout) };
     }
 }

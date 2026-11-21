@@ -113,8 +113,12 @@ impl GraphicsAdapter for Device {
         Ok(())
     }
 
-    fn create_dumb_buffer(&mut self, width: u32, height: u32) -> (Self::Buffer, u32) {
-        GpuBuffer::alloc_dumb(&self.gm, &mut self.ggtt, width, height).unwrap()
+    fn create_dumb_buffer(
+        &mut self,
+        width: u32,
+        height: u32,
+    ) -> syscall::Result<(Self::Buffer, u32)> {
+        GpuBuffer::alloc_dumb(&self.gm, &mut self.ggtt, width, height)
     }
 
     fn map_dumb_buffer(&mut self, buffer: &Self::Buffer) -> *mut u8 {

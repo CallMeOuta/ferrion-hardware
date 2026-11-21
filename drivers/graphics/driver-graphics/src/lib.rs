@@ -113,7 +113,11 @@ pub trait GraphicsAdapter: Sized + Debug {
         id: KmsObjectId,
     ) -> syscall::Result<()>;
 
-    fn create_dumb_buffer(&mut self, width: u32, height: u32) -> (Self::Buffer, u32);
+    fn create_dumb_buffer(
+        &mut self,
+        width: u32,
+        height: u32,
+    ) -> syscall::Result<(Self::Buffer, u32)>;
     fn map_dumb_buffer(&mut self, buffer: &Self::Buffer) -> *mut u8;
 
     fn create_framebuffer(&mut self, buffer: &Self::Buffer) -> Self::Framebuffer;

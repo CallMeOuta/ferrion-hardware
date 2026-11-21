@@ -124,7 +124,24 @@ pub(crate) fn call_ioctl<T: GraphicsAdapter>(
                 return Err(Error::new(EINVAL));
             }
 
-            let (buffer, pitch) = adapter.create_dumb_buffer(data.width(), data.height());
+            let (_, max_width, _, max_height) = adapter.min_max_fb_size();
+            if data.width() == 0
+                || data.height() == 0
+                || data.width() > max_width
+                || data.height() > max_height
+            {
+                return Err(Error::new(EINVAL));
+            }
+            // The drivers compute the size as width * height * bpp / 8 in usize.
+            let size = u64::from(data.width())
+                .checked_mul(u64::from(data.height()))
+                .and_then(|pixels| pixels.checked_mul(u64::from(data.bpp())))
+                .map(|bits| bits.div_ceil(8));
+            if !size.is_some_and(|size| usize::try_from(size).is_ok()) {
+                return Err(Error::new(EINVAL));
+            }
+
+            let (buffer, pitch) = adapter.create_dumb_buffer(data.width(), data.height())?;
 
             data.set_pitch(pitch);
             data.set_size(buffer.size() as u64);
@@ -147,8 +164,11 @@ pub(crate) fn call_ioctl<T: GraphicsAdapter>(
                 return Err(Error::new(ENOENT));
             }
 
-            // FIXME use a better scheme for creating map offsets
-            assert!(handle.buffers[&buffer_id].size() < MAP_FAKE_OFFSET_MULTIPLIER);
+            // A buffer number and a position inside the buffer share the map offset, so a
+            // buffer larger than MAP_FAKE_OFFSET_MULTIPLIER cannot be mapped this way.
+            if handle.buffers[&buffer_id].size() > MAP_FAKE_OFFSET_MULTIPLIER {
+                return Err(Error::new(EINVAL));
+            }
 
             data.set_offset((buffer_id as usize * MAP_FAKE_OFFSET_MULTIPLIER) as u64);
 

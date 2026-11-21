@@ -14,7 +14,8 @@ use crate::kms::framebuffer::{KmsFramebuffer, disable_planes_with_fb};
 use crate::kms::objects::KmsObjectId;
 use crate::kms::rc_object::KmsRcObjectRef;
 use crate::{
-    GraphicsAdapter, GraphicsResource, GraphicsSchemeData, MAP_FAKE_OFFSET_MULTIPLIER, ioctl,
+    Buffer, GraphicsAdapter, GraphicsResource, GraphicsSchemeData, MAP_FAKE_OFFSET_MULTIPLIER,
+    ioctl,
 };
 
 /// # Safety
@@ -182,18 +183,22 @@ impl<T: GraphicsAdapter> ResourceSync for DrmHandle<T> {
         &mut self,
         scheme_data: &mut Self::SchemeData,
         offset: u64,
-        _size: usize,
+        size: usize,
         _flags: MapFlags,
     ) -> syscall::Result<usize> {
-        // log::trace!("KSMSG MMAP {} {:?} {} {}", id, _flags, _offset, _size);
-        let framebuffer = self
-            .buffers
-            .get(&((offset as usize / MAP_FAKE_OFFSET_MULTIPLIER) as u32))
-            .ok_or(Error::new(EINVAL))
-            .unwrap();
-        let offset = offset & (MAP_FAKE_OFFSET_MULTIPLIER as u64 - 1);
+        // The offset comes from MODE_MAP_DUMB: the buffer number above MAP_FAKE_OFFSET_MULTIPLIER,
+        // the position inside that buffer below it. The mapping has to stay inside the buffer.
+        let framebuffer = u32::try_from(offset / MAP_FAKE_OFFSET_MULTIPLIER as u64)
+            .ok()
+            .and_then(|buffer_id| self.buffers.get(&buffer_id))
+            .ok_or(Error::new(ENOENT))?;
+        let offset = (offset % MAP_FAKE_OFFSET_MULTIPLIER as u64) as usize;
+        let end = offset.checked_add(size).ok_or(Error::new(EINVAL))?;
+        if size == 0 || end > framebuffer.size() {
+            return Err(Error::new(EINVAL));
+        }
         let ptr = T::map_dumb_buffer(&mut scheme_data.adapter, framebuffer);
-        Ok(unsafe { ptr.add(offset as usize) } as usize)
+        Ok(unsafe { ptr.add(offset) } as usize)
     }
 
     fn on_close(self, scheme_data: &mut Self::SchemeData) {
