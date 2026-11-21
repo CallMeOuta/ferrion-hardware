@@ -15,7 +15,7 @@ use redox_scheme::{CallerCtx, OpenResult};
 use scheme_utils::{FpathWriter, HandleMap};
 use spin::Mutex;
 use syscall::error::{
-    Error, Result, EACCES, EBADF, EEXIST, EIO, ENODEV, ENOENT, ENOTDIR, EWOULDBLOCK,
+    Error, Result, EACCES, EBADF, EBUSY, EIO, ENODEV, ENOENT, ENOTDIR, EWOULDBLOCK,
 };
 use syscall::schemev2::NewFdFlags;
 
@@ -62,6 +62,14 @@ enum Handle {
     Pcmin(usize, usize, usize),  // Card, index, block_ptr
     StrBuf(Vec<u8>),
     SchemeRoot,
+}
+
+/// The shared ring a playback handle made by opening `audio_shm` on itself. It feeds the output
+/// only while that handle is open; closing the handle unmaps the ring and unlinks its object.
+struct Ring {
+    owner: usize,
+    name: String,
+    consumer: redox_rings::user::Consumer<AudioChunk>,
 }
 
 #[repr(C, packed)]
@@ -144,7 +152,8 @@ pub struct IntelHDA {
 
     int_counter: usize,
     handles: Mutex<HandleMap<Handle>>,
-    consumer: Option<redox_rings::user::Consumer<AudioChunk>>,
+    ring: Option<Ring>,
+    rings_made: usize,
     shm_dir: libredox::Fd,
 }
 
@@ -198,7 +207,8 @@ impl IntelHDA {
 
             int_counter: 0,
             handles: Mutex::new(HandleMap::new()),
-            consumer: None,
+            ring: None,
+            rings_made: 0,
             shm_dir: libredox::Fd::open(
                 "/scheme/shm/audiohw",
                 libredox::flag::O_DIRECTORY | libredox::flag::O_CLOEXEC,
@@ -983,14 +993,11 @@ impl IntelHDA {
         }
     }
     pub fn process_audio_queue(&mut self) {
-        let consumer: &mut redox_rings::user::Consumer<AudioChunk> = match self.consumer.as_mut() {
-            Some(c) => c,
-            None => {
-                return;
-            }
+        let Some(ring) = self.ring.as_mut() else {
+            return;
         };
 
-        let chunk = match consumer.pop() {
+        let chunk = match ring.consumer.pop() {
             Ok(chunk) => chunk,
             Err(_) => [(0, 0); HW_BUFFER_SIZE],
         };
@@ -1000,6 +1007,15 @@ impl IntelHDA {
         let buf = unsafe { std::slice::from_raw_parts(buf_ptr, buf_len) };
 
         let _ = self.write_to_output(0, buf);
+    }
+
+    /// Unmaps the ring and unlinks its object; the caller's own descriptor keeps the object
+    /// alive until it closes too.
+    fn release_ring(&mut self, ring: Ring) {
+        drop(ring.consumer);
+        if let Err(err) = syscall::unlinkat(self.shm_dir.raw(), &ring.name, 0) {
+            log::error!("ihdad: failed to unlink '{}': {:?}", ring.name, err);
+        }
     }
 }
 
@@ -1078,11 +1094,17 @@ impl SchemeSync for IntelHDA {
                 if path != "audio_shm" {
                     return Err(Error::new(ENOENT));
                 }
+                // One ring feeds the output at a time.
+                if self.ring.is_some() {
+                    return Err(Error::new(EBUSY));
+                }
 
+                // A name per ring: a caller may still hold an unlinked ring's object.
+                let name = format!("audio_shm.{}", self.rings_made);
                 let shm_fd = self
                     .shm_dir
                     .openat(
-                        "audio_shm",
+                        &name,
                         libredox::flag::O_CREAT
                             | libredox::flag::O_RDWR
                             | libredox::flag::O_CLOEXEC
@@ -1090,22 +1112,37 @@ impl SchemeSync for IntelHDA {
                         0,
                     )
                     .map_err(|e| {
-                        log::error!("ihdad: failed to open 'audio_shm': {:?}", e);
+                        log::error!("ihdad: failed to open '{}': {:?}", name, e);
                         e
                     })?;
+                self.rings_made += 1;
 
-                let fd = shm_fd.raw();
-
+                // The kernel moves the returned descriptor out of this process, so the caller gets
+                // a descriptor of its own and the ring keeps the one it maps.
+                let caller_fd = match shm_fd.dup(b"") {
+                    Ok(fd) => fd,
+                    Err(err) => {
+                        drop(shm_fd);
+                        let _ = syscall::unlinkat(self.shm_dir.raw(), &name, 0);
+                        return Err(err.into());
+                    }
+                };
                 let consumer =
-                    redox_rings::user::Consumer::<AudioChunk>::from_fd(shm_fd, true, Some(2))?;
+                    match redox_rings::user::Consumer::<AudioChunk>::from_fd(shm_fd, true, Some(2)) {
+                        Ok(consumer) => consumer,
+                        Err(err) => {
+                            let _ = libredox::call::close(caller_fd);
+                            let _ = syscall::unlinkat(self.shm_dir.raw(), &name, 0);
+                            return Err(err.into());
+                        }
+                    };
+                self.ring = Some(Ring {
+                    owner: dirfd,
+                    name,
+                    consumer,
+                });
 
-                if self.consumer.is_some() {
-                    return Err(Error::new(EEXIST));
-                } else {
-                    self.consumer = Some(consumer);
-                }
-
-                Ok(OpenResult::OtherScheme { fd })
+                Ok(OpenResult::OtherScheme { fd: caller_fd })
             }
             _ => Err(Error::new(EBADF)),
         }
@@ -1143,6 +1180,8 @@ impl SchemeSync for IntelHDA {
         let index = {
             let mut handles = self.handles.lock();
             match handles.get_mut(id)? {
+                // Block writes wait while a ring feeds the output.
+                Handle::Todo if self.ring.is_some() => return Err(Error::new(EWOULDBLOCK)),
                 Handle::Todo => 0,
                 _ => return Err(Error::new(EBADF)),
             }
@@ -1162,5 +1201,8 @@ impl SchemeSync for IntelHDA {
 
     fn on_close(&mut self, id: usize) {
         self.handles.lock().remove(id);
+        if let Some(ring) = self.ring.take_if(|ring| ring.owner == id) {
+            self.release_ring(ring);
+        }
     }
 }
