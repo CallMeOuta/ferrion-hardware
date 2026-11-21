@@ -167,6 +167,9 @@ fn inner() -> anyhow::Result<()> {
             .env("TERM", "xterm-256color")
             .env("TTY", &pty);
     }
+    // FerrionOS lockdown (S13): the command under test runs like any program root starts, without
+    // the hardware right this daemon holds to end QEMU through its exit port.
+    daemon::without_hardware(&mut command);
 
     let mut process = command
         .spawn()

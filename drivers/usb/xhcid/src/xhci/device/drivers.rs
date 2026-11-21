@@ -117,20 +117,22 @@ impl<const N: usize> Xhci<N> {
                 } else {
                     "/usr/lib/drivers/".to_owned() + command
                 };
-                let process = process::Command::new(command)
-                    .args(
-                        args.into_iter()
-                            .map(|arg| {
-                                arg.replace("$SCHEME", &self.scheme_name)
-                                    .replace("$PORT", &format!("{}", port))
-                                    .replace("$IF_NUM", &format!("{}", ifdesc.number))
-                                    .replace("$IF_PROTO", &format!("{}", ifdesc.protocol))
-                            })
-                            .collect::<Vec<_>>(),
-                    )
-                    .stdin(process::Stdio::null())
-                    .spawn()
-                    .or(Err(Error::new(ENOENT)))?;
+                let mut cmd = process::Command::new(command);
+                cmd.args(
+                    args.into_iter()
+                        .map(|arg| {
+                            arg.replace("$SCHEME", &self.scheme_name)
+                                .replace("$PORT", &format!("{}", port))
+                                .replace("$IF_NUM", &format!("{}", ifdesc.number))
+                                .replace("$IF_PROTO", &format!("{}", ifdesc.protocol))
+                        })
+                        .collect::<Vec<_>>(),
+                )
+                .stdin(process::Stdio::null());
+                // FerrionOS lockdown (S13): class drivers talk to this driver's scheme, not to
+                // hardware, so they start without the hardware right.
+                daemon::without_hardware(&mut cmd);
+                let process = cmd.spawn().or(Err(Error::new(ENOENT)))?;
                 self.drivers.alter(port, |children_opt| {
                     let mut children = children_opt.unwrap_or_else(|| Vec::new());
                     children.push(process);

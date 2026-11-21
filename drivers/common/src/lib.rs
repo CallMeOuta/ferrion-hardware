@@ -10,7 +10,7 @@ use libredox::errno::EINVAL;
 use libredox::error::{Error, Result};
 use libredox::flag::{self, O_CLOEXEC, O_RDONLY, O_RDWR, O_WRONLY};
 use libredox::Fd;
-use syscall::{ProcSchemeVerb, PAGE_SIZE};
+use syscall::PAGE_SIZE;
 
 /// The Direct Memory Access (DMA) API for drivers
 pub mod dma;
@@ -36,7 +36,8 @@ static MEMORY_ROOT_FD: OnceLock<libredox::Fd> = OnceLock::new();
 pub fn init() {
     if MEMORY_ROOT_FD
         .set(
-            libredox::Fd::open("/scheme/memory/scheme-root", 0, 0)
+            // Close-on-exec: a program the driver starts does not inherit the memory root.
+            libredox::Fd::open("/scheme/memory/scheme-root", O_CLOEXEC, 0)
                 .expect("drivers common: failed to open memory root fd"),
         )
         .is_err()
@@ -283,25 +284,18 @@ impl Drop for PhysBorrowed {
     }
 }
 
-/// Instructs the kernel to enable I/O ports for this (usermode) process (x86-specific).
+/// Instructs the kernel to enable I/O ports for the calling thread (x86-specific).
 ///
 /// On Redox, x86 privilege ring 3 represents userspace. Most Redox drivers run in userspace to
 /// prevent system instability caused by a faulty driver. Processes with (bitmap-enabled) IO port
 /// rights can use the IN/OUT instructions. This is not the same as IOPL 3; the CLI instruction is
 /// still not allowed.
+///
+/// The right comes from the `memory` scheme's `port-io` handle, which only a process holding the
+/// hardware right can open (FerrionOS lockdown, S13).
 pub fn acquire_port_io_rights() -> Result<()> {
-    extern "C" {
-        fn redox_cur_thrfd_v0() -> usize;
-    }
-    let kernel_fd = libredox::call::dup(unsafe { redox_cur_thrfd_v0() }, b"open_via_dup")?;
-    let res = libredox::call::call_wo(
-        kernel_fd,
-        &[],
-        syscall::CallFlags::empty(),
-        &[ProcSchemeVerb::Iopl as u64],
-    );
-    let _ = libredox::call::close(kernel_fd);
-    res?;
+    let port_io = libredox::Fd::open("/scheme/memory/port-io", O_CLOEXEC, 0)?;
+    libredox::call::call_wo(port_io.raw(), &[], syscall::CallFlags::empty(), &[])?;
     Ok(())
 }
 

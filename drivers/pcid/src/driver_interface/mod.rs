@@ -315,6 +315,14 @@ impl PciFunctionHandle {
                 process::exit(1);
             }
         };
+        // FerrionOS lockdown (S13): a program the driver starts does not inherit its device.
+        if unsafe { libc::fcntl(channel_fd, libc::F_SETFD, libc::FD_CLOEXEC) } == -1 {
+            log::error!(
+                "PCID_CLIENT_CHANNEL close-on-exec: {}",
+                io::Error::last_os_error()
+            );
+            process::exit(1);
+        }
         Self::connect_common(channel_fd)
     }
 
