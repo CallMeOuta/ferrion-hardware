@@ -15,6 +15,9 @@ pub struct VirtioNet {
 
     /// Transmiter Queue.
     tx: Arc<Queue>,
+
+    /// Received frames dropped because they did not fit the reader's buffer.
+    oversized_frames: u64,
 }
 
 impl VirtioNet {
@@ -38,33 +41,55 @@ impl VirtioNet {
             mac_address,
             rx,
             tx,
+            oversized_frames: 0,
         }
     }
 
     /// Returns the number of bytes read. Returns `0` if the operation would block.
+    ///
+    /// A frame larger than `target` is dropped and counted, and the next one is read.
     fn try_recv(&mut self, target: &mut [u8]) -> usize {
         let header_size = size_of::<VirtHeader>();
 
-        let Some(used) = self.rx.pop_completed() else {
-            // The read would block.
-            return 0;
-        };
+        while let Some(used) = self.rx.pop_completed() {
+            let copied = {
+                // XXX: The header and packet are added as one output descriptor to the transmit queue,
+                //      and the device is notified of the new entry (see 5.1.5 Device Initialization).
+                let buffer = used.buffers[0].owner::<Dma<[u8]>>().unwrap();
+                // TODO: Check the header.
+                let written = used.written as usize;
+                match buffer.get(header_size..written) {
+                    Some(packet) if !packet.is_empty() && packet.len() <= target.len() => {
+                        target[..packet.len()].copy_from_slice(packet);
+                        packet.len()
+                    }
+                    Some(packet) if packet.len() > target.len() => {
+                        self.oversized_frames += 1;
+                        if self.oversized_frames.is_power_of_two() {
+                            log::warn!(
+                                "virtio-net: dropped {} received frames larger than the {}-byte read buffer",
+                                self.oversized_frames,
+                                target.len()
+                            );
+                        }
+                        0
+                    }
+                    _ => {
+                        log::warn!("virtio-net: dropped a received buffer of {written} bytes");
+                        0
+                    }
+                }
+            };
 
-        let payload_size = used.written as usize - header_size;
+            // Hand the buffer back to the device for the next packet.
+            self.rx.post(used.buffers);
+            if copied != 0 {
+                return copied;
+            }
+        }
 
-        // XXX: The header and packet are added as one output descriptor to the transmit queue,
-        //      and the device is notified of the new entry (see 5.1.5 Device Initialization).
-        let buffer = used.buffers[0].owner::<Dma<[u8]>>().unwrap();
-        // TODO: Check the header.
-        let _header = unsafe { &*(buffer.as_ptr() as *const VirtHeader) };
-        let packet = &buffer[header_size..(header_size + payload_size)];
-
-        // Copy the packet into the buffer.
-        target[..payload_size].copy_from_slice(&packet);
-
-        // Hand the buffer back to the device for the next packet.
-        self.rx.post(used.buffers);
-        payload_size
+        // The read would block.
+        0
     }
 }
 
