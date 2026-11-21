@@ -17,6 +17,10 @@ struct LiveDisk {
     original: &'static [u8],
     //TODO: drop overlay blocks if they match the original
     overlay: HashMap<u64, Box<[u8]>>,
+    /// FerrionOS: the boot image as the bootloader loaded it, without the live session's writes.
+    /// The installer clones it, since the live root filesystem holds the writable disk's only
+    /// handle and physical memory is open to drivers only.
+    read_only: bool,
 }
 
 impl LiveDisk {
@@ -46,7 +50,16 @@ impl LiveDisk {
         Ok(LiveDisk {
             original,
             overlay: HashMap::new(),
+            read_only: false,
         })
+    }
+
+    fn pristine(&self) -> LiveDisk {
+        LiveDisk {
+            original: self.original,
+            overlay: HashMap::new(),
+            read_only: true,
+        }
     }
 }
 
@@ -81,6 +94,9 @@ impl Disk for LiveDisk {
     async fn write(&mut self, mut block: u64, buffer: &[u8]) -> syscall::Result<usize> {
         if block as usize * PAGE_SIZE + buffer.len() > self.original.len() {
             return Err(syscall::Error::new(EINVAL));
+        }
+        if self.read_only {
+            return Err(syscall::Error::new(EROFS));
         }
         for chunk in buffer.chunks(PAGE_SIZE) {
             self.overlay.entry(block).or_insert_with(|| {
@@ -137,16 +153,15 @@ fn daemon(daemon: daemon::Daemon) -> ! {
         }
     };
 
+    let live = LiveDisk::new(phys, size).unwrap_or_else(|err| {
+        eprintln!("failed to initialize livedisk scheme: {}", err);
+        std::process::exit(1)
+    });
+    let pristine = live.pristine();
     let mut scheme = DiskScheme::new(
         Some(daemon),
         "disk.live".to_owned(),
-        BTreeMap::from([(
-            0,
-            LiveDisk::new(phys, size).unwrap_or_else(|err| {
-                eprintln!("failed to initialize livedisk scheme: {}", err);
-                std::process::exit(1)
-            }),
-        )]),
+        BTreeMap::from([(0, live), (1, pristine)]),
         &TrivialExecutor,
     );
 
