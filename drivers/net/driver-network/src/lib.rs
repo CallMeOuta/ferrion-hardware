@@ -257,7 +257,12 @@ impl<T: NetworkAdapter> ResourceSync for Mac<T> {
         offset: u64,
         _fcntl_flags: u32,
     ) -> Result<usize> {
-        let data = &scheme_data.adapter.mac_address()[offset as usize..];
+        let mac = scheme_data.adapter.mac_address();
+        // Reading at the end gives 0 bytes; past it is refused.
+        let data = usize::try_from(offset)
+            .ok()
+            .and_then(|offset| mac.get(offset..))
+            .ok_or(Error::new(EINVAL))?;
         let i = cmp::min(buf.len(), data.len());
         buf[..i].copy_from_slice(&data[..i]);
         Ok(i)
