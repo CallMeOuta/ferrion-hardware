@@ -307,7 +307,7 @@ impl<'a> VirtGpuAdapter<'a> {
         let sgl = sgl::Sgl::new(fb_size)?;
 
         unsafe {
-            core::ptr::write_bytes(sgl.as_ptr() as *mut u8, 255, fb_size);
+            core::ptr::write_bytes(sgl.as_ptr() as *mut u8, 0, fb_size);
         }
 
         // Create a host resource using `VIRTIO_GPU_CMD_RESOURCE_CREATE_2D`.
