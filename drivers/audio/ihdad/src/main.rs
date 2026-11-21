@@ -88,7 +88,7 @@ fn daemon(daemon: daemon::Daemon, mut pcid_handle: PciFunctionHandle) -> ! {
             )
             .unwrap();
 
-        // libredox::call::setrens(0, 0).expect("ihdad: failed to enter null namespace"); Opens shm later!
+        libredox::call::setrens(0, 0).expect("ihdad: failed to enter null namespace");
 
         let all = [Source::Irq, Source::Scheme];
 

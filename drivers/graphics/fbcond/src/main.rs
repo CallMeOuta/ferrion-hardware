@@ -64,7 +64,7 @@ fn daemon(daemon: daemon::SchemeDaemon) -> ! {
 
     let _ = daemon.ready_sync_scheme(readiness.socket(), &mut scheme);
 
-    libredox::call::setns(0).expect("fbcond: failed to enter null namespace");
+    libredox::call::setrens(0, 0).expect("fbcond: failed to enter null namespace");
 
     // Handle all events that could have happened before registering with the event queue.
     handle_event(&mut scheme, &mut readiness, &event_queue, Source::Scheme);

@@ -12,11 +12,16 @@ fn main() -> Result<()> {
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     {
         common::acquire_port_io_rights().context("failed to set iopl")?;
+        let mut offset = std::fs::OpenOptions::new()
+            .write(true)
+            .open("/scheme/sys/update_time_offset")
+            .context("failed to open time offset")?;
+        libredox::call::setrens(0, 0).context("failed to enter null namespace")?;
 
         let time_s = self::x86::get_time();
         let time_ns = u128::from(time_s) * 1_000_000_000;
 
-        std::fs::write("/scheme/sys/update_time_offset", &time_ns.to_ne_bytes())
+        std::io::Write::write_all(&mut offset, &time_ns.to_ne_bytes())
             .context("failed to write to time offset")?;
     }
     // TODO: aarch64 is currently handled in the kernel

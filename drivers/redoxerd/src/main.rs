@@ -174,6 +174,7 @@ fn inner() -> anyhow::Result<()> {
     let mut process = command
         .spawn()
         .with_context(|| format!("Failed to spawn {command:?}"))?;
+    libredox::call::setrens(0, 0).context("failed to enter null namespace")?;
     let status = handle(event_queue, master_fd, timeout_fd, &mut process)
         .with_context(|| format!("Failed to run {name}"))?;
     if status.success() {

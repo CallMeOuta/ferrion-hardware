@@ -111,7 +111,7 @@ fn daemon(daemon: daemon::Daemon) -> ! {
     // FIXME should this wait notifying readiness until the disk scheme is created?
     daemon.ready();
 
-    //libredox::call::setrens(0, 0).expect("usbscsid: failed to enter null namespace");
+    libredox::call::setrens(0, 0).expect("usbscsid: failed to enter null namespace");
 
     event_queue
         .subscribe(

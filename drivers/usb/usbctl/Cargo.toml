@@ -8,6 +8,7 @@ edition = "2018"
 
 [dependencies]
 clap.workspace = true
+libredox.workspace = true
 xhcid = { path = "../xhcid" }
 common = { path = "../../common" }
 

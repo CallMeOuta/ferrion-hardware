@@ -169,8 +169,7 @@ fn daemon(daemon: daemon::Daemon, mut pcid_handle: PciFunctionHandle) -> ! {
         event::EventFlags::READ,
     ));
 
-    // TODO: Drivers-block will open time fd.
-    // libredox::call::setrens(0, 0).expect("nvmed: failed to enter null namespace");
+    libredox::call::setrens(0, 0).expect("nvmed: failed to enter null namespace");
 
     log::debug!("Starting to listen for scheme events");
 

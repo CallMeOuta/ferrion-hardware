@@ -444,6 +444,17 @@ impl<T: GraphicsAdapter> ResourceSync for Control<T> {
     type SchemeData = GraphicsSchemeData<T>;
     type ResourceEnum = GraphicsResource<T>;
 
+    fn openat(
+        &mut self,
+        scheme_data: &mut Self::SchemeData,
+        path: &str,
+        flags: usize,
+        fcntl_flags: u32,
+        ctx: &CallerCtx,
+    ) -> Result<ResourceOpenResult<Self::ResourceEnum>> {
+        SchemeRoot::<T>(PhantomData).openat(scheme_data, path, flags, fcntl_flags, ctx)
+    }
+
     fn call(
         &mut self,
         scheme_data: &mut Self::SchemeData,

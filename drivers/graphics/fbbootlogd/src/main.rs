@@ -83,7 +83,7 @@ fn daemon(daemon: daemon::Daemon) -> ! {
 
     let _ = daemon.ready();
 
-    libredox::call::setns(0).expect("fbbootlogd: failed to enter null namespace");
+    libredox::call::setrens(0, 0).expect("fbbootlogd: failed to enter null namespace");
 
     for event in event_queue.iter() {
         match event.expect("fbbootlogd: failed to get event").user_data {

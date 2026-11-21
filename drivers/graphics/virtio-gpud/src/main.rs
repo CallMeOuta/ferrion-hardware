@@ -571,6 +571,8 @@ fn daemon(daemon: daemon::Daemon, mut pcid_handle: PciFunctionHandle) -> anyhow:
         )
         .unwrap();
 
+    libredox::call::setrens(0, 0).expect("virtio-gpud: failed to enter null namespace");
+
     let all = [Source::Scheme, Source::Interrupt];
     for event in all
         .into_iter()

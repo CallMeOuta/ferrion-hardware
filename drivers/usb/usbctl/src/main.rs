@@ -34,6 +34,7 @@ fn main() {
 
         let handle = XhciClientHandle::new(scheme.to_owned(), port)
             .expect("Failed to open XhciClientHandle");
+        libredox::call::setrens(0, 0).expect("usbctl: failed to enter null namespace");
 
         if let Some(_status_scmd_matches) = port_scmd_matches.subcommand_matches("status") {
             let state = handle.port_state().expect("Failed to get port state");

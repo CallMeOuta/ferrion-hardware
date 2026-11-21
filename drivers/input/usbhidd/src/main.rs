@@ -98,6 +98,7 @@ fn main() -> Result<()> {
     let mut last_mouse_pos = (0, 0);
     let mut last_buttons = [false, false, false];
     let mut gamepad_state = HashMap::new();
+    libredox::call::setrens(0, 0).context("failed to enter null namespace")?;
     loop {
         let timer = time::Instant::now();
         report_reader::read(

@@ -145,6 +145,7 @@ pub struct IntelHDA {
     int_counter: usize,
     handles: Mutex<HandleMap<Handle>>,
     consumer: Option<redox_rings::user::Consumer<AudioChunk>>,
+    shm_dir: libredox::Fd,
 }
 
 impl IntelHDA {
@@ -198,6 +199,11 @@ impl IntelHDA {
             int_counter: 0,
             handles: Mutex::new(HandleMap::new()),
             consumer: None,
+            shm_dir: libredox::Fd::open(
+                "/scheme/shm/audiohw",
+                libredox::flag::O_DIRECTORY | libredox::flag::O_CLOEXEC,
+                0,
+            )?,
         };
 
         module.init()?;
@@ -1073,18 +1079,20 @@ impl SchemeSync for IntelHDA {
                     return Err(Error::new(ENOENT));
                 }
 
-                let shm_fd = libredox::Fd::open(
-                    "/scheme/shm/audio_shm",
-                    libredox::flag::O_CREAT
-                        | libredox::flag::O_RDWR
-                        | libredox::flag::O_CLOEXEC
-                        | libredox::flag::O_EXCL,
-                    0,
-                )
-                .map_err(|e| {
-                    log::error!("ihdad: failed to open 'audio_shm': {:?}", e);
-                    e
-                })?;
+                let shm_fd = self
+                    .shm_dir
+                    .openat(
+                        "audio_shm",
+                        libredox::flag::O_CREAT
+                            | libredox::flag::O_RDWR
+                            | libredox::flag::O_CLOEXEC
+                            | libredox::flag::O_EXCL,
+                        0,
+                    )
+                    .map_err(|e| {
+                        log::error!("ihdad: failed to open 'audio_shm': {:?}", e);
+                        e
+                    })?;
 
                 let fd = shm_fd.raw();
 

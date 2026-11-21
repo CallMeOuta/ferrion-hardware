@@ -154,6 +154,8 @@ fn main() {
         });
     }
 
+    libredox::call::setrens(0, 0).expect("usbhubd: failed to enter null namespace");
+
     //TODO: use change flags?
     loop {
         for port in 1..=ports {

@@ -308,6 +308,7 @@ fn daemon(daemon: daemon::Daemon) -> ! {
         .expect("failed to register pci scheme to namespace");
 
     let _ = daemon.ready();
+    libredox::call::setrens(0, 0).expect("pcid: failed to enter null namespace");
 
     handler
         .process_requests_blocking(scheme)

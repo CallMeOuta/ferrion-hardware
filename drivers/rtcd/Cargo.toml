@@ -9,6 +9,7 @@ license = "MIT"
 
 [dependencies]
 anyhow.workspace = true
+libredox.workspace = true
 
 common = { path = "../common" }
 
