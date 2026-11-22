@@ -127,6 +127,8 @@ pub(crate) struct RenderHandle<T> {
     pub(crate) pending_fences: HashMap<i32, Arc<Fence>>,
     next_fence_handle: i32,
     pub(crate) pending_waits: HashMap<Id, crate::submit::PendingWait>,
+    pub(crate) syncobjs: crate::syncobj::SyncobjTable,
+    pub(crate) sync_waits: HashMap<Id, crate::syncobj::PendingWait>,
     _adapter: PhantomData<T>,
 }
 
@@ -152,6 +154,8 @@ impl<T> RenderHandle<T> {
             pending_fences: HashMap::new(),
             next_fence_handle: 1,
             pending_waits: HashMap::new(),
+            syncobjs: crate::syncobj::SyncobjTable::default(),
+            sync_waits: HashMap::new(),
             _adapter: PhantomData,
         }
     }
@@ -205,6 +209,11 @@ impl<T: GraphicsAdapter> ResourceSync for RenderHandle<T> {
             self.pending_waits.remove(&ctx.id);
             return result;
         }
+        if let Some(res) = crate::syncobj::poll_pending_wait(self, ctx.id, metadata[0], payload) {
+            return res;
+        }
+        let waker = &scheme_data.waker;
+        let sync_timer = &scheme_data.sync_timer;
         let device = scheme_data
             .adapter
             .render_device()
@@ -213,6 +222,9 @@ impl<T: GraphicsAdapter> ResourceSync for RenderHandle<T> {
         let res = ioctl::virtgpu::call_render_ioctl(
             device,
             self,
+            waker,
+            sync_timer,
+            ctx.id,
             metadata[0],
             payload,
             &mut pending_wait,
@@ -225,13 +237,33 @@ impl<T: GraphicsAdapter> ResourceSync for RenderHandle<T> {
         }
     }
 
+    fn call_with_handles(
+        &mut self,
+        _scheme_data: &mut Self::SchemeData,
+        handles: &mut [Self::ResourceEnum],
+        payload: &mut [u8],
+        metadata: &[u64],
+        _ctx: &CallerCtx,
+    ) -> Result<usize> {
+        crate::syncobj::render_handle_call_with_handles(self, metadata[0], handles, payload)
+    }
+
     fn dup(
         &mut self,
         scheme_data: &mut Self::SchemeData,
         buf: &[u8],
         _ctx: &CallerCtx,
     ) -> Result<ResourceOpenResult<Self::ResourceEnum>> {
-        crate::submit::dup_fence(self, &scheme_data.live_fences, buf)
+        let cmd = buf
+            .get(..8)
+            .map(|cmd| u64::from_ne_bytes(cmd.try_into().unwrap()));
+        match cmd {
+            Some(
+                redox_ioctl::virtgpu::FENCE_DUP_EXECBUFFER
+                | redox_ioctl::virtgpu::FENCE_DUP_UNSIGNALED,
+            ) => crate::submit::dup_fence(self, &scheme_data.live_fences, buf),
+            _ => crate::syncobj::render_handle_dup(self, buf),
+        }
     }
 
     fn mmap_prep(

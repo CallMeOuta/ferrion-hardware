@@ -39,10 +39,12 @@ mod ioctl;
 pub mod kms;
 mod render;
 mod submit;
+mod syncobj;
 
 pub use blob::{BlobCreateParams, BlobInfo};
 pub use render::{RenderDevice, RenderFeatures};
 pub use submit::Fence;
+pub use syncobj::{FenceLeaf, SyncFence, Syncobj};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Damage {
@@ -235,12 +237,19 @@ impl<T: GraphicsAdapter> GraphicsScheme<T> {
             adapter.probe_connector(&mut objects, connector_id).unwrap();
         }
 
+        let sync_timer = if adapter.render_device().is_some() {
+            syncobj::WaitTimer::new(waker.clone())
+        } else {
+            syncobj::WaitTimer::disabled()
+        };
+
         let mut inner = GraphicsSchemeImpl::new(
             scheme_name.clone(),
             GraphicsSchemeData {
                 adapter,
                 waker,
                 live_fences: Arc::new(AtomicUsize::new(0)),
+                sync_timer,
                 disable_graphical_debug,
                 objects,
                 active_vt: 0,
@@ -342,6 +351,7 @@ impl<T: GraphicsAdapter> GraphicsScheme<T> {
                             }
                             GraphicsResource::RenderHandle(handle) => {
                                 handle.pending_waits.remove(&id);
+                                handle.sync_waits.remove(&id);
                             }
                             _ => {}
                         }
@@ -389,6 +399,17 @@ impl<T: GraphicsAdapter> GraphicsScheme<T> {
                             .unwrap();
                     }
                 }
+                GraphicsResource::SyncFile(sf) => {
+                    if sf.should_post_event() {
+                        self.handler
+                            .socket()
+                            .write_response(
+                                Response::post_fevent(id, EventFlags::EVENT_READ.bits()),
+                                SignalBehavior::Restart,
+                            )
+                            .unwrap();
+                    }
+                }
                 _ => {}
             }
         }
@@ -407,6 +428,8 @@ resource_scheme! {
         RenderRoot(render::RenderRoot<T>),
         RenderHandle(render::RenderHandle<T>),
         Fence(submit::FenceResource<T>),
+        SyncobjFd(syncobj::SyncobjFd<T>),
+        SyncFile(syncobj::SyncFile<T>),
     }
 }
 
@@ -414,6 +437,7 @@ struct GraphicsSchemeData<T: GraphicsAdapter> {
     adapter: T,
     waker: Waker,
     live_fences: Arc<AtomicUsize>,
+    sync_timer: syncobj::WaitTimer,
 
     disable_graphical_debug: Option<File>,
     objects: KmsObjects<T>,

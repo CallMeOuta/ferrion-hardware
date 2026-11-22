@@ -4,12 +4,19 @@
 //! checked here before the device sees it; the wire formats are `redox_ioctl::virtgpu`'s.
 
 use std::ffi::c_char;
+use std::task::Waker;
 use std::{cmp, slice};
 
-use redox_ioctl::{drm, virtgpu};
+use drm_sys::{
+    DRM_CAP_DUMB_BUFFER, DRM_CAP_PRIME, DRM_CAP_SYNCOBJ, DRM_CAP_SYNCOBJ_TIMELINE,
+    DRM_CAP_TIMESTAMP_MONOTONIC, DRM_PRIME_CAP_EXPORT, DRM_PRIME_CAP_IMPORT,
+};
+use redox_ioctl::{drm, sync, virtgpu};
+use redox_scheme::Id;
 use syscall::{EACCES, EEXIST, EINVAL, ENOENT, ENOSYS, Error, Result};
 
 use crate::render::{RenderDevice, RenderHandle};
+use crate::syncobj::WaitTimer;
 
 /// Linux's `MAX_CAPSET_ID` and `MAX_RINGS` (`virtgpu_drv.h`).
 const MAX_CAPSET_ID: u64 = 63;
@@ -18,12 +25,16 @@ const MAX_RINGS: u64 = 64;
 pub(crate) fn call_render_ioctl<T>(
     device: &mut dyn RenderDevice,
     handle: &mut RenderHandle<T>,
+    waker: &Waker,
+    sync_timer: &WaitTimer,
+    req_id: Id,
     cmd: u64,
     payload: &mut [u8],
     pending_wait: &mut Option<crate::submit::PendingWait>,
 ) -> Result<usize> {
     match cmd {
         drm::VERSION => drm::DrmVersion::with(payload, |data| version(device, data)),
+        drm::GET_CAP => drm::DrmGetCap::with(payload, |data| render_get_cap(data)),
         virtgpu::GEM_CLOSE => virtgpu::GemClose::with(payload, |data| handle.blobs.gem_close(device, data)),
         virtgpu::MAP => virtgpu::VirtgpuMap::with(payload, |data| handle.blobs.map_ioctl(data)),
         virtgpu::EXECBUFFER => virtgpu::VirtgpuExecbuffer::with(payload, |data| {
@@ -46,11 +57,33 @@ pub(crate) fn call_render_ioctl<T>(
         virtgpu::CONTEXT_INIT => {
             virtgpu::VirtgpuContextInit::with(payload, |data| context_init(device, handle, data))
         }
+        sync::SYNCOBJ_CREATE..=sync::SYNCOBJ_SIGNAL
+        | sync::SYNCOBJ_TIMELINE_WAIT..=sync::SYNCOBJ_TIMELINE_SIGNAL
+        | sync::SYNCOBJ_EVENTFD => {
+            crate::syncobj::call_syncobj_ioctl(handle, waker, sync_timer, req_id, cmd, payload)
+        }
         // DRM's own requests and mode-setting: a render handle shows nothing on a display, and
         // Linux answers these on a render node with EACCES.
         0x00..=0x3F | 0xA0..=0xFF => Err(Error::new(EACCES)),
         _ => Err(Error::new(EINVAL)),
     }
+}
+
+fn render_get_cap(mut data: drm::DrmGetCap<'_>) -> Result<usize> {
+    let cap: u32 = data
+        .capability()
+        .try_into()
+        .map_err(|_| Error::new(EINVAL))?;
+    let value = match cap {
+        DRM_CAP_DUMB_BUFFER => 0,
+        DRM_CAP_PRIME => u64::from(DRM_PRIME_CAP_IMPORT | DRM_PRIME_CAP_EXPORT),
+        DRM_CAP_TIMESTAMP_MONOTONIC => 1,
+        DRM_CAP_SYNCOBJ => 1,
+        DRM_CAP_SYNCOBJ_TIMELINE => 1,
+        _ => return Err(Error::new(EINVAL)),
+    };
+    data.set_value(value);
+    Ok(0)
 }
 
 fn c_chars(bytes: &'static [u8]) -> &'static [c_char] {
