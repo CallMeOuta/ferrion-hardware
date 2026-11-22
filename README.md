@@ -18,4 +18,8 @@ Everything here is licensed under the GNU General Public License, version 2 only
 
 Code that arrives under another license keeps its notice beside the GPL, as the GPL allows: the drivers FerrionOS took over from upstream carry their MIT notices, Linux's files carry theirs, and code taken from FreeBSD's or OpenBSD's layers carries its BSD notice and names its source. Both license texts are in `LICENSES/`.
 
-On real hardware a driver in the host can read and write any memory its device can reach, so FerrionOS runs it only behind an IOMMU that confines the device.
+## Only open drivers touch hardware
+
+The license keeps FerrionOS's drivers open, but it cannot stop someone writing a closed driver from scratch. So FerrionOS lets a program touch hardware only if it is a driver built from this repository's public source and signed with FerrionOS's release key. A machine's owner can still allow one specific other driver by an explicit choice, which FerrionOS records and shows, the way an owner enrolls a key for Secure Boot. This is decided and not built yet (FerrionOS's ADR 0047).
+
+On real hardware a driver can read and write any memory its device can reach, so FerrionOS also confines every device behind an IOMMU before its driver runs on real hardware.
