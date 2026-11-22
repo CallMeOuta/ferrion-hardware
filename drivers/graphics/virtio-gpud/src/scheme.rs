@@ -15,8 +15,8 @@ use driver_graphics::kms::objects::{KmsObjectId, KmsObjects};
 use driver_graphics::kms::plane::{KmsPlane, KmsPlaneDriver, KmsPlaneState};
 use driver_graphics::kms::rc_object::KmsRcObjectRef;
 use driver_graphics::{
-    Buffer as DrmBuffer, Damage, DumbBufferConfig, GraphicsAdapter, GraphicsScheme, PendingFrame,
-    RenderDevice,
+    Buffer as DrmBuffer, Damage, DumbBufferConfig, FlipCompletion, GraphicsAdapter, GraphicsScheme,
+    PendingFrame, RenderDevice,
 };
 use syscall::{EINVAL, EIO, ENOMEM, PAGE_SIZE};
 use virtio_core::spec::{Buffer, ChainBuilder, DescriptorFlags};
@@ -36,7 +36,7 @@ impl Into<GpuRect> for Damage {
 }
 
 /// The error a program gets when the device refuses a resource command.
-fn refused(ty: CommandTy) -> Error {
+pub(crate) fn refused(ty: CommandTy) -> Error {
     let errno = if ty == CommandTy::RespErrOutOfMemory {
         ENOMEM
     } else {
@@ -47,7 +47,7 @@ fn refused(ty: CommandTy) -> Error {
 
 #[derive(Debug)]
 pub struct VirtGpuConnector {
-    scanout_id: u32,
+    pub(crate) scanout_id: u32,
 }
 
 impl KmsConnectorDriver for VirtGpuConnector {
@@ -65,7 +65,7 @@ impl KmsPlaneDriver for VirtGpuPlane {
 
 pub struct VirtGpuFramebuffer {
     unref_tx: Sender<ResourceId>,
-    id: ResourceId,
+    pub(crate) id: ResourceId,
     sgl: sgl::Sgl,
     width: u32,
     height: u32,
@@ -99,21 +99,21 @@ pub struct Display {
     width: u32,
     height: u32,
     edid: Vec<u8>,
-    active_resource: Option<ResourceId>,
+    pub(crate) active_resource: Option<ResourceId>,
 }
 
 pub struct VirtGpuAdapter<'a> {
     unique: String,
     pub config: &'a mut GpuConfig,
-    control_queue: Arc<Queue>,
+    pub(crate) control_queue: Arc<Queue>,
     cursor_queue: Arc<Queue>,
     transport: Arc<dyn Transport>,
     has_edid: bool,
     unref_tx: Sender<ResourceId>,
     unref_rx: Receiver<ResourceId>,
-    displays: Vec<Display>,
+    pub(crate) displays: Vec<Display>,
     hidden_cursor: Option<Arc<VirtGpuFramebuffer>>,
-    pending_frames: VecDeque<Pin<Box<dyn Future<Output = ()>>>>,
+    pub(crate) pending_frames: VecDeque<Pin<Box<dyn Future<Output = ()>>>>,
     frame_waker: Waker,
     render: Option<crate::render::VirtGpuRender>,
 }
@@ -187,7 +187,7 @@ impl<'a> VirtGpuAdapter<'a> {
         Self::send_control(&self.control_queue, request).await
     }
 
-    async fn send_control<T: Send + 'static>(
+    pub(crate) async fn send_control<T: Send + 'static>(
         queue: &Queue,
         request: Dma<T>,
     ) -> Result<Dma<ControlHeader>, Error> {
@@ -576,6 +576,21 @@ impl<'a> GraphicsAdapter for VirtGpuAdapter<'a> {
         self.render
             .as_mut()
             .map(|render| render as &mut dyn RenderDevice)
+    }
+
+    fn supports_page_flip(&self) -> bool {
+        true
+    }
+
+    fn page_flip(
+        &mut self,
+        objects: &KmsObjects<Self>,
+        crtc_id: KmsObjectId,
+        _plane: &KmsPlane<Self>,
+        fb: &KmsRcObjectRef<KmsFramebuffer<Self>>,
+        completion: FlipCompletion,
+    ) -> syscall::Result<()> {
+        crate::flip::queue_page_flip(self, objects, crtc_id, fb, completion)
     }
 
     fn poll_pending(&mut self, cx: &mut Context<'_>) {

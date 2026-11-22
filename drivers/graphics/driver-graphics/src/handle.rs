@@ -36,6 +36,7 @@ pub(crate) struct DrmHandle<T: GraphicsAdapter> {
     pub(crate) next_buffer_id: u32,
     pub(crate) buffers: HashMap<u32, Arc<T::Buffer>>,
     pub(crate) pending_frames: HashMap<Id, crate::PendingFrame>,
+    pub(crate) pending_flips: Vec<crate::flip::PendingFlip>,
     events: VecDeque<Box<[u8]>>,
     requested_events: EventFlags,
     notified_read: bool,
@@ -54,6 +55,7 @@ impl<T: GraphicsAdapter> DrmHandle<T> {
             next_buffer_id: 0,
             buffers: HashMap::new(),
             pending_frames: HashMap::new(),
+            pending_flips: Vec::new(),
             events: VecDeque::new(),
             requested_events: EventFlags::empty(),
             notified_read: true,
@@ -64,6 +66,14 @@ impl<T: GraphicsAdapter> DrmHandle<T> {
         self.requested_events.contains(EventFlags::EVENT_READ)
             && !self.events.is_empty()
             && !self.notified_read
+    }
+
+    pub(crate) fn mark_read_notified(&mut self) {
+        self.notified_read = true;
+    }
+
+    pub(crate) fn can_queue_event(&self) -> bool {
+        self.events.len() < 1024
     }
 
     pub(crate) fn push_event<U: DrmEvent>(&mut self, event: U) {
@@ -87,6 +97,9 @@ impl<T: GraphicsAdapter> ResourceSync for DrmHandle<T> {
         _offset: u64,
         _fcntl_flags: u32,
     ) -> Result<usize> {
+        if self.events.is_empty() {
+            return Err(Error::new(syscall::EWOULDBLOCK));
+        }
         let mut written = 0;
         while let Some(event) = self.events.pop_front() {
             if event.len() > buf.len() - written {
@@ -159,6 +172,8 @@ impl<T: GraphicsAdapter> ResourceSync for DrmHandle<T> {
             &mut scheme_data.objects,
             scheme_data.active_vt,
             &mut scheme_data.vts,
+            &scheme_data.waker,
+            &mut scheme_data.crtc_flips,
             self,
             metadata[0],
             payload,

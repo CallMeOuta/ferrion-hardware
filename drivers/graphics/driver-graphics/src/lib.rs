@@ -34,6 +34,7 @@ use crate::kms::plane::{KmsPlane, KmsPlaneDriver, KmsPlaneState};
 
 mod blob;
 mod buffer;
+pub mod flip;
 mod handle;
 mod ioctl;
 pub mod kms;
@@ -42,6 +43,7 @@ mod submit;
 mod syncobj;
 
 pub use blob::{BlobCreateParams, BlobInfo};
+pub use flip::FlipCompletion;
 pub use render::{RenderDevice, RenderFeatures};
 pub use submit::Fence;
 pub use syncobj::{FenceLeaf, SyncFence, Syncobj};
@@ -171,6 +173,21 @@ pub trait GraphicsAdapter: Sized + Debug {
 
     fn poll_pending(&mut self, _cx: &mut Context<'_>) {}
 
+    fn supports_page_flip(&self) -> bool {
+        false
+    }
+
+    fn page_flip(
+        &mut self,
+        _objects: &KmsObjects<Self>,
+        _crtc_id: KmsObjectId,
+        _plane: &KmsPlane<Self>,
+        _fb: &kms::rc_object::KmsRcObjectRef<kms::framebuffer::KmsFramebuffer<Self>>,
+        _completion: FlipCompletion,
+    ) -> syscall::Result<()> {
+        Err(Error::new(EINVAL))
+    }
+
     /// The GPU's render side, or None for an adapter without one. When the adapter has one at
     /// start, the scheme registers the render name `gpu.<driver>` beside `display.<driver>`
     /// (FerrionOS, render.rs).
@@ -254,6 +271,7 @@ impl<T: GraphicsAdapter> GraphicsScheme<T> {
                 objects,
                 active_vt: 0,
                 vts: HashMap::new(),
+                crtc_flips: Vec::new(),
             },
             GraphicsResource::SchemeRoot(SchemeRoot::<T>(PhantomData)),
         );
@@ -339,6 +357,7 @@ impl<T: GraphicsAdapter> GraphicsScheme<T> {
             data.adapter
                 .poll_pending(&mut Context::from_waker(&data.waker));
         }
+        flip::collect_completed_flips(&mut self.inner);
         self.handler.poll_all_requests(&mut self.inner)?;
         loop {
             let count = self.handler.read_and_process_requests_with_cancel(
@@ -363,6 +382,7 @@ impl<T: GraphicsAdapter> GraphicsScheme<T> {
                 data.adapter
                     .poll_pending(&mut Context::from_waker(&data.waker));
             }
+            flip::collect_completed_flips(&mut self.inner);
             self.handler.poll_all_requests(&mut self.inner)?;
             self.handler.write_responses()?;
             self.post_events();
@@ -386,6 +406,7 @@ impl<T: GraphicsAdapter> GraphicsScheme<T> {
                                 SignalBehavior::Restart,
                             )
                             .unwrap();
+                        handle.mark_read_notified();
                     }
                 }
                 GraphicsResource::Fence(fence) => {
@@ -444,6 +465,7 @@ struct GraphicsSchemeData<T: GraphicsAdapter> {
 
     active_vt: usize,
     vts: HashMap<usize, VtState<T>>,
+    crtc_flips: Vec<flip::CrtcFlipState>,
 }
 
 struct VtState<T: GraphicsAdapter> {

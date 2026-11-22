@@ -33,6 +33,7 @@ use pcid_interface::PciFunctionHandle;
 use virtio_core::utils::VolatileCell;
 
 mod blob;
+mod flip;
 mod render;
 mod scheme;
 mod submit;

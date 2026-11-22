@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::sync::Arc;
+use std::task::Waker;
 
 use redox_ioctl::drm as ipc;
 use syscall::{EINVAL, ENOENT, Error};
@@ -22,6 +23,8 @@ pub(crate) fn call_ioctl<T: GraphicsAdapter>(
     objects: &mut KmsObjects<T>,
     active_vt: usize,
     vts: &mut HashMap<usize, VtState<T>>,
+    waker: &Waker,
+    crtc_flips: &mut Vec<crate::flip::CrtcFlipState>,
 
     handle: &mut DrmHandle<T>,
     cmd: u64,
@@ -39,6 +42,9 @@ pub(crate) fn call_ioctl<T: GraphicsAdapter>(
         ipc::GET_CAP => ipc::DrmGetCap::with(payload, |data| driver_info::get_cap(adapter, data)),
         ipc::SET_CLIENT_CAP => ipc::DrmSetClientCap::with(payload, |data| {
             driver_info::set_client_cap(adapter, handle, data)
+        }),
+        ipc::WAIT_VBLANK => ipc::DrmWaitVblank::with(payload, |data| {
+            crate::flip::wait_vblank(objects, crtc_flips, handle, data)
         }),
         ipc::MODE_CARD_RES => ipc::DrmModeCardRes::with(payload, |mut data| {
             let conn_ids = objects
@@ -117,6 +123,11 @@ pub(crate) fn call_ioctl<T: GraphicsAdapter>(
         }),
         ipc::MODE_RM_FB => ipc::StandinForUint::with(payload, |data| {
             framebuffer::mode_rm_fb(adapter, objects, active_vt, vts, handle, data)
+        }),
+        ipc::MODE_PAGE_FLIP => ipc::DrmModeCrtcPageFlipTarget::with(payload, |data| {
+            crate::flip::mode_page_flip(
+                adapter, objects, active_vt, vts, waker, crtc_flips, handle, data,
+            )
         }),
         ipc::MODE_DIRTYFB => ipc::DrmModeFbDirtyCmd::with(payload, |data| {
             framebuffer::mode_dirtyfb(adapter, objects, active_vt, handle, data, pending)
