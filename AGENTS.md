@@ -1,6 +1,6 @@
 # ferrion-hardware
 
-FerrionOS's hardware support: per-machine profiles under `profiles/` and the Linux driver host under `driver-host/` (ADR 0046 in the FerrionOS repository). Before working here, read FerrionOS's `AGENTS.md` and its ADR 0046; every rule there applies here: no comments in FerrionOS's own code (license notices and the source notice of brought-in code stay), TigerStyle bounds (ADR 0024), no agent-written unit tests (ADR 0025: proof is a VM check in FerrionOS's `scripts/vm-test.py`, a differential test or a deterministic simulation), measured targets in commit messages (ADR 0026), the naming rule, and the security rules.
+FerrionOS's support for the machines it runs on, physical and virtual alike (laptops and desktops, hypervisors such as QEMU/KVM, VirtualBox, VMware and Hyper-V, and cloud instance types): per-machine profiles under `profiles/` and the Linux driver host under `driver-host/`, which carries drivers for physical and virtual devices alike (ADR 0046 in the FerrionOS repository). Before working here, read FerrionOS's `AGENTS.md` and its ADR 0046; every rule there applies here: no comments in FerrionOS's own code (license notices and the source notice of brought-in code stay), TigerStyle bounds (ADR 0024), no agent-written unit tests (ADR 0025: proof is a VM check in FerrionOS's `scripts/vm-test.py`, a differential test or a deterministic simulation), measured targets in commit messages (ADR 0026), the naming rule, and the security rules.
 
 Rules of this repository:
 
