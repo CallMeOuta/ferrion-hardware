@@ -8,9 +8,10 @@
 use std::collections::BTreeSet;
 use std::fmt;
 use std::sync::Arc;
+use std::task::{Context, Waker};
 
 use common::dma::Dma;
-use driver_graphics::{BlobCreateParams, BlobInfo, RenderDevice, RenderFeatures};
+use driver_graphics::{BlobCreateParams, BlobInfo, Fence, RenderDevice, RenderFeatures};
 use syscall::{EINVAL, EIO, ENOMEM};
 use virtio_core::spec::{Buffer, ChainBuilder, DescriptorFlags};
 use virtio_core::transport::{Error, Queue};
@@ -99,6 +100,7 @@ pub struct VirtGpuRender {
     contexts: BTreeSet<u32>,
     next_context: u32,
     blobs: VirtGpuBlobs,
+    submits: crate::submit::SubmitQueue,
 }
 
 impl fmt::Debug for VirtGpuRender {
@@ -204,6 +206,7 @@ impl VirtGpuRender {
         features: Features,
         num_capsets: u32,
         host_visible_window: Option<SharedMemoryRegion>,
+        waker: Waker,
     ) -> Option<Self> {
         if !features.virgl {
             return None;
@@ -223,6 +226,7 @@ impl VirtGpuRender {
                 }
             }
         });
+        let submits = crate::submit::SubmitQueue::new(control_queue.clone(), waker);
         Some(Self {
             control_queue,
             features,
@@ -230,7 +234,12 @@ impl VirtGpuRender {
             contexts: BTreeSet::new(),
             next_context: 1,
             blobs: VirtGpuBlobs::new(host_visible_window),
+            submits,
         })
+    }
+
+    pub fn poll_pending(&mut self, cx: &mut Context<'_>) {
+        self.submits.poll_pending(cx);
     }
 
     /// A context number no live context has; 0 is never one.
@@ -333,5 +342,17 @@ impl RenderDevice for VirtGpuRender {
 
     fn destroy_blob(&mut self, res_id: u32) {
         self.blobs.destroy_blob(&self.control_queue, res_id);
+    }
+
+    fn submit_3d(
+        &mut self,
+        context_id: u32,
+        ring_idx: Option<u8>,
+        command: &[u8],
+    ) -> syscall::Result<Arc<Fence>> {
+        if !self.contexts.contains(&context_id) {
+            return Err(syscall::Error::new(EINVAL));
+        }
+        self.submits.submit(context_id, ring_idx, command)
     }
 }

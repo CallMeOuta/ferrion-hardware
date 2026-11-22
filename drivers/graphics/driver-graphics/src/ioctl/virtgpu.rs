@@ -20,17 +20,24 @@ pub(crate) fn call_render_ioctl<T>(
     handle: &mut RenderHandle<T>,
     cmd: u64,
     payload: &mut [u8],
+    pending_wait: &mut Option<crate::submit::PendingWait>,
 ) -> Result<usize> {
     match cmd {
         drm::VERSION => drm::DrmVersion::with(payload, |data| version(device, data)),
         virtgpu::GEM_CLOSE => virtgpu::GemClose::with(payload, |data| handle.blobs.gem_close(device, data)),
         virtgpu::MAP => virtgpu::VirtgpuMap::with(payload, |data| handle.blobs.map_ioctl(data)),
+        virtgpu::EXECBUFFER => virtgpu::VirtgpuExecbuffer::with(payload, |data| {
+            crate::submit::execbuffer(device, handle, data)
+        }),
         virtgpu::GETPARAM => virtgpu::VirtgpuGetparam::with(payload, |mut data| {
             data.set_value(getparam(device, data.param())?);
             Ok(0)
         }),
         virtgpu::RESOURCE_INFO => {
             virtgpu::VirtgpuResourceInfo::with(payload, |data| handle.blobs.resource_info(data))
+        }
+        virtgpu::WAIT => {
+            virtgpu::VirtgpuWait::with(payload, |data| crate::submit::wait(handle, data, pending_wait))
         }
         virtgpu::GET_CAPS => virtgpu::VirtgpuGetCaps::with(payload, |data| get_caps(device, data)),
         virtgpu::RESOURCE_CREATE_BLOB => virtgpu::VirtgpuResourceCreateBlob::with(payload, |data| {
@@ -166,5 +173,6 @@ fn context_init<T>(
         })
         .collect();
     handle.context = Some(device.create_context(capset_id.unwrap_or(0), &name)?);
+    handle.num_rings = num_rings.unwrap_or(0) as u32;
     Ok(0)
 }

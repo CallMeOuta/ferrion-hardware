@@ -11,16 +11,18 @@
 //! driver makes, in `ioctl::virtgpu`; everything a client sends is checked there before the
 //! device sees it.
 
+use std::collections::{HashMap, HashSet};
 use std::fmt::Debug;
 use std::marker::PhantomData;
+use std::sync::Arc;
 
-use redox_scheme::CallerCtx;
+use redox_scheme::{CallerCtx, Id};
 use scheme_utils::{ResourceOpenResult, ResourceSync};
 use syscall::schemev2::NewFdFlags;
-use syscall::{ENODEV, ENOENT, ENOSYS, Error, MODE_CHR, MapFlags, MunmapFlags, Result};
+use syscall::{EINVAL, ENODEV, ENOENT, ENOSYS, Error, EventFlags, MODE_CHR, MapFlags, MunmapFlags, Result};
 
 use crate::blob::{BlobCreateParams, BlobInfo, RenderBlobs};
-use crate::{GraphicsAdapter, GraphicsResource, GraphicsSchemeData, ioctl};
+use crate::{Fence, GraphicsAdapter, GraphicsResource, GraphicsSchemeData, ioctl};
 
 /// The device features render handles report, as Linux's virtio-gpu driver reports them.
 #[derive(Clone, Copy, Debug, Default)]
@@ -66,6 +68,15 @@ pub trait RenderDevice: Debug {
     fn unmap_blob(&mut self, _res_id: u32) {}
 
     fn destroy_blob(&mut self, _res_id: u32) {}
+
+    fn submit_3d(
+        &mut self,
+        _context_id: u32,
+        _ring_idx: Option<u8>,
+        _command: &[u8],
+    ) -> Result<Arc<Fence>> {
+        Err(Error::new(EINVAL))
+    }
 }
 
 /// The root registered under the render name.
@@ -109,6 +120,13 @@ impl<T: GraphicsAdapter> ResourceSync for RenderRoot<T> {
 pub(crate) struct RenderHandle<T> {
     pub(crate) context: Option<u32>,
     pub(crate) blobs: RenderBlobs,
+    pub(crate) num_rings: u32,
+    pub(crate) known_resources: HashSet<u32>,
+    pub(crate) resource_fences: HashMap<u32, Arc<Fence>>,
+    pub(crate) last_fence: Option<Arc<Fence>>,
+    pub(crate) pending_fences: HashMap<i32, Arc<Fence>>,
+    next_fence_handle: i32,
+    pub(crate) pending_waits: HashMap<Id, crate::submit::PendingWait>,
     _adapter: PhantomData<T>,
 }
 
@@ -117,6 +135,7 @@ impl<T> Debug for RenderHandle<T> {
         f.debug_struct("RenderHandle")
             .field("context", &self.context)
             .field("blobs", &self.blobs)
+            .field("num_rings", &self.num_rings)
             .finish()
     }
 }
@@ -126,7 +145,25 @@ impl<T> RenderHandle<T> {
         Self {
             context: None,
             blobs: RenderBlobs::new(),
+            num_rings: 0,
+            known_resources: HashSet::new(),
+            resource_fences: HashMap::new(),
+            last_fence: None,
+            pending_fences: HashMap::new(),
+            next_fence_handle: 1,
+            pending_waits: HashMap::new(),
             _adapter: PhantomData,
+        }
+    }
+
+    pub(crate) fn alloc_pending_fence(&mut self, fence: Arc<Fence>) -> i32 {
+        loop {
+            let id = self.next_fence_handle;
+            self.next_fence_handle = self.next_fence_handle.checked_add(1).unwrap_or(1);
+            if id > 0 && !self.pending_fences.contains_key(&id) {
+                self.pending_fences.insert(id, fence);
+                return id;
+            }
         }
     }
 }
@@ -134,6 +171,14 @@ impl<T> RenderHandle<T> {
 impl<T: GraphicsAdapter> ResourceSync for RenderHandle<T> {
     type SchemeData = GraphicsSchemeData<T>;
     type ResourceEnum = GraphicsResource<T>;
+
+    fn fevent(
+        &mut self,
+        _scheme_data: &mut Self::SchemeData,
+        _flags: EventFlags,
+    ) -> Result<EventFlags> {
+        Ok(EventFlags::empty())
+    }
 
     fn fstat(
         &mut self,
@@ -151,13 +196,42 @@ impl<T: GraphicsAdapter> ResourceSync for RenderHandle<T> {
         scheme_data: &mut Self::SchemeData,
         payload: &mut [u8],
         metadata: &[u64],
-        _ctx: &CallerCtx,
+        ctx: &CallerCtx,
     ) -> Result<usize> {
+        if let Some(wait) = self.pending_waits.get(&ctx.id) {
+            let Some(result) = wait.poll_result() else {
+                return Err(Error::new(syscall::EWOULDBLOCK));
+            };
+            self.pending_waits.remove(&ctx.id);
+            return result;
+        }
         let device = scheme_data
             .adapter
             .render_device()
             .ok_or(Error::new(ENODEV))?;
-        ioctl::virtgpu::call_render_ioctl(device, self, metadata[0], payload)
+        let mut pending_wait = None;
+        let res = ioctl::virtgpu::call_render_ioctl(
+            device,
+            self,
+            metadata[0],
+            payload,
+            &mut pending_wait,
+        );
+        if let Some(wait) = pending_wait {
+            self.pending_waits.insert(ctx.id, wait);
+            Err(Error::new(syscall::EWOULDBLOCK))
+        } else {
+            res
+        }
+    }
+
+    fn dup(
+        &mut self,
+        scheme_data: &mut Self::SchemeData,
+        buf: &[u8],
+        _ctx: &CallerCtx,
+    ) -> Result<ResourceOpenResult<Self::ResourceEnum>> {
+        crate::submit::dup_fence(self, &scheme_data.live_fences, buf)
     }
 
     fn mmap_prep(

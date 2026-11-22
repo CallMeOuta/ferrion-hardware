@@ -585,6 +585,9 @@ impl<'a> GraphicsAdapter for VirtGpuAdapter<'a> {
             }
             self.pending_frames.pop_front();
         }
+        if let Some(render) = self.render.as_mut() {
+            render.poll_pending(cx);
+        }
     }
 
     fn set_plane(
@@ -728,6 +731,7 @@ impl<'a> GpuScheme {
             features,
             config.num_capsets.get(),
             host_visible_window,
+            waker.clone(),
         );
         let adapter = VirtGpuAdapter {
             unique,

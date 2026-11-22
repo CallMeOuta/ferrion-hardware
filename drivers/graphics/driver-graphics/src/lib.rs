@@ -8,6 +8,8 @@ use std::fs::File;
 use std::io::{self, Write};
 use std::marker::PhantomData;
 use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::atomic::AtomicUsize;
 use std::task::{Context, Waker};
 
 use graphics_ipc::redox_uapi_exts::{
@@ -36,9 +38,11 @@ mod handle;
 mod ioctl;
 pub mod kms;
 mod render;
+mod submit;
 
 pub use blob::{BlobCreateParams, BlobInfo};
 pub use render::{RenderDevice, RenderFeatures};
+pub use submit::Fence;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Damage {
@@ -236,6 +240,7 @@ impl<T: GraphicsAdapter> GraphicsScheme<T> {
             GraphicsSchemeData {
                 adapter,
                 waker,
+                live_fences: Arc::new(AtomicUsize::new(0)),
                 disable_graphical_debug,
                 objects,
                 active_vt: 0,
@@ -331,8 +336,14 @@ impl<T: GraphicsAdapter> GraphicsScheme<T> {
                 &mut self.inner,
                 |id, inner| {
                     for (_, resource) in inner.handles_mut_and_scheme_data().0 {
-                        if let GraphicsResource::DrmHandle(handle) = resource {
-                            handle.pending_frames.remove(&id);
+                        match resource {
+                            GraphicsResource::DrmHandle(handle) => {
+                                handle.pending_frames.remove(&id);
+                            }
+                            GraphicsResource::RenderHandle(handle) => {
+                                handle.pending_waits.remove(&id);
+                            }
+                            _ => {}
                         }
                     }
                 },
@@ -367,6 +378,17 @@ impl<T: GraphicsAdapter> GraphicsScheme<T> {
                             .unwrap();
                     }
                 }
+                GraphicsResource::Fence(fence) => {
+                    if fence.should_post_event() {
+                        self.handler
+                            .socket()
+                            .write_response(
+                                Response::post_fevent(id, EventFlags::EVENT_READ.bits()),
+                                SignalBehavior::Restart,
+                            )
+                            .unwrap();
+                    }
+                }
                 _ => {}
             }
         }
@@ -384,12 +406,14 @@ resource_scheme! {
         DrmBuffer(DrmBuffer<T>),
         RenderRoot(render::RenderRoot<T>),
         RenderHandle(render::RenderHandle<T>),
+        Fence(submit::FenceResource<T>),
     }
 }
 
 struct GraphicsSchemeData<T: GraphicsAdapter> {
     adapter: T,
     waker: Waker,
+    live_fences: Arc<AtomicUsize>,
 
     disable_graphical_debug: Option<File>,
     objects: KmsObjects<T>,

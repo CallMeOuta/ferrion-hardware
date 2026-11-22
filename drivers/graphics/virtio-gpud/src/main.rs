@@ -35,6 +35,7 @@ use virtio_core::utils::VolatileCell;
 mod blob;
 mod render;
 mod scheme;
+mod submit;
 
 struct FrameWake(File);
 
@@ -136,8 +137,8 @@ pub enum CommandTy {
 
 static_assertions::const_assert_eq!(size_of::<CommandTy>(), 4);
 
-const VIRTIO_GPU_FLAG_FENCE: u32 = 1 << 0;
-//const VIRTIO_GPU_FLAG_INFO_RING_IDX: u32 = 1 << 1;
+pub(crate) const VIRTIO_GPU_FLAG_FENCE: u32 = 1 << 0;
+pub(crate) const VIRTIO_GPU_FLAG_INFO_RING_IDX: u32 = 1 << 1;
 
 #[derive(Debug)]
 #[repr(C)]
