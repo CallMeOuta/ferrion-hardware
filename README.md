@@ -14,12 +14,8 @@ Nothing runs from here yet. FerrionOS's own drivers move in with FerrionOS's mon
 
 ## Licenses
 
-Each file keeps its own notice. The repository's default license is the MIT license (`LICENSE`); one folder differs.
+Everything here is licensed under the GNU General Public License, version 2 only (`LICENSE`), the license of Linux's drivers: FerrionOS's own drivers, the driver host and its shim, and the profiles. Anyone may use, change and share them, and whoever ships a changed driver ships its source under the same license, so no one can turn a FerrionOS driver into a closed one.
 
-- `drivers/` holds FerrionOS's own drivers under the MIT license, with the notices they carry from upstream.
-- `driver-host/` builds a program that links Linux's GPL-2.0 files, so that program as a whole is licensed under the GNU General Public License, version 2 only (`driver-host/LICENSE`). Linux's files carry their own notices; FerrionOS's own files in it are under the MIT license, as is code taken from the BSD layers with its original notice.
-- `profiles/` is FerrionOS's own work under the MIT license.
-
-Both license texts are also in `LICENSES/`.
+Code that arrives under another license keeps its notice beside the GPL, as the GPL allows: the drivers FerrionOS took over from upstream carry their MIT notices, Linux's files carry theirs, and code taken from FreeBSD's or OpenBSD's layers carries its BSD notice and names its source. Both license texts are in `LICENSES/`.
 
 On real hardware a driver in the host can read and write any memory its device can reach, so FerrionOS runs it only behind an IOMMU that confines the device.
