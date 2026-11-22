@@ -76,7 +76,7 @@ impl RenderBlobs {
         device: &mut dyn RenderDevice,
         context_id: Option<u32>,
         mut data: virtgpu::VirtgpuResourceCreateBlob<'_>,
-    ) -> Result<usize> {
+    ) -> Result<u32> {
         let features = device.features();
         if !features.resource_blob {
             return Err(Error::new(EINVAL));
@@ -144,7 +144,7 @@ impl RenderBlobs {
         self.bo_to_slot.insert(slot, slot);
         data.set_bo_handle(slot);
         data.set_res_handle(info.res_id);
-        Ok(0)
+        Ok(slot)
     }
 
     pub(crate) fn map_ioctl(&self, mut data: virtgpu::VirtgpuMap<'_>) -> Result<usize> {

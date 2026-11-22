@@ -36,7 +36,13 @@ pub(crate) fn call_render_ioctl<T>(
     match cmd {
         drm::VERSION => drm::DrmVersion::with(payload, |data| version(device, data)),
         drm::GET_CAP => drm::DrmGetCap::with(payload, |data| render_get_cap(data)),
-        virtgpu::GEM_CLOSE => virtgpu::GemClose::with(payload, |data| handle.blobs.gem_close(device, data)),
+        virtgpu::GEM_CLOSE => virtgpu::GemClose::with(payload, |data| {
+            let bo_handle = data.handle();
+            handle.blobs.gem_close(device, data)?;
+            handle.known_resources.remove(&bo_handle);
+            handle.resource_fences.remove(&bo_handle);
+            Ok(0)
+        }),
         virtgpu::MAP => virtgpu::VirtgpuMap::with(payload, |data| handle.blobs.map_ioctl(data)),
         virtgpu::EXECBUFFER => virtgpu::VirtgpuExecbuffer::with(payload, |data| {
             crate::submit::execbuffer(device, handle, data, in_fence, pending_wait)
@@ -53,7 +59,9 @@ pub(crate) fn call_render_ioctl<T>(
         }
         virtgpu::GET_CAPS => virtgpu::VirtgpuGetCaps::with(payload, |data| get_caps(device, data)),
         virtgpu::RESOURCE_CREATE_BLOB => virtgpu::VirtgpuResourceCreateBlob::with(payload, |data| {
-            handle.blobs.create_blob(device, handle.context, data)
+            let bo_handle = handle.blobs.create_blob(device, handle.context, data)?;
+            handle.known_resources.insert(bo_handle);
+            Ok(0)
         }),
         virtgpu::CONTEXT_INIT => {
             virtgpu::VirtgpuContextInit::with(payload, |data| context_init(device, handle, data))
