@@ -2,15 +2,25 @@ use std::sync::{Arc, Mutex};
 
 use common::MemoryType;
 use pcid_interface::irq_helpers::{InterruptVector, Msix};
-use pcid_interface::PciFunctionHandle;
+use pcid_interface::{PciBar, PciFunctionHandle};
 
 use crate::spec::*;
 use crate::transport::{Error, Queue, StandardTransport, Transport};
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub struct SharedMemoryRegion {
+    pub id: u8,
+    pub bar: u8,
+    pub bar_offset: u64,
+    pub phys_addr: u64,
+    pub length: u64,
+}
 
 pub struct Device {
     pub transport: Arc<dyn Transport>,
     pub device_space: *const u8,
     msix: Mutex<Msix>,
+    shared_memory_regions: Vec<SharedMemoryRegion>,
 }
 
 // FIXME(andypython): `device_space` should not be `Send` nor `Sync`. Take
@@ -32,6 +42,17 @@ impl Device {
     /// This does not spawn an IRQ thread. (see virtio-gpud).
     pub fn alloc_irq(&self) -> InterruptVector {
         self.msix.lock().unwrap().alloc()
+    }
+
+    pub fn shared_memory_region(&self, id: u8) -> Option<SharedMemoryRegion> {
+        self.shared_memory_regions
+            .iter()
+            .copied()
+            .find(|region| region.id == id)
+    }
+
+    pub fn shared_memory_regions(&self) -> &[SharedMemoryRegion] {
+        &self.shared_memory_regions
     }
 }
 
@@ -60,20 +81,96 @@ pub fn probe_device(pcid_handle: &mut PciFunctionHandle) -> Result<Device, Error
     let mut common_addr = None;
     let mut notify_addr = None;
     let mut device_addr = None;
+    let mut shared_memory_regions: Vec<SharedMemoryRegion> = Vec::new();
 
     for raw_capability in pcid_handle.get_vendor_capabilities() {
-        // SAFETY: We have verified that the length of the data is correct.
-        let capability = unsafe { &*(raw_capability.data.as_ptr() as *const PciCapability) };
+        if raw_capability.data.len() < size_of::<PciCapability>() {
+            log::warn!(
+                "virtio-core: ignoring short vendor capability ({} bytes)",
+                raw_capability.data.len()
+            );
+            continue;
+        }
+        let Some(cfg_type) = CfgType::from_u8(raw_capability.data[0]) else {
+            continue;
+        };
 
-        match capability.cfg_type {
+        if matches!(cfg_type, CfgType::SharedMemory) {
+            if raw_capability.data.len() < size_of::<PciCapability64>() {
+                log::warn!(
+                    "virtio-core: ignoring short shared-memory capability ({} bytes)",
+                    raw_capability.data.len()
+                );
+                continue;
+            }
+            let cap64 = unsafe {
+                raw_capability
+                    .data
+                    .as_ptr()
+                    .cast::<PciCapability64>()
+                    .read_unaligned()
+            };
+            let bar = cap64.cap.bar;
+            let id = cap64.cap.id;
+            let bar_offset = cap64.offset();
+            let length = cap64.length();
+            let Some(&pci_bar) = pci_config.func.bars.get(usize::from(bar)) else {
+                log::warn!("virtio-core: shared-memory region {id} names invalid BAR {bar}");
+                continue;
+            };
+            let (bar_addr, bar_size) = match pci_bar {
+                PciBar::Memory32 { addr, size } => (u64::from(addr), u64::from(size)),
+                PciBar::Memory64 { addr, size } => (addr, size),
+                _ => {
+                    log::warn!("virtio-core: shared-memory region {id} BAR {bar} is not memory");
+                    continue;
+                }
+            };
+            let Some(bar_end) = bar_offset.checked_add(length) else {
+                log::warn!("virtio-core: shared-memory region {id} overflows BAR {bar}");
+                continue;
+            };
+            let Some(phys_addr) = bar_addr.checked_add(bar_offset) else {
+                log::warn!("virtio-core: shared-memory region {id} physical address overflow");
+                continue;
+            };
+            if length == 0 || bar_end > bar_size {
+                log::warn!(
+                    "virtio-core: shared-memory region {id} [{bar_offset:#x}, +{length:#x}) outside BAR {bar} ({bar_size:#x})"
+                );
+                continue;
+            }
+            if shared_memory_regions.iter().any(|region| region.id == id) {
+                log::warn!("virtio-core: ignoring duplicate shared-memory region id {id}");
+                continue;
+            }
+            shared_memory_regions.push(SharedMemoryRegion {
+                id,
+                bar,
+                bar_offset,
+                phys_addr,
+                length,
+            });
+            continue;
+        }
+
+        match cfg_type {
             CfgType::Common | CfgType::Notify | CfgType::Device => {}
             _ => continue,
         }
 
+        let capability = unsafe {
+            raw_capability
+                .data
+                .as_ptr()
+                .cast::<PciCapability>()
+                .read_unaligned()
+        };
+
         let mapped_bar = unsafe { pcid_handle.map_bar(capability.bar, MemoryType::Uncacheable) };
         let address = mapped_bar.ptr.expose_provenance().get() + capability.offset as usize;
 
-        match capability.cfg_type {
+        match cfg_type {
             CfgType::Common => {
                 debug_assert!(common_addr.is_none());
                 common_addr = Some(address);
@@ -81,12 +178,16 @@ pub fn probe_device(pcid_handle: &mut PciFunctionHandle) -> Result<Device, Error
 
             CfgType::Notify => {
                 debug_assert!(notify_addr.is_none());
-
-                // SAFETY: The capability type is `Notify`, so its safe to access
-                //         the `notify_multiplier` field.
+                if raw_capability.data.len() < size_of::<PciCapabilityNotify>() {
+                    log::warn!("virtio-core: ignoring short notify capability");
+                    continue;
+                }
                 let multiplier = unsafe {
-                    (&*(raw_capability.data.as_ptr() as *const PciCapability
-                        as *const PciCapabilityNotify))
+                    raw_capability
+                        .data
+                        .as_ptr()
+                        .cast::<PciCapabilityNotify>()
+                        .read_unaligned()
                         .notify_off_multiplier()
                 };
                 notify_addr = Some((address, multiplier));
@@ -135,6 +236,7 @@ pub fn probe_device(pcid_handle: &mut PciFunctionHandle) -> Result<Device, Error
         transport,
         device_space,
         msix: Mutex::new(msix),
+        shared_memory_regions,
     };
 
     device.transport.reset();

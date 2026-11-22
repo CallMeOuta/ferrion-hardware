@@ -30,12 +30,14 @@ use crate::kms::crtc::{KmsCrtc, KmsCrtcDriver, KmsCrtcState};
 use crate::kms::objects::{KmsObjectId, KmsObjects};
 use crate::kms::plane::{KmsPlane, KmsPlaneDriver, KmsPlaneState};
 
+mod blob;
 mod buffer;
 mod handle;
 mod ioctl;
 pub mod kms;
 mod render;
 
+pub use blob::{BlobCreateParams, BlobInfo};
 pub use render::{RenderDevice, RenderFeatures};
 
 #[derive(Debug, Copy, Clone)]

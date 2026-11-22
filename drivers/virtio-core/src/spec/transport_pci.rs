@@ -69,6 +69,21 @@ pub enum CfgType {
 
 const_assert_eq!(size_of::<CfgType>(), 1);
 
+impl CfgType {
+    pub fn from_u8(value: u8) -> Option<Self> {
+        match value {
+            1 => Some(Self::Common),
+            2 => Some(Self::Notify),
+            3 => Some(Self::Isr),
+            4 => Some(Self::Device),
+            5 => Some(Self::PciConfig),
+            8 => Some(Self::SharedMemory),
+            9 => Some(Self::Vendor),
+            _ => None,
+        }
+    }
+}
+
 #[derive(Debug)]
 #[repr(C)]
 pub struct CommonCfg {
@@ -172,6 +187,30 @@ impl PciCapabilityNotify {
 }
 
 const_assert_eq!(size_of::<PciCapabilityNotify>(), 17);
+
+#[derive(Debug, Copy, Clone)]
+#[repr(C, packed)]
+pub struct PciCapability64 {
+    pub cap: PciCapability,
+    pub offset_hi: u32,
+    pub length_hi: u32,
+}
+
+impl PciCapability64 {
+    pub fn offset(&self) -> u64 {
+        let lo = u32::from_le(self.cap.offset);
+        let hi = u32::from_le(self.offset_hi);
+        u64::from(lo) | (u64::from(hi) << 32)
+    }
+
+    pub fn length(&self) -> u64 {
+        let lo = u32::from_le(self.cap.length);
+        let hi = u32::from_le(self.length_hi);
+        u64::from(lo) | (u64::from(hi) << 32)
+    }
+}
+
+const_assert_eq!(size_of::<PciCapability64>(), 21);
 
 /// Vector value used to disable MSI for queue
 pub const VIRTIO_MSI_NO_VECTOR: u16 = 0xffff;

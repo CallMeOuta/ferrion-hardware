@@ -17,8 +17,9 @@ use std::marker::PhantomData;
 use redox_scheme::CallerCtx;
 use scheme_utils::{ResourceOpenResult, ResourceSync};
 use syscall::schemev2::NewFdFlags;
-use syscall::{ENODEV, ENOENT, Error, MODE_CHR, Result};
+use syscall::{ENODEV, ENOENT, ENOSYS, Error, MODE_CHR, MapFlags, MunmapFlags, Result};
 
+use crate::blob::{BlobCreateParams, BlobInfo, RenderBlobs};
 use crate::{GraphicsAdapter, GraphicsResource, GraphicsSchemeData, ioctl};
 
 /// The device features render handles report, as Linux's virtio-gpu driver reports them.
@@ -53,6 +54,18 @@ pub trait RenderDevice: Debug {
 
     /// Destroys a context `create_context` made, which stops its work on the host.
     fn destroy_context(&mut self, context_id: u32);
+
+    fn create_blob(&mut self, _params: BlobCreateParams<'_>) -> Result<BlobInfo> {
+        Err(Error::new(ENOSYS))
+    }
+
+    fn map_blob(&mut self, _res_id: u32) -> Result<usize> {
+        Err(Error::new(ENOSYS))
+    }
+
+    fn unmap_blob(&mut self, _res_id: u32) {}
+
+    fn destroy_blob(&mut self, _res_id: u32) {}
 }
 
 /// The root registered under the render name.
@@ -95,6 +108,7 @@ impl<T: GraphicsAdapter> ResourceSync for RenderRoot<T> {
 /// other handle can reach it.
 pub(crate) struct RenderHandle<T> {
     pub(crate) context: Option<u32>,
+    pub(crate) blobs: RenderBlobs,
     _adapter: PhantomData<T>,
 }
 
@@ -102,6 +116,7 @@ impl<T> Debug for RenderHandle<T> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("RenderHandle")
             .field("context", &self.context)
+            .field("blobs", &self.blobs)
             .finish()
     }
 }
@@ -110,6 +125,7 @@ impl<T> RenderHandle<T> {
     fn new() -> Self {
         Self {
             context: None,
+            blobs: RenderBlobs::new(),
             _adapter: PhantomData,
         }
     }
@@ -144,11 +160,39 @@ impl<T: GraphicsAdapter> ResourceSync for RenderHandle<T> {
         ioctl::virtgpu::call_render_ioctl(device, self, metadata[0], payload)
     }
 
-    fn on_close(self, scheme_data: &mut Self::SchemeData) {
-        if let Some(context) = self.context {
-            if let Some(device) = scheme_data.adapter.render_device() {
+    fn mmap_prep(
+        &mut self,
+        scheme_data: &mut Self::SchemeData,
+        offset: u64,
+        size: usize,
+        flags: MapFlags,
+    ) -> Result<usize> {
+        let device = scheme_data
+            .adapter
+            .render_device()
+            .ok_or(Error::new(ENODEV))?;
+        self.blobs.mmap_prep(device, offset, size, flags)
+    }
+
+    fn munmap(
+        &mut self,
+        scheme_data: &mut Self::SchemeData,
+        offset: u64,
+        size: usize,
+        _flags: MunmapFlags,
+    ) -> Result<()> {
+        if let Some(device) = scheme_data.adapter.render_device() {
+            self.blobs.munmap(device, offset, size)?;
+        }
+        Ok(())
+    }
+
+    fn on_close(mut self, scheme_data: &mut Self::SchemeData) {
+        if let Some(device) = scheme_data.adapter.render_device() {
+            if let Some(context) = self.context {
                 device.destroy_context(context);
             }
+            self.blobs.destroy_all(device);
         }
     }
 }

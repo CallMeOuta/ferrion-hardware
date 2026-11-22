@@ -32,6 +32,7 @@ use event::{user_data, EventQueue};
 use pcid_interface::PciFunctionHandle;
 use virtio_core::utils::VolatileCell;
 
+mod blob;
 mod render;
 mod scheme;
 
@@ -228,8 +229,21 @@ pub struct ResourceId(u32);
 impl ResourceId {
     const NONE: ResourceId = ResourceId(0);
 
-    fn alloc() -> Self {
-        ResourceId(RESOURCE_ALLOC.fetch_add(1, Ordering::SeqCst))
+    pub(crate) fn alloc() -> Self {
+        loop {
+            let id = RESOURCE_ALLOC.fetch_add(1, Ordering::SeqCst);
+            if id != 0 {
+                return ResourceId(id);
+            }
+        }
+    }
+
+    pub(crate) fn raw(self) -> u32 {
+        self.0
+    }
+
+    pub(crate) fn from_raw(id: u32) -> Self {
+        ResourceId(id)
     }
 }
 
@@ -534,6 +548,17 @@ fn daemon(daemon: daemon::Daemon, mut pcid_handle: PciFunctionHandle) -> anyhow:
     log::info!("virtio-gpu: initiating startup sequence :^)");
 
     let device = virtio_core::probe_device(&mut pcid_handle)?;
+    let host_visible_window = device.shared_memory_region(blob::VIRTIO_GPU_SHM_ID_HOST_VISIBLE);
+    match host_visible_window {
+        Some(region) => log::info!(
+            "virtio-gpu: host-visible window bar={} offset={:#x} phys={:#x} size={:#x}",
+            region.bar,
+            region.bar_offset,
+            region.phys_addr,
+            region.length
+        ),
+        None => log::info!("virtio-gpu: host-visible window absent"),
+    }
     let config = unsafe { &mut *(device.device_space as *mut GpuConfig) };
 
     // Negotiate features.
@@ -589,6 +614,7 @@ fn daemon(daemon: daemon::Daemon, mut pcid_handle: PciFunctionHandle) -> anyhow:
         device.transport.clone(),
         has_edid,
         features,
+        host_visible_window,
         frame_waker,
     )?;
     daemon.ready();

@@ -10,11 +10,13 @@ use std::fmt;
 use std::sync::Arc;
 
 use common::dma::Dma;
-use driver_graphics::{RenderDevice, RenderFeatures};
+use driver_graphics::{BlobCreateParams, BlobInfo, RenderDevice, RenderFeatures};
 use syscall::{EINVAL, EIO, ENOMEM};
 use virtio_core::spec::{Buffer, ChainBuilder, DescriptorFlags};
 use virtio_core::transport::{Error, Queue};
+use virtio_core::SharedMemoryRegion;
 
+use crate::blob::VirtGpuBlobs;
 use crate::{CommandTy, ControlHeader};
 
 /// The features the driver acknowledged.
@@ -41,13 +43,13 @@ const MAX_CONTEXTS: usize = 256;
 /// not know is never taken for a `CommandTy`.
 #[derive(Default)]
 #[repr(C)]
-struct ResponseHeader {
-    ty: u32,
-    flags: u32,
-    fence_id: u64,
-    ctx_id: u32,
-    ring_index: u8,
-    padding: [u8; 3],
+pub(crate) struct ResponseHeader {
+    pub(crate) ty: u32,
+    pub(crate) flags: u32,
+    pub(crate) fence_id: u64,
+    pub(crate) ctx_id: u32,
+    pub(crate) ring_index: u8,
+    pub(crate) padding: [u8; 3],
 }
 
 const _: () = assert!(size_of::<ResponseHeader>() == size_of::<ControlHeader>());
@@ -96,6 +98,7 @@ pub struct VirtGpuRender {
     capsets: Vec<Capset>,
     contexts: BTreeSet<u32>,
     next_context: u32,
+    blobs: VirtGpuBlobs,
 }
 
 impl fmt::Debug for VirtGpuRender {
@@ -104,11 +107,12 @@ impl fmt::Debug for VirtGpuRender {
             .field("features", &self.features)
             .field("capset_ids", &self.capset_ids())
             .field("contexts", &self.contexts)
+            .field("blobs", &self.blobs)
             .finish()
     }
 }
 
-fn errno(error: Error) -> syscall::Error {
+pub(crate) fn errno(error: Error) -> syscall::Error {
     syscall::Error::new(match error {
         Error::SyscallError(error) => error.errno(),
         _ => EIO,
@@ -116,7 +120,7 @@ fn errno(error: Error) -> syscall::Error {
 }
 
 /// Sends one command whose answer is a bare header, and returns the answer's type.
-async fn send<T: Send + 'static>(queue: &Queue, request: T) -> Result<u32, Error> {
+pub(crate) async fn send<T: Send + 'static>(queue: &Queue, request: T) -> Result<u32, Error> {
     let request = Dma::new(request)?;
     let header = Dma::new(ResponseHeader::default())?;
     let command = ChainBuilder::new()
@@ -195,7 +199,12 @@ async fn read_capset(queue: &Queue, index: u32) -> Result<Option<Capset>, Error>
 impl VirtGpuRender {
     /// The render side of a device that offers 3D, with the capsets it reports; None for a 2D
     /// device.
-    pub fn new(control_queue: Arc<Queue>, features: Features, num_capsets: u32) -> Option<Self> {
+    pub fn new(
+        control_queue: Arc<Queue>,
+        features: Features,
+        num_capsets: u32,
+        host_visible_window: Option<SharedMemoryRegion>,
+    ) -> Option<Self> {
         if !features.virgl {
             return None;
         }
@@ -220,6 +229,7 @@ impl VirtGpuRender {
             capsets,
             contexts: BTreeSet::new(),
             next_context: 1,
+            blobs: VirtGpuBlobs::new(host_visible_window),
         })
     }
 
@@ -246,7 +256,7 @@ impl RenderDevice for VirtGpuRender {
             three_d: self.features.virgl,
             resource_blob: self.features.resource_blob,
             context_init: self.features.context_init,
-            host_visible: false,
+            host_visible: self.features.resource_blob && self.blobs.has_window(),
         }
     }
 
@@ -307,5 +317,21 @@ impl RenderDevice for VirtGpuRender {
             Ok(ty) => log::warn!("virtio-gpu: context {context_id}: destroy answered {ty:#x}"),
             Err(error) => log::warn!("virtio-gpu: context {context_id}: destroy failed: {error:?}"),
         }
+    }
+
+    fn create_blob(&mut self, params: BlobCreateParams<'_>) -> syscall::Result<BlobInfo> {
+        self.blobs.create_blob(&self.control_queue, params)
+    }
+
+    fn map_blob(&mut self, res_id: u32) -> syscall::Result<usize> {
+        self.blobs.map_blob(&self.control_queue, res_id)
+    }
+
+    fn unmap_blob(&mut self, res_id: u32) {
+        self.blobs.unmap_blob(&self.control_queue, res_id);
+    }
+
+    fn destroy_blob(&mut self, res_id: u32) {
+        self.blobs.destroy_blob(&self.control_queue, res_id);
     }
 }

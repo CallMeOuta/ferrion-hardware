@@ -719,6 +719,7 @@ impl<'a> GpuScheme {
         transport: Arc<dyn Transport>,
         has_edid: bool,
         features: crate::render::Features,
+        host_visible_window: Option<virtio_core::SharedMemoryRegion>,
         waker: Waker,
     ) -> Result<GraphicsScheme<VirtGpuAdapter<'a>>, Error> {
         let (unref_tx, unref_rx) = mpsc::channel();
@@ -726,6 +727,7 @@ impl<'a> GpuScheme {
             control_queue.clone(),
             features,
             config.num_capsets.get(),
+            host_visible_window,
         );
         let adapter = VirtGpuAdapter {
             unique,

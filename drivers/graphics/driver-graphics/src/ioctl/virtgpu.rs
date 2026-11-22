@@ -23,14 +23,19 @@ pub(crate) fn call_render_ioctl<T>(
 ) -> Result<usize> {
     match cmd {
         drm::VERSION => drm::DrmVersion::with(payload, |data| version(device, data)),
-        // A render handle holds no buffer before blobs exist, so every number is unknown, as
-        // Linux answers an unknown number.
-        virtgpu::GEM_CLOSE => virtgpu::GemClose::with(payload, |_| Err(Error::new(EINVAL))),
+        virtgpu::GEM_CLOSE => virtgpu::GemClose::with(payload, |data| handle.blobs.gem_close(device, data)),
+        virtgpu::MAP => virtgpu::VirtgpuMap::with(payload, |data| handle.blobs.map_ioctl(data)),
         virtgpu::GETPARAM => virtgpu::VirtgpuGetparam::with(payload, |mut data| {
             data.set_value(getparam(device, data.param())?);
             Ok(0)
         }),
+        virtgpu::RESOURCE_INFO => {
+            virtgpu::VirtgpuResourceInfo::with(payload, |data| handle.blobs.resource_info(data))
+        }
         virtgpu::GET_CAPS => virtgpu::VirtgpuGetCaps::with(payload, |data| get_caps(device, data)),
+        virtgpu::RESOURCE_CREATE_BLOB => virtgpu::VirtgpuResourceCreateBlob::with(payload, |data| {
+            handle.blobs.create_blob(device, handle.context, data)
+        }),
         virtgpu::CONTEXT_INIT => {
             virtgpu::VirtgpuContextInit::with(payload, |data| context_init(device, handle, data))
         }
