@@ -1,5 +1,6 @@
 use std::cell::UnsafeCell;
 use std::ptr;
+use std::sync::atomic::{self, Ordering};
 
 use common::dma::Dma;
 use common::io::{Io, Mmio};
@@ -49,6 +50,10 @@ pub struct NvmeComp {
     pub status: u16,
 }
 
+const _: () = assert!(
+    core::mem::size_of::<NvmeComp>() == 16 && core::mem::offset_of!(NvmeComp, status) == 14
+);
+
 /// Completion queue
 pub struct NvmeCompQueue {
     // Size must be a power of two.
@@ -72,9 +77,14 @@ impl NvmeCompQueue {
 
     /// Get a new completion queue entry, or return None if no entry is available yet.
     pub(crate) fn complete(&mut self) -> Option<NvmeComp> {
-        let entry = unsafe { ptr::read_volatile(self.data[usize::from(self.head)].get()) };
+        let slot = self.data[usize::from(self.head)].get();
+        let status_ptr = unsafe { ptr::addr_of!((*slot).status) };
+        assert!(status_ptr.is_aligned());
+        let status = unsafe { ptr::read_volatile(status_ptr) };
 
-        if ((entry.status & 1) == 1) == self.phase {
+        if ((status & 1) == 1) == self.phase {
+            atomic::fence(Ordering::Acquire);
+            let entry = unsafe { ptr::read_volatile(slot) };
             self.head = (self.head + 1) % (self.data.len() as u16);
             if self.head == 0 {
                 self.phase = !self.phase;
