@@ -59,8 +59,29 @@ impl Hardware for NvmeHw {
 
         for (sq_cq_id, (sq, cq)) in ctxt.queues.borrow_mut().iter_mut() {
             while let Some(cqe) = cq.complete() {
-                sq.head = cqe.sq_head;
+                let sq_head = cqe.sq_head;
+                let cid = cqe.cid;
+                if usize::from(sq_head) < sq.data.len() {
+                    sq.head = sq_head;
+                } else {
+                    log::error!(
+                        "nvmed: ignoring out-of-range sq_head {} on queue {} (len {})",
+                        sq_head,
+                        sq_cq_id,
+                        sq.data.len()
+                    );
+                }
+                if !sq.has_cmd_id(cid) {
+                    log::error!(
+                        "nvmed: ignoring completion for unallocated cid {} on queue {}",
+                        cid,
+                        sq_cq_id
+                    );
+                    continue;
+                }
                 handle(*sq_cq_id, cqe);
+                let released = sq.release_cmd_id(cid);
+                assert!(released);
             }
 
             cq.kick();

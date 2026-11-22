@@ -116,7 +116,10 @@ impl ThreadCtxt {
                     fail();
                     return None;
                 }
-                let cmd_id = sq.tail;
+                let Some(cmd_id) = sq.alloc_cmd_id() else {
+                    fail();
+                    return None;
+                };
                 let _tail = sq.submit_unchecked(cmd_init(cmd_id));
 
                 Some((sq_id, cmd_id))

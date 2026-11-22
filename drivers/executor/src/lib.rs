@@ -433,12 +433,13 @@ impl<Hw: Hardware, I: FnMut(Hw::CmdId) -> Hw::Sqe> Future for CqeFuture<Hw, I> {
 
                 if let Some((cq_id, cmd_id)) = submitted {
                     executor.pending_submits.borrow_mut().insert(sq_id);
-                    executor
+                    let replaced = executor
                         .awaiting_completion
                         .borrow_mut()
                         .entry(cq_id)
                         .or_default()
                         .insert(cmd_id, (task, (&mut this.comp).into()));
+                    assert!(replaced.is_none());
                     this.state = State::Completing { cq_id, cmd_id };
                 } else {
                     *awaiting_submission_task = Some(task);

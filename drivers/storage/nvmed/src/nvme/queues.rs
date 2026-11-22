@@ -105,12 +105,16 @@ impl NvmeCompQueue {
     }
 }
 
+const SQ_ENTRIES: usize = 64;
+const _: () = assert!(SQ_ENTRIES.is_power_of_two() && SQ_ENTRIES <= u64::BITS as usize);
+
 /// Submission queue
 pub struct NvmeCmdQueue {
     // Size must be a power of 2.
     pub data: Dma<[UnsafeCell<NvmeCmd>]>,
     pub tail: u16,
     pub head: u16,
+    in_flight: u64,
 
     doorbell: &'static mut Mmio<u32>,
 }
@@ -118,9 +122,10 @@ pub struct NvmeCmdQueue {
 impl NvmeCmdQueue {
     pub fn new(doorbell: &'static mut Mmio<u32>) -> Result<Self> {
         Ok(Self {
-            data: unsafe { Dma::zeroed_slice(64)?.assume_init() },
+            data: unsafe { Dma::zeroed_slice(SQ_ENTRIES)?.assume_init() },
             tail: 0,
             head: 0,
+            in_flight: 0,
             doorbell,
         })
     }
@@ -129,12 +134,41 @@ impl NvmeCmdQueue {
         self.head == self.tail
     }
     pub fn is_full(&self) -> bool {
-        self.head == self.tail + 1
+        let mask = (self.data.len() as u16) - 1;
+        (self.tail.wrapping_add(1) & mask) == self.head
+    }
+
+    pub fn alloc_cmd_id(&mut self) -> Option<u16> {
+        let id = (!self.in_flight).trailing_zeros() as usize;
+        if id >= self.data.len() {
+            return None;
+        }
+        self.in_flight |= 1u64 << id;
+        Some(id as u16)
+    }
+
+    pub fn has_cmd_id(&self, id: u16) -> bool {
+        let idx = usize::from(id);
+        idx < self.data.len() && (self.in_flight & (1u64 << idx)) != 0
+    }
+
+    pub fn release_cmd_id(&mut self, id: u16) -> bool {
+        let idx = usize::from(id);
+        if idx >= self.data.len() {
+            return false;
+        }
+        let mask = 1u64 << idx;
+        if self.in_flight & mask == 0 {
+            return false;
+        }
+        self.in_flight &= !mask;
+        true
     }
 
     /// Add a new submission command entry to the queue. The caller must ensure that the queue have free
     /// entries; this can be checked using `is_full`.
     pub fn submit_unchecked(&mut self, entry: NvmeCmd) -> u16 {
+        assert!(!self.is_full());
         unsafe { ptr::write_volatile(self.data[usize::from(self.tail)].get(), entry) }
         self.tail = (self.tail + 1) & (self.data.len() as u16 - 1);
         self.tail
