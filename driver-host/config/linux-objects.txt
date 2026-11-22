@@ -1,0 +1,17 @@
+drivers/gpu/drm/
+drivers/dma-buf/
+lib/xarray.o
+lib/idr.o
+lib/radix-tree.o
+lib/rbtree.o
+lib/sort.o
+lib/list_sort.o
+lib/scatterlist.o
+lib/hweight.o
+lib/find_bit.o
+lib/ctype.o
+lib/refcount.o
+lib/kasprintf.o
+lib/seq_buf.o
+lib/hexdump.o
+lib/bitmap.o

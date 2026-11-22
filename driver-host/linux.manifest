@@ -1,0 +1,970 @@
+linux-6.18.64.tar.xz	020d45510c539972e6f14c5c71566878d3b7ef56fb082b3e09134f2ebaade562	GPL-2.0 WITH Linux-syscall-note
+generated/arch/x86/include/generated/asm/cpufeaturemasks.h	66ab782f87bfb0c63a441009d468d3ccadcff355d69e48146b11de5c8b0b3845	-
+generated/arch/x86/include/generated/asm/early_ioremap.h	b1a54c24a12ce2c0f283661121974436cdb09ae91822497458072f5f97447c5d	-
+generated/arch/x86/include/generated/asm/kmap_size.h	7245ee3b42b2e5df950a01ce7c2374db7b971a5a4304646d5a4e9ccfa76395ee	-
+generated/arch/x86/include/generated/asm/local64.h	60fcbd6c2f3f7207d61791f97406e59efeb90d071c82492f56a386ee54ab8c5e	-
+generated/arch/x86/include/generated/asm/mmiowb.h	562185c822e79d362de4f9f76a1a7016e1529a01d88a7da9552140f666c6a947	-
+generated/arch/x86/include/generated/asm/rwonce.h	e65428b6b0334c3fa3b08c940356e87132ccb205a984bb0d561110b122738963	-
+generated/arch/x86/include/generated/asm/unistd_32_ia32.h	0969cdd17b83b26ccad650ff031464b00e1f6d7557754a5673f45172746d267f	-
+generated/arch/x86/include/generated/asm/unistd_64_x32.h	a25c204847e7f32306f67be08f5f026ccc6cde90a099cb1f7ec6b28ba69693b8	-
+generated/arch/x86/include/generated/uapi/asm/errno.h	4ee384515a4325315992e61dd957f0fa91f3858fe7c079de59f56edded51de86	-
+generated/arch/x86/include/generated/uapi/asm/fcntl.h	716ef40c102b1701970c7b0c34e6633d8a0ea1c89e7527252fcb07e63074221d	-
+generated/arch/x86/include/generated/uapi/asm/ioctl.h	9c6ca9e365296a6b66747cbebdcf76972b8cce7aab91e55bf4ab1f3581df9c2a	-
+generated/arch/x86/include/generated/uapi/asm/param.h	6bf1865f0ddba5c80877463ad6650d7fee66931486956a07884f53deaa13e2b8	-
+generated/arch/x86/include/generated/uapi/asm/poll.h	0b6ca981303acc042195061225039c080c900169b231ab343c7e9ec6530864ea	-
+generated/arch/x86/include/generated/uapi/asm/resource.h	6d9c7f1ca98f275aafe3c5533d274aec702ea6029f8036bdb577b0c53e08f7d9	-
+generated/arch/x86/include/generated/uapi/asm/types.h	b6bdcd528bce555b2ecb58e8a1624e3e13e09312c31318023c4e86b957e2b01f	-
+generated/arch/x86/include/generated/uapi/asm/unistd_64.h	d8cfef637d18fc25203be337a3bbc883cc39814a88a48e9d5747d233d75dee56	-
+generated/include/generated/autoconf.h	57b45d6ad5e1b2a2ddf26c78da91d1ad79024d2a15ec13010b9988acafb3ceef	-
+generated/include/generated/bounds.h	731b1afaa7138fbefa921a1529c08ece294f439be4316b24629668aa39778aec	-
+generated/include/generated/rq-offsets.h	bea5f4d14ec1457173b5f5b35c6054ddf0453d82ce5594a311ae90c9c94c71e7	-
+generated/include/generated/timeconst.h	0db01d74b846e39dca3612d96dee8b8f6addfaeb738cc4f5574086828487c2b9	-
+generated/linux.config	d612eaaeb56a45eccc0a253340aa223703f322800057ceb3f1bb73a750a255f5	-
+linux/arch/x86/include/asm/alternative.h	dd884b59292f8f45c9a61fc40de7afd21cd9519e6dd3ffe0c3223b3fbc2048af	GPL-2.0
+linux/arch/x86/include/asm/apicdef.h	c6990570dac1469f812b9b547a4e64462a36c957f9ee131af251c2e6b997ce1e	GPL-2.0
+linux/arch/x86/include/asm/arch_hweight.h	8857cf7d5c782c3fba1ab5dadc55949eadd19ac454078d03c58aaf484366c5f2	GPL-2.0
+linux/arch/x86/include/asm/asm.h	289598f16e99c5bcfe80883e2ee0632cff62032996f9701f0378754345d771e4	GPL-2.0
+linux/arch/x86/include/asm/atomic.h	1ba1e1ef1403c9be2f00494c1ba22cff87044d442ef90a5da18a863877e88b18	GPL-2.0
+linux/arch/x86/include/asm/atomic64_64.h	c7fb549ab4c2342114f9a4b097b175071c8a9926d1192da03f0e718928267757	GPL-2.0
+linux/arch/x86/include/asm/barrier.h	3273fc8f86c8634d493960e5a6c69a129d0974d039c04540db4924aba8e48592	GPL-2.0
+linux/arch/x86/include/asm/bitops.h	90f9020b5b66d4d042cee0ed601133d77b27878fb2c839e8fe79fc36e58d7008	GPL-2.0
+linux/arch/x86/include/asm/bug.h	072198f2d2bdeec85c631a45e5aa3da7c7bc9b30538723033ae65ab7c0db7fd1	GPL-2.0
+linux/arch/x86/include/asm/cache.h	a4940ff4b26143d543d46089e40864ede0dc3d50d905de20e1f95e76c9d7f3e5	GPL-2.0
+linux/arch/x86/include/asm/cacheflush.h	399d69e1a677c49ba82c8e8d273d30286ae98abd14eb36627d84b40d9661d764	GPL-2.0
+linux/arch/x86/include/asm/cfi.h	d384d4dd1365b9e05904b3817b8268b72a4991c93843432344fa41048562d866	GPL-2.0
+linux/arch/x86/include/asm/cmpxchg.h	70dc12e5c2f1bf7b3ff0fcc4f7bf908a9d2a79786ef86d8b3ba71c3e04d3ec9c	GPL-2.0
+linux/arch/x86/include/asm/cmpxchg_64.h	e390dafe7620dbd75eae8965f01916696f5bea936f1de85f5c32a64ca517a816	GPL-2.0
+linux/arch/x86/include/asm/coco.h	a7b232f757927d25006cf856c81f9dd7ccafa6185bd4e27b7a587fe9e2a271fc	GPL-2.0
+linux/arch/x86/include/asm/cpufeature.h	d66d502c312b58ccde34910920e706641dd3f1c81644773bbec1c8b20fa2477e	GPL-2.0
+linux/arch/x86/include/asm/cpufeatures.h	a0089e3071edd2057b88617c638615b2d9aa4284ab546d1689adbef0ce030aca	GPL-2.0
+linux/arch/x86/include/asm/cpuid/api.h	a9f981c7a2823eccac1b8ff02770e42d61850265b64800ce6d911e949bdb3c12	GPL-2.0
+linux/arch/x86/include/asm/cpuid/types.h	47834143866a6fed0d9d40dbba795a8501b2a1207294451e34de1e7802fd395c	GPL-2.0
+linux/arch/x86/include/asm/cpumask.h	04059c39fe529c3460676cdd213456051b36671956e232d806ecb7fc414eb916	GPL-2.0
+linux/arch/x86/include/asm/current.h	6b2d348fb95a5bc25d2e1d4ed3b29f7604601f74f30b9b9f7b35dfd87aa37c95	GPL-2.0
+linux/arch/x86/include/asm/desc_defs.h	7e0077a9c039961ac0c82bbbc47a580cfe2af42b5b3830f4271c29d89ef26e0e	GPL-2.0
+linux/arch/x86/include/asm/device.h	2e7faa86b72d1914dd4e2f16f7dfe04eb997ad60bd9ada11eb8af790713bce43	GPL-2.0
+linux/arch/x86/include/asm/div64.h	849252cc62c629a133c1074578bee1387c9c393ab1d1564920c3b069d9d6bef0	GPL-2.0
+linux/arch/x86/include/asm/elf.h	5c4eaab81345ee84d585dca114f075116da6048b4358975c51b75ae454d12dff	GPL-2.0
+linux/arch/x86/include/asm/extable.h	cbd45d0f69dc4d0c0ae3a1a9ffa9857b1bde24eebcade179dbaf5867622aa86c	GPL-2.0
+linux/arch/x86/include/asm/extable_fixup_types.h	7b79522de6c715389ab26bc2ff6dadee0bcf5a5bb59a49206b415999cf7fd65e	GPL-2.0
+linux/arch/x86/include/asm/fixmap.h	7a0824b3092f9a70df1d9c8faf295015b63645c6d5d41b6f0466e7ca436204ee	License.  See the file "COPYING" in the main directory of this archive
+linux/arch/x86/include/asm/fpu/api.h	03cfbac752fb52e8771f807b69a0d77b5a878397a5ebfadf9cdb88869a447f34	GPL-2.0
+linux/arch/x86/include/asm/fpu/types.h	22f70100c5ff6092b27e4c70b7b0a60f88e4d50b7c965e0b0b686594020b4542	GPL-2.0
+linux/arch/x86/include/asm/fsgsbase.h	0417c8b9bd4b4dbd11a437518b3d667e3881e320e30d7194a410a5db8c2defb8	GPL-2.0
+linux/arch/x86/include/asm/ftrace.h	8308486c55a2c0b4d26cad52b2acf4029b649e506ee390941e3211eba27fbfed	GPL-2.0
+linux/arch/x86/include/asm/hardirq.h	ad2628a1eb63cfbffb16d16e6030b10885c59fdcb766c85a34e19553302821ba	GPL-2.0
+linux/arch/x86/include/asm/ia32.h	0137e2c7127d41f9533865085a997b707dbbb44c2e6875804505518c07047dea	GPL-2.0
+linux/arch/x86/include/asm/ibt.h	1189725666b45376b1e0bfafb402ef365472ab69076ec09648d1ebe6f0bfa2e0	GPL-2.0
+linux/arch/x86/include/asm/invpcid.h	76117e3f959a7cb9a13e300465d72f938278cd4584ec30edc7cbd5b2a4b8356b	GPL-2.0
+linux/arch/x86/include/asm/io.h	469f51b24a355b15d88cbb3544d47a858a3b7cb1783de30ca7de9899c9cea1d9	GPL-2.0
+linux/arch/x86/include/asm/irq.h	56e8c87685df69599e760aaecd4c74d8a51a61ea5cf125a907c7705cdfac8e55	GPL-2.0
+linux/arch/x86/include/asm/irq_vectors.h	fadae255d75d9d12f0e7a2768f527ecff7ee4717d6db2a3657acb9181467ea98	GPL-2.0
+linux/arch/x86/include/asm/irq_work.h	34af2349372fccd1663eb646e4e8d12d9cba52829ca35afe047f4f4e0f553745	GPL-2.0
+linux/arch/x86/include/asm/irqflags.h	39fe3ed664d2c888cf5ebd1f79810b65dbd78f42e9a05ce270ab95ccd863749d	GPL-2.0
+linux/arch/x86/include/asm/kaslr.h	655f99847b10596ad36f729738102629eddb5c3f44d287faaf62afc2fa275032	GPL-2.0
+linux/arch/x86/include/asm/kgdb.h	b2c0a6ff9b5db9ba7c60a27e954fbb2423c4b2a8580226a5f739fc934e5fa285	GPL-2.0
+linux/arch/x86/include/asm/kprobes.h	535ae1e09f32eaa741fff853b1ff61c8b8db47bcf2d94166011adaea5b72e34e	GPL-2.0-or-later
+linux/arch/x86/include/asm/linkage.h	9281f4420f32b6f50ea7535ab6abe8a2e80378d974568e19f33a8365341a22d7	GPL-2.0
+linux/arch/x86/include/asm/local.h	9d2e42b262b870c6c082be58bec95983d26ed096865792707c29f40667dc5093	GPL-2.0
+linux/arch/x86/include/asm/math_emu.h	2fd986c79f8541bcb34ce4c710ce30795216be25ce86d90acdd53f2bb37eceb6	GPL-2.0
+linux/arch/x86/include/asm/mem_encrypt.h	8d8cc65206e03447f0707a8d15b3c5b921cd696920d6fdda754b55dbd4299d86	GPL-2.0-only
+linux/arch/x86/include/asm/memtype.h	dafd788f33abf2d117099f8778aeea0bdd74983dadad63a99d834a509fb8bac5	GPL-2.0
+linux/arch/x86/include/asm/mman.h	68c38b26197fd76e9c1464f6f5800997a55650238aef2701ed7e495ee0ba56da	GPL-2.0
+linux/arch/x86/include/asm/mmu.h	9309238d9e53facc47c99e5976683825af4cfa46e4f333efe8f3ec7ac322a7d0	GPL-2.0
+linux/arch/x86/include/asm/module.h	712693692cf01845acd22c4b01a0f0651ef6751f1cbcd02a8ac597c1e281243f	GPL-2.0
+linux/arch/x86/include/asm/msr-index.h	5f27e1cdd333f7385d74680209fdc6706f30ef15bc8e9a320385715d15f451f0	GPL-2.0
+linux/arch/x86/include/asm/msr.h	fa53929c548b16758fd623c4e263e1e3d03f9ff1ec355544e474b32731774228	GPL-2.0
+linux/arch/x86/include/asm/nops.h	649baa06ab01b7d11533773ddc02f8e3795a20687558b38906f2da41445f5fb4	GPL-2.0
+linux/arch/x86/include/asm/nospec-branch.h	7ea73dca4021fc79079782797c05bad4b24cd344e99275da7f1d5b2de7302948	GPL-2.0
+linux/arch/x86/include/asm/orc_types.h	f05ddf66ba01438b2d28bdaa0c3c156f9067acc51cf3a7c0a6266576ffb51024	GPL-2.0-or-later
+linux/arch/x86/include/asm/page.h	02701c107772edc2bb78b63d0ad292b1e63b2ef3615b59a89f7e1793d229f2fe	GPL-2.0
+linux/arch/x86/include/asm/page_64.h	c875683ab3d35fba5d8a033fbd76fc91693e9457f4a8e320b11f2ebe51c7b2f7	GPL-2.0
+linux/arch/x86/include/asm/page_64_types.h	fc9b57203f78df9f4b5e5e94a915965a2fc733cfa09555b881435ea9f2cdeaaf	GPL-2.0
+linux/arch/x86/include/asm/page_types.h	4b710a6891bd7e6e7d51b81a7fb083a8beb6ece020111ea55780bbb5dab1eefd	GPL-2.0
+linux/arch/x86/include/asm/paravirt.h	fffa0105ba01ffd8ee7d4a6299bedd0dd77e981125395c892d0581fd4d639324	GPL-2.0
+linux/arch/x86/include/asm/paravirt_types.h	4974218ad4d44ef0fb8a6de8be34e068be2084fd2141b826653ef7fe97cb6ea6	GPL-2.0
+linux/arch/x86/include/asm/pci.h	a71e1190811ee39fede823c9aa16327c0f8c5fa1b7363e195bb84fc68ec87427	GPL-2.0
+linux/arch/x86/include/asm/percpu.h	3a0d37eba4df033fe74d06e9270862317a1ada196045695bd274e916da13fe2f	GPL-2.0
+linux/arch/x86/include/asm/pgtable-invert.h	642a8c215ec105a37a98c881c8c73906a853146ffb6190f2a88877241ae9ebf6	GPL-2.0
+linux/arch/x86/include/asm/pgtable.h	ce8c3bcec9aa6bc931441b9e0a0bac6fb0d4ddb1c0e627d66ede1902a5fd32b1	GPL-2.0
+linux/arch/x86/include/asm/pgtable_64.h	df22a2828d415e60859df275dc8aa792bc97d1d80cc2f7e2471d5580e84319d9	GPL-2.0
+linux/arch/x86/include/asm/pgtable_64_types.h	73a467d12e2db27b5b38ad289cf121bb91c02496002a757081ecf35b41576d01	GPL-2.0
+linux/arch/x86/include/asm/pgtable_areas.h	bd860d0bc15bb4a25130a8a20735ff6eaf5fafae5ffe391792190f7655be051f	-
+linux/arch/x86/include/asm/pgtable_types.h	795166fe877c926d9e3ae16c77e13cef16ec365b0a63e1b871b0cfd3a2409ada	GPL-2.0
+linux/arch/x86/include/asm/pkru.h	e141d08c60c0787bbfc612ec59eb9ab279bd8b1ad6dcb660a814a83904b66bee	GPL-2.0
+linux/arch/x86/include/asm/posix_types.h	164faac20bfb4165f3c2267c199b75ad78a39f249597e2db015e9a564d7609a1	GPL-2.0
+linux/arch/x86/include/asm/preempt.h	4a0be0a532563e85ee4ac28dcbffe23d7e6592fd6870fe7ce6f7e29dc605bb83	GPL-2.0
+linux/arch/x86/include/asm/processor-flags.h	99aa5f884407ac366561df438b149ea39363926b77638381abcf1da740baaffa	GPL-2.0
+linux/arch/x86/include/asm/processor.h	47836856bc2077be8694a01988390725fe2413aa9e6d296051836f5fbae1dfcb	GPL-2.0
+linux/arch/x86/include/asm/proto.h	3adf7b4a6b184c04334c81d58be07385b7cbc69695e7f04e81a8cf23a16cd4a5	GPL-2.0
+linux/arch/x86/include/asm/pti.h	e3451698ba98abbcc64402bd9782fb305b1f9e8249c16176417ae95eca3bb82e	GPL-2.0
+linux/arch/x86/include/asm/ptrace.h	8c08265be57952a23df7c79409dac28b2593e0055ddd586cf18315f2430c230c	GPL-2.0
+linux/arch/x86/include/asm/rmwcc.h	648f796b6b047f14e3a7beb58d80793dd03b4e6d8c437ecbd5abcdfbd2f6a891	GPL-2.0
+linux/arch/x86/include/asm/rqspinlock.h	1a858fa2e236e01b97e08fce84f94436052ff8a0e256458c6e26825c5c5d26ac	GPL-2.0
+linux/arch/x86/include/asm/runtime-const.h	63cc2ab958bad2f9262f0f5f88a7513045e293c10bf46c4ec158ae78fbd78ca4	GPL-2.0
+linux/arch/x86/include/asm/sections.h	1b9cdf5170e6ae7611140de8c82ace704224d24fd68cb9344bee9aee1f176c74	GPL-2.0
+linux/arch/x86/include/asm/segment.h	3804c264cb0712cdf4899770a68e3f1e8dae204b66b5911bca5bd1016734e3d7	GPL-2.0
+linux/arch/x86/include/asm/set_memory.h	fae764d1d7a54375b2610b7d6e68478659c3b4e47551661e07ba5927a12ae8fc	GPL-2.0
+linux/arch/x86/include/asm/shared/io.h	745efc9a1f906caabf0dbc0ff8d0b78d53bd80b58124d4733366f3b5613589ca	GPL-2.0
+linux/arch/x86/include/asm/shared/msr.h	1c59905e3796d7ae977b5ebc34828b1fdddbee77ece804139cf71fd7a5a3e8f5	GPL-2.0
+linux/arch/x86/include/asm/shmparam.h	217ca536c7a9c7aad2982b0da2edb05b00e986dc25b46d646e1f3ca84e482002	GPL-2.0
+linux/arch/x86/include/asm/shstk.h	a68ab5ad608652bb2cb4f7508f6052d9de938039dd6c44f8e415b1e23ca672fe	GPL-2.0
+linux/arch/x86/include/asm/signal.h	44fe33aaa0af7c7d9654af2bd270130dfc46f42484d6bff390afb9f8b80e2da7	GPL-2.0
+linux/arch/x86/include/asm/smap.h	01200bc6a07ed7a373c344bfde6663b87bb5531e523c02482738f00dd26a4ea5	GPL-2.0-only
+linux/arch/x86/include/asm/smp.h	49596875e45fc2509cd1b84877eb1bb9a7662a20f2e1d31c9f3e2c9fe2f6a1a9	GPL-2.0
+linux/arch/x86/include/asm/sparsemem.h	9ada507b98c984be0447c21723610253f3fcf1d294674ace23ac69d7a96d0c15	GPL-2.0
+linux/arch/x86/include/asm/special_insns.h	08e7aad05817903bc1489a011a8a00a0e3c0b6267f72d6709ad3926eb545dc95	GPL-2.0
+linux/arch/x86/include/asm/static_call.h	65851fb86e2c5d3e3882b948ee2339d316c466971ad84424ea5c24472bfa8430	GPL-2.0
+linux/arch/x86/include/asm/string.h	9ad590bfbc1c4eb039f48f84d613da6426c2b229eb1a9426aec24d1221c6b1c5	GPL-2.0
+linux/arch/x86/include/asm/string_64.h	e30476a2f8363bbd78a7cd8c2de7e5c76af30061907ded9d57a853479421605a	GPL-2.0
+linux/arch/x86/include/asm/sync_core.h	45582570c19f62869622e4825fd4d8849ec245956cab5c7fbd4dfd71394473d6	GPL-2.0
+linux/arch/x86/include/asm/text-patching.h	97718f7199f1f149b0a0a5ec77d87cc74085a940a0a0c3693804c1934bffdb85	GPL-2.0
+linux/arch/x86/include/asm/thread_info.h	4d81ad9802d01396a07ad5d95e9f85eca98a61f15a08a63af89448976a8e1df8	GPL-2.0
+linux/arch/x86/include/asm/timex.h	20a4178e860f1d47d63207619c8b72a0e69fac30aecfbef7840f91246e3509a6	GPL-2.0
+linux/arch/x86/include/asm/tlbbatch.h	01960b19da900982b59eceecf8c70f888fafe72e65d113db74790fd729b2ce63	GPL-2.0
+linux/arch/x86/include/asm/tlbflush.h	3c287049f1bc49784cdd15790f97a50c083586d4b441ee0c64d74af4c40cc33a	GPL-2.0
+linux/arch/x86/include/asm/topology.h	ac55a71b97c50b0a9a5863c64d83f6e4554c2f3ad45f7d069854900be907e76a	it under the terms of the GNU General Public License as published by
+linux/arch/x86/include/asm/trace_clock.h	5bf0e26430dc09c72caa68f5236d766a942e6c0f82f427ddeb1920a93ffb30c9	GPL-2.0
+linux/arch/x86/include/asm/tsc.h	497494f64ae721ddd621b4c6f87033378d090b24e7a402bd64abcda9b45ebe7e	GPL-2.0
+linux/arch/x86/include/asm/uaccess.h	d2750acb42056d0f7f4e911deac5810e85ef905f2645a4b12891ea0385a65d31	GPL-2.0
+linux/arch/x86/include/asm/uaccess_64.h	7804499958c177c28e87865f0b8b1d0037b259cc8d26e131d1f2309fd7b49db7	GPL-2.0
+linux/arch/x86/include/asm/unistd.h	34136ba14b5c6a2a1ff35e522aee3b8ee8c6d3282aee5d52a5d33d108ca8638d	GPL-2.0
+linux/arch/x86/include/asm/unwind_hints.h	100567f103b42e151c850a0f5bbc9809388c9bc8db9b04e3cc2d8b8580fde8d1	-
+linux/arch/x86/include/asm/user.h	cc58e10aec81cf75a69c3584b8383d7e797a862c0acb32c852db993ac17e6bc6	GPL-2.0
+linux/arch/x86/include/asm/user_64.h	adbcd49103f151d32046e17222b8eafc30777ad34bfa1699063f3f12d175b025	GPL-2.0
+linux/arch/x86/include/asm/vdso.h	de233d5a04e388f7bf938e5c3f7ac493e7ef6fa9024377bd937560d844a51e53	GPL-2.0
+linux/arch/x86/include/asm/vdso/processor.h	684e2abe6d6dc027cccca3bd9503015865500ce54216c85a05f99d9d53c686d1	GPL-2.0-only
+linux/arch/x86/include/asm/vga.h	ee084608b36f04ecf65cadb4397a079a63801599c447c36de542c639faa76c05	GPL-2.0
+linux/arch/x86/include/asm/video.h	4dee83a9fbc985e4167fdf8d286d3345cd1b6a315a1faf9df5ba4a16ec3a1ecd	GPL-2.0
+linux/arch/x86/include/asm/vmalloc.h	ded5d5eee94255a94a6e2bc9bcea720b29c668572704ee153c760297828a0173	-
+linux/arch/x86/include/asm/vmxfeatures.h	313eae24276800b3086f193435fc0680907a87458adc66a409b94847358a1e2f	GPL-2.0
+linux/arch/x86/include/asm/x86_init.h	efa82303f6428b802e19e98ff327d04dbd8a486c254288a7503b3b5db83f47f3	GPL-2.0
+linux/arch/x86/include/uapi/asm/auxvec.h	da5d1b557176a2b5df3c76749608c68f76cbb19f823265258f90d12f4cdf5446	GPL-2.0 WITH Linux-syscall-note
+linux/arch/x86/include/uapi/asm/bitsperlong.h	8ef5efeb3f25ae47ce03ba892f5caf77631b1257715fc12de72c21e61db17e43	GPL-2.0 WITH Linux-syscall-note
+linux/arch/x86/include/uapi/asm/byteorder.h	e8927b5fcab215111f961510cd8db7d5e4c76c8e8e4dd17ad3d1681fae04756c	GPL-2.0 WITH Linux-syscall-note
+linux/arch/x86/include/uapi/asm/ldt.h	fb18ddd68baa4d384c54368d716440769e601f15c110d567cf48e6e1da90afbd	GPL-2.0 WITH Linux-syscall-note
+linux/arch/x86/include/uapi/asm/mman.h	03860accf95d407bd13c8ab952fc786137bc1668a3dcfef859eb1ee8669bdf1e	GPL-2.0 WITH Linux-syscall-note
+linux/arch/x86/include/uapi/asm/msr.h	bf3abc39d9800ff683f5e90319ec81f52cb7417397eb915488d233de0b2e3ae4	GPL-2.0 WITH Linux-syscall-note
+linux/arch/x86/include/uapi/asm/posix_types_64.h	5cdabc01dac0a3e9731ac16353210a615ca44e85b6ec9eafd2e79206e0b26c76	GPL-2.0 WITH Linux-syscall-note
+linux/arch/x86/include/uapi/asm/processor-flags.h	8b125df3b4f0cebef759c97d7653af6ed54f588db1505a19cc497560dc457078	GPL-2.0 WITH Linux-syscall-note
+linux/arch/x86/include/uapi/asm/ptrace-abi.h	04f3cd620a5f7714f0bf2083d0af85b53f1828d4491d852bf7acf3695373d9f3	GPL-2.0 WITH Linux-syscall-note
+linux/arch/x86/include/uapi/asm/ptrace.h	b6dffdec33919725e67f00014a7e4256effaedaebac37c45d5d60d783cb96d51	GPL-2.0 WITH Linux-syscall-note
+linux/arch/x86/include/uapi/asm/sigcontext.h	84e2cf444ec6a539a4bc0b46717775cb1fd1f591301b7469ba143e56f43afc0c	GPL-2.0 WITH Linux-syscall-note
+linux/arch/x86/include/uapi/asm/siginfo.h	9bdbf34cba5d10fd6fed612d6d7d8096f38e2e1d2993af5f25ee4423c1db1ea6	GPL-2.0 WITH Linux-syscall-note
+linux/arch/x86/include/uapi/asm/signal.h	4aa8e8c9dd54a2ad66b9f95aba04040bcfeb6046ae5566e13e0dfbd834d271f1	GPL-2.0 WITH Linux-syscall-note
+linux/arch/x86/include/uapi/asm/stat.h	5cca0ba1e1a55cfa1e853e326eaf4a69f48c1d0caf2d3724ee41917fff042ca6	GPL-2.0 WITH Linux-syscall-note
+linux/arch/x86/include/uapi/asm/swab.h	88df04139500a43e68fe9c469af5f6c672e50531951bba2a5952ee2d833b80b2	GPL-2.0 WITH Linux-syscall-note
+linux/arch/x86/include/uapi/asm/unistd.h	a5dbdb6f1396798ef9ec26ccc9e465ffc85680060ec19849f2f8c265f33908fe	GPL-2.0 WITH Linux-syscall-note
+linux/arch/x86/include/uapi/asm/vsyscall.h	816a4246c742f43898720cd9a1c2827450770fb4820558148b77d4a184367667	GPL-2.0 WITH Linux-syscall-note
+linux/drivers/dma-buf/dma-buf-sysfs-stats.h	3a1ce5e1d9e655ad3c581cf970204f6a048205d6c80edf69ae286d8b46b9f40d	GPL-2.0-only
+linux/drivers/dma-buf/dma-buf.c	81f088989a8fc875c738be7a0c751164220830dde05ba39b58b25c72ed4ac044	GPL-2.0-only
+linux/drivers/dma-buf/dma-fence-array.c	79183d578f403362aba1b242aa3a269eb17166d509691822f84a7a217db976c5	GPL-2.0-only
+linux/drivers/dma-buf/dma-fence-chain.c	c27a939479722541b2594892486f82dab25f2d777c655365acf192b4eddfe346	GPL-2.0-only
+linux/drivers/dma-buf/dma-fence-unwrap.c	b4825637043f254b0e0623bde8932476efc4d74f7b585b6b61e0bec6e8fc4348	GPL-2.0-only
+linux/drivers/dma-buf/dma-fence.c	7dc278af4f4a304262ca9a6e4c1c75b1f6832c79902aa84dbc8b23d2aec5e314	GPL-2.0-only
+linux/drivers/dma-buf/dma-resv.c	b096865e13e5d5069d2a4dc262910baa220b964c17b6c27f6510ff72a7e08920	MIT
+linux/drivers/dma-buf/sync_file.c	bd2e61e7d2be660a9519289b4c061d088d67ed055c816da12c588c5082f0e359	GPL-2.0-only
+linux/drivers/gpu/drm/bridge/panel.c	17eef1904a6e21df68591ae01c03d39521d7011991201cdad3b2ed1f37a23d3f	GPL-2.0-or-later
+linux/drivers/gpu/drm/drm_atomic.c	35b4259fe48107c9bd1a8b012931e79abf5f0c088b8f8a6d29115cde205bb210	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_atomic_helper.c	3dba1fd87a54aad79c4ac15685a3678195728f5467bddfed5cbeb6c5c74f261f	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_atomic_state_helper.c	546367cd8d0306832b091dbb20e3ec3d0a50d623657049832a50a5228948c2a8	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_atomic_uapi.c	8e3357e19fea9747e03fef3b85d1493ac60b5cf5f50c0700a9ee0b6d895d0a2a	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_auth.c	cd7fe742cd880dda62b19073c97e9199f23197df02a82518bc9914f139933970	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_blend.c	a313553047d8f5fa7588b9658026bc8d15290de0167ddac5423a33a0008a6b7a	Permission to use, copy, modify, distribute, and sell this software and its
+linux/drivers/gpu/drm/drm_bridge.c	362d80220269e2a570599271f0c1df52c942152d794c3a30c106ee80615c8220	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_bridge_helper.c	5a2f78613dc696ef79e27335147e6cef96acc4263613ada49e7162a03fd20b4b	GPL-2.0-or-later
+linux/drivers/gpu/drm/drm_cache.c	510ffa7f075630669f8c011b486c6a3683881dbd10aa6f0e502de9821681d337	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_color_mgmt.c	cec79f2e8d452685b8f11c8df24cb237bd5312d970667c30fee28172ff39e6a9	Permission to use, copy, modify, distribute, and sell this software and its
+linux/drivers/gpu/drm/drm_connector.c	2167b9a6190552a21abcfbba179a78751ae85f16affd4fb22e2eeea4c483636a	Permission to use, copy, modify, distribute, and sell this software and its
+linux/drivers/gpu/drm/drm_crtc.c	7b694adf9c02057d8c40dda16324234e4a59a08386f500daeac44dc53f696ea4	Permission to use, copy, modify, distribute, and sell this software and its
+linux/drivers/gpu/drm/drm_crtc_helper.c	4071919da6876850a4f23b6b324e88c4b3ae1d1bfb29a201586566b34aef5acd	Permission to use, copy, modify, distribute, and sell this software and its
+linux/drivers/gpu/drm/drm_crtc_helper_internal.h	11d2d48b8295f120628526ef2dd39a5a7e578bd5ff6212e44f9c7531cd1a2fc0	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_crtc_internal.h	fbb9e5fc67af6477f2b73d0953b02eb80d3131268a84bbdc9260b7148b556d0d	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_damage_helper.c	7be57d1fb76a75869fb44575eafc8f3bd17a31ddd43dac89ac3e85e2b7b327ce	GPL-2.0 OR MIT
+linux/drivers/gpu/drm/drm_displayid.c	0d9f59ede6769080d80ebd7bef8ff9779bf4c082c487fb8751e47b67f8721f27	MIT
+linux/drivers/gpu/drm/drm_displayid_internal.h	f41091f89c6c30c3657ed3c60db7a6322253d18fee29f73e22e32bdf0ff6c3ea	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_drv.c	0eb87048943f2cb1aff063374b6849a0e508d263538c426a90ae0a39540413d2	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_dumb_buffers.c	7cdce8236b56e17538294d0132f71fd2d7d8f506e5ae3f7951c0eb539cb3c5db	Permission to use, copy, modify, distribute, and sell this software and its
+linux/drivers/gpu/drm/drm_edid.c	7d4582478f3379a305f3722bc646cbfa03c52fb40eb813ffae9d2f19091669ab	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_eld.c	5284adfd06376cf1fe10a1122a6acdd75f0ce238028a64327a6acd0d7becd9b2	MIT
+linux/drivers/gpu/drm/drm_encoder.c	844ed39fceaa828ad9974eb0b598fe957ae12ea65191fb6f15a65576c459cb9a	Permission to use, copy, modify, distribute, and sell this software and its
+linux/drivers/gpu/drm/drm_file.c	9c7c9d77f38383d3c9a140cd5a50a27abad8fa6603b3521a109e028673bf6017	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_flip_work.c	3a795b22873bd0c172508ad648499f3fe3cd702d66a49311618dfb2501b9f1e4	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_format_helper.c	95ccdb514ecbcd8ed2d9cb25c5ce502d29f84e4ce3ab234c542bd019a21f6446	GPL-2.0 or MIT
+linux/drivers/gpu/drm/drm_format_internal.h	99c81dd8f607d18411384e30bce3c5ce26d5788dd708eb9d737eb5b1638e9adc	GPL-2.0 or MIT
+linux/drivers/gpu/drm/drm_fourcc.c	3b1e087ae94a0c85eb8bb8952ccdd82f98ae2061244e5406e829f82738d18121	Permission to use, copy, modify, distribute, and sell this software and its
+linux/drivers/gpu/drm/drm_framebuffer.c	b9eb2a8522019865463612821a6ba3be199e2ed1f7a32b8ab5976cd8d287c61d	Permission to use, copy, modify, distribute, and sell this software and its
+linux/drivers/gpu/drm/drm_gem.c	89bef63a14c7d23f2d4ec7a3f2c0f1ea1065ee1ecd5895bf5865d3a923453190	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_gem_atomic_helper.c	ae1ef24a7adf7b761bb3cfac20512be584d3bf4657b1db46db7648baae317e02	GPL-2.0-or-later
+linux/drivers/gpu/drm/drm_gem_framebuffer_helper.c	8c5fc4334cc303322bdfafcd28de854183022d9e5a9730ff3804bd7767118814	GPL-2.0-or-later
+linux/drivers/gpu/drm/drm_gem_shmem_helper.c	aad34c18806b43def8836c65a72419b0225bdb3c89cccc50aa0f5f1905c7c0a0	GPL-2.0
+linux/drivers/gpu/drm/drm_internal.h	687f4c6cd8f2ef019cc52e4cd145d0300475ef5a2bf9e713e6caf94f31826f8a	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_ioctl.c	7ce739ea39669ec58b8bfc28f817d3ccd5f0fcc3b1bc7ff8b7ed845c38fd682b	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_kms_helper_common.c	5e7030ceb612d89d21a2fb49e81a379a29f0c84360d01051698b297b5ea286fe	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_lease.c	74e3674d35c456764e8fe848e8f01f3e5e24a05889b6b909f1d09412e6b28685	GPL-2.0-or-later
+linux/drivers/gpu/drm/drm_managed.c	2e054870a8c17b32f7bf79b4d74eb902b99678210087b80e81fa6a815d511e45	GPL-2.0
+linux/drivers/gpu/drm/drm_mm.c	0e62cb8481c2373a10a0260dc9e2a6ba48c37b654fc472725d26447f13271e42	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_mode_config.c	b6e7d4dad42c61c24fb7b81a1d9c10fbd8f31bf1b9cd889c35644b69445b6813	Permission to use, copy, modify, distribute, and sell this software and its
+linux/drivers/gpu/drm/drm_mode_object.c	2eafe9f9dd6a33d5ddf06b29e735ce42897c66b7e20f05e35518e774f22b6ca8	Permission to use, copy, modify, distribute, and sell this software and its
+linux/drivers/gpu/drm/drm_modes.c	139fb56a44fd4b2bc7b8979a834a5134c4aad38bbdfeb16552efba649ac9f849	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_modeset_helper.c	e07c458665fdd2724107b9533ab904d89c28bf603061646eab92b3ceac53e313	Permission to use, copy, modify, distribute, and sell this software and its
+linux/drivers/gpu/drm/drm_modeset_lock.c	19ea8d303d87cc8ce19ea842ed2cdc193a6ad5791ffa1c2c20e04d09a5dde6df	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_panel.c	384d6629b2bca1c1e7667c51f3f153820d627d69029df61f794cdbf73d4381d9	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_panel_orientation_quirks.c	0b48bac28609bcd7e7a939bc9ec91e0ef6f9e116070196d4d8c82987cbaaf5ac	MIT
+linux/drivers/gpu/drm/drm_pci.c	52b434d38a0d1e0b91fba9bfb5f5510fc1996db23fbc686173ddf44dbf54d355	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_plane.c	c48bb5967842f96fd78296ec6e2ea36e57754085e1ec1fd7923538435bcf4470	Permission to use, copy, modify, distribute, and sell this software and its
+linux/drivers/gpu/drm/drm_plane_helper.c	c3a8ccd2fa53e548b0e10ef2e2c25a3749f4aa336234998ce0134d291258663f	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_prime.c	29ddb71feea2055d2dcec46635a2265c62fe3fc621625a67f6875f931b2f9a68	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_print.c	5816e3579f5612612e6f373b8db0e3cc70ddc2a3096cb041c6f50fec154f4ebc	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_probe_helper.c	07cf50ac2ca1c653265c5778e53a0dff96b4c5269e1345440e4806517962693e	Permission to use, copy, modify, distribute, and sell this software and its
+linux/drivers/gpu/drm/drm_property.c	00546353964d9b50435224fb3076e22c49df49ff391742e2a2d8708f721b2975	Permission to use, copy, modify, distribute, and sell this software and its
+linux/drivers/gpu/drm/drm_rect.c	2fce0089dc7475a796dbc809aeb078dc859f13fdb1e8113fa483f37f7e73c44a	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_self_refresh_helper.c	bae807c1c0d349b39263ac7fa7e9680b45b7527746d59feef5eaaa3ba3ec715d	MIT
+linux/drivers/gpu/drm/drm_simple_kms_helper.c	47c270af9b226f33ac83dd0799401320bbcb52c22d1d2cbdb571b50f43a518b8	GPL-2.0-or-later
+linux/drivers/gpu/drm/drm_syncobj.c	d4bf2dd4a31465c1c06a0edcb352f168e5d4e82d02840ca4245ce4bf931a7380	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_sysfs.c	7088777c35fc751d8fb26f23974cfe3a11ab68a9b52e354caecaa38e0380329f	GPL-2.0-only
+linux/drivers/gpu/drm/drm_trace.h	0b4779e5ccc62e11e2854a89797cb39f97ef21030c114d05e0a2782e670b54f6	GPL-2.0
+linux/drivers/gpu/drm/drm_trace_points.c	5e6770325d2721f34b508fe7e86008b6a4f5ad9936ad3475d9b25db2e7d82abf	-
+linux/drivers/gpu/drm/drm_vblank.c	c6edb115c1457be17d9a9aa44972694c67ffbb6b331cd858f21a51f39895868e	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/drm_vblank_helper.c	933a617cda827a9b55d84803d2f2cdbcdc2e81c0305f27188d2c97d8ca7f8dce	MIT
+linux/drivers/gpu/drm/drm_vblank_work.c	8d87eaad8e7a21029c8eee2252978da1c23b2ac58820f0bb9ee86e0a91825671	MIT
+linux/drivers/gpu/drm/drm_vma_manager.c	01b94890c38f00e71bc6b71536b460fa855c13d8da204e5414f83085c6c6a210	GPL-2.0 OR MIT
+linux/drivers/gpu/drm/drm_writeback.c	304ac9ff130263fae730adfe880b2e5ac9a932e5b5de38b07a35157d8116278f	GPL-2.0
+linux/drivers/gpu/drm/virtio/virtgpu_debugfs.c	dff7ba80109b2e8e5b16a7e0879aaab546b48d0a326f19c4ac2f8b16c82ce1f7	Permission is hereby granted, free of charge, to any person obtaining
+linux/drivers/gpu/drm/virtio/virtgpu_display.c	bbdd93c69e6e40b4de94c40f08d06333adaebeaba8b7ec75ffd87a4cf2623177	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/virtio/virtgpu_drv.c	3762e5ac3c8fb221fd59391cebdb8fcb90de1d807960e5fd4250bb6e86dee026	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/virtio/virtgpu_drv.h	649f9770e03d047ab4a0c51b3096e68e0d6856bda8e7076c431bd73dd186ec5d	Permission is hereby granted, free of charge, to any person obtaining
+linux/drivers/gpu/drm/virtio/virtgpu_fence.c	307141a298e767a0df453763e84ba05ec29331424bf4e1753808fc7040391f74	Permission is hereby granted, free of charge, to any person obtaining
+linux/drivers/gpu/drm/virtio/virtgpu_gem.c	5d484035d1363149c20ce2fed7b8f745af359c98bb81a2be215e9871c00dec1a	Permission is hereby granted, free of charge, to any person obtaining
+linux/drivers/gpu/drm/virtio/virtgpu_ioctl.c	bd436c957c3c02209a6fc479317ba41af82a7b0599df8dc2e6d8c58de70c03fb	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/virtio/virtgpu_kms.c	496972487c56c8ff54e4cf0d1f33d875bc1546123f8f6f6d9acc3f6e99fc7473	Permission is hereby granted, free of charge, to any person obtaining
+linux/drivers/gpu/drm/virtio/virtgpu_object.c	0da51d8a7f0ab5065fb010a0cba2c41f1e8d12da49c53e5b4bc25e7158a542e3	Permission is hereby granted, free of charge, to any person obtaining
+linux/drivers/gpu/drm/virtio/virtgpu_plane.c	0f403831c65082f1a16696dabcf5a9224b11a8a3f6a93f9b2371ff89dce58753	Permission is hereby granted, free of charge, to any person obtaining
+linux/drivers/gpu/drm/virtio/virtgpu_prime.c	b1e415c76226e97f86703c38153041179ad2970255ebbcd157d1d9a00e8c8c37	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/virtio/virtgpu_submit.c	f04e5896e853851931377c8dd1262fa19b44206b678c6a7cc26be9a63ae4a1db	MIT
+linux/drivers/gpu/drm/virtio/virtgpu_trace.h	0f3c8851f7e42743315014d3f9ddfea56b4abfc053305d5f46fd935da45e2ca0	GPL-2.0
+linux/drivers/gpu/drm/virtio/virtgpu_trace_points.c	f076a7c647b7f6a2e36315ba5a56cd7f6e1be98179b98eaf623a9ce72c48443a	GPL-2.0
+linux/drivers/gpu/drm/virtio/virtgpu_vq.c	51751a196b043410921284175fe017df35761d05abe6bfa8528660840e263973	Permission is hereby granted, free of charge, to any person obtaining a
+linux/drivers/gpu/drm/virtio/virtgpu_vram.c	88de1cf1f4d87932ad2be51cde3a8266ede72c862cb191096d6478e07e5f85e1	GPL-2.0
+linux/include/acpi/acbuffer.h	35ba604ea76c3efb445c815d14047e3d8fefa549145516ab50559a0ec5d90a60	BSD-3-Clause OR GPL-2.0
+linux/include/acpi/acconfig.h	52f9d2ba3e82b6ea809171e47beffcaed79418ea45bf23fdb5060ae43b1460f6	BSD-3-Clause OR GPL-2.0
+linux/include/acpi/acexcep.h	e5d3462825191d92a078d6af1c08be7a501d19498ceb22a24efef4f0dae0785b	BSD-3-Clause OR GPL-2.0
+linux/include/acpi/acnames.h	6c9676d2d88c6987991d37a83022dff9836597bc9d6a04221169a4e3a1b12fab	BSD-3-Clause OR GPL-2.0
+linux/include/acpi/acoutput.h	5f3c66347639d6e5af7b91c3ba36478baff1048014db33d0cd21dc9cb8e390c3	BSD-3-Clause OR GPL-2.0
+linux/include/acpi/acpi.h	11f0cbc78bbfd0e95193894cc583c9a365430fdf610c22dcda6a952d768a877c	BSD-3-Clause OR GPL-2.0
+linux/include/acpi/acpi_numa.h	33ab2e6b420cebe9e4eba3149e785d440cd5b2b704f33792e8ec5658e6a067b7	GPL-2.0
+linux/include/acpi/acpiosxf.h	17dfa37d77e6b6a6ef9cab66aec5cac307768df136ffaf833720e6c33dadd1cb	BSD-3-Clause OR GPL-2.0
+linux/include/acpi/acpixf.h	f4a71cae4df5cdc162daddf140caa022c1bde1e92077eb1f162ae9ca55b6568d	BSD-3-Clause OR GPL-2.0
+linux/include/acpi/acrestyp.h	31f4d626e775dd1f08a195bff67a3ac8e7918e8487a253e13a3d4f3f32d739a6	BSD-3-Clause OR GPL-2.0
+linux/include/acpi/actbl.h	f9c429cf3b2895ec196b7d4ce6453512c3246d29bdad5296ef4a8ae0f2c52305	BSD-3-Clause OR GPL-2.0
+linux/include/acpi/actbl1.h	8825ed41c1277162605cd40c15f678a8d8818eb7eb7e189cd9ebf142b2c2fb50	BSD-3-Clause OR GPL-2.0
+linux/include/acpi/actbl2.h	ec1b65fdc4eba8692764f3ab071ee905d069bec7747b4fb143eb05fe8db6cd83	BSD-3-Clause OR GPL-2.0
+linux/include/acpi/actbl3.h	66bcea45aeb4aaec24f81ec242f2a7765ee5c853bef2fec8a50fa56dc5346fbf	BSD-3-Clause OR GPL-2.0
+linux/include/acpi/actypes.h	0c6ef6e7625a635c98e8fe47bb0752342567783b4a9a704c8ad53d189d464b80	BSD-3-Clause OR GPL-2.0
+linux/include/acpi/platform/acenv.h	77959b61f3884b16628b9d22314b91085c2f144e4a77b6c150d6bef0b518e583	BSD-3-Clause OR GPL-2.0
+linux/include/acpi/platform/acenvex.h	df944cfbd965da757d5582e39d5a8ecb375b98e15fbad018c227c2e180deb824	BSD-3-Clause OR GPL-2.0
+linux/include/acpi/platform/acgcc.h	b213a97874dc147656912436d5e674512223dd1162bff2c81fcc24fcd82e657c	BSD-3-Clause OR GPL-2.0
+linux/include/acpi/platform/acgccex.h	4d958a8c9d9fc2f5cad3a14f8f5ac695de08e1eddf13ed65f60cc1d790caa965	BSD-3-Clause OR GPL-2.0
+linux/include/acpi/platform/aclinux.h	6390bafdb527dc0c9f07864ed86875bb81965f36755cc0663f6de1c6cd578e28	BSD-3-Clause OR GPL-2.0
+linux/include/acpi/platform/aclinuxex.h	69ccae6b743c15b50a5166f7bf713a53b9ce20f771a01105708ebbc611d47e55	BSD-3-Clause OR GPL-2.0
+linux/include/asm-generic/access_ok.h	208c8de8a36d6c8d8169f1b19be991cf658490fb8ae009d3fe516ab0939b1b13	GPL-2.0
+linux/include/asm-generic/barrier.h	d067146839425a9d81712d7259e89820fc73a0305fcb2c84d15de9ab185d2b9c	GPL-2.0-or-later
+linux/include/asm-generic/bitops/const_hweight.h	9bbc94bc89ae521e00be3fea4c2bc1e33fc7b4bf9b8cfd87df2c46236efe84c4	GPL-2.0
+linux/include/asm-generic/bitops/ext2-atomic-setbit.h	3813ee4bf04de8c65e95e9100329a7620abb09423029c544808e384a126691c8	GPL-2.0
+linux/include/asm-generic/bitops/generic-non-atomic.h	2a8c37f42a26734a4313527789c6ad5b0e3437558820456b3e64c08f497b5e80	GPL-2.0-only
+linux/include/asm-generic/bitops/instrumented-atomic.h	b1de03c04b6abcb20593dd27806337c92b670a182bcf674b59f87e59d2e47161	GPL-2.0
+linux/include/asm-generic/bitops/instrumented-lock.h	3868d3ff5a3a0550a2d8d718eedd71c433ae2fa966afce8819493348f4676eb9	GPL-2.0
+linux/include/asm-generic/bitops/instrumented-non-atomic.h	d11acfb0ed2115e39ec54a926e9b7766f4bddfd0679d06eccce47260cc0a0547	GPL-2.0
+linux/include/asm-generic/bitops/le.h	39399c2cde901449108df72df3c360511e5564aa652d628e60e8ce7ea4cc6320	GPL-2.0
+linux/include/asm-generic/bitops/sched.h	9ca18afe9cb77896c5a7ab7905cef16e224c12ab2238606ec9ad07f90c6a9cea	GPL-2.0
+linux/include/asm-generic/bitsperlong.h	09c1354e4daa869af60b1b9ae76a0f7a5362bb0fc0be62d64c8ad51e3d19aa87	GPL-2.0
+linux/include/asm-generic/bug.h	cad38e6a000499155b2b4c6b1001a58ce350a3d21686c31cd97f7edbfbcfff1f	GPL-2.0
+linux/include/asm-generic/cacheflush.h	e582b6947296f9eb48fc683cb09a6a04618fd7d6c52a43f2537491c886f6df0a	GPL-2.0
+linux/include/asm-generic/div64.h	288acb881f07893b78dde25bd9df2185db53442a38dc42de4ece20e34a7ccdb9	GPL-2.0
+linux/include/asm-generic/early_ioremap.h	af02936336191c0c2bb82a6f566edd43b2eb67cf46ebd05114589533ac18994a	GPL-2.0
+linux/include/asm-generic/error-injection.h	b3d2bae80238c63df91d95300477ca7c4c22f928cf42b7e716821779dab13e5b	GPL-2.0
+linux/include/asm-generic/fixmap.h	a9090e7ed09576a052d2052eb803fba43722a1cc901d2cc57f3c7987ffba6e54	License.  See the file "COPYING" in the main directory of this archive
+linux/include/asm-generic/getorder.h	8a11cb3fb27590a28ee50220547925d7228712f8bcc9eac01c8230d2a2c45506	GPL-2.0
+linux/include/asm-generic/int-ll64.h	6adf196af7b0af7c4175e8c749f2acfcda2ffb59b926bb6b665182b0d6d6720a	GPL-2.0
+linux/include/asm-generic/io.h	59a7e83c58acc80691f1a30c0ce1cf115d921fdbff848a0be2286654bf82d58d	GPL-2.0-or-later
+linux/include/asm-generic/ioctl.h	f5c298423cf337ec430e1a26272bada9fa2f1bd4681847e407ebcad1550977e9	GPL-2.0
+linux/include/asm-generic/iomap.h	0486f7b160dbda5771f198d0bc02ed88ce7221a07781702f2d5bf08c3824562f	GPL-2.0
+linux/include/asm-generic/kmap_size.h	a598fac6d8e12108d3aac7a028fa35e2d546e67e0df381ef0893910f749587f1	GPL-2.0
+linux/include/asm-generic/kprobes.h	489d8f9e5dc1279ee64c5ba099f055260a780b2ce435157649b4f3ada5050f33	GPL-2.0
+linux/include/asm-generic/local64.h	46cbdfa06cac054803640d4d121cde7ab6131c9bd79d6f27adc17a67f35e0737	GPL-2.0
+linux/include/asm-generic/memory_model.h	950e6130b0aae12a508f3be25ff1d2b2dc9649b9dc2b45f6ecb92c8bc523c613	GPL-2.0
+linux/include/asm-generic/mmiowb.h	a3c29901be50ed7aef6c26ce8505e0a881189728913a4b02c8829b8f78aa793b	GPL-2.0
+linux/include/asm-generic/module.h	faf3c7acfed4e2d2ef20ed2dd6a9cb265020000717be1f5d2d80e39936bb954a	GPL-2.0
+linux/include/asm-generic/param.h	35763c3ded5ab8966539b4f3096a41de2c7b7d374d9e26ad99cf32426e6ffbc5	GPL-2.0
+linux/include/asm-generic/pci_iomap.h	2929e92da5a1952c814479e8967b19fcdae257e697df24d5fc13bfbac6209aa0	GPL-2.0+
+linux/include/asm-generic/percpu.h	e1fd722c3b85f691094bb954a8e04845859bddcd22d4d83d7dbea8d6f70f1c60	GPL-2.0
+linux/include/asm-generic/pgtable_uffd.h	e5733018640ad9ac848a9717dad98c2ffc8a78eae910ac55dcbfed2ec210a065	-
+linux/include/asm-generic/resource.h	460e855d3182ec31290c986b705a87ec2ba9848d7a9bffa3f314b6b61cc2b783	GPL-2.0
+linux/include/asm-generic/rqspinlock.h	681eba122489f4231d41704e8de208de365d6624fb633f519388b0515eb9cfa2	GPL-2.0-or-later
+linux/include/asm-generic/rwonce.h	e572c666ad9efa7eca68a005337a2f04fbb39d541b9a111c48955db6ec903531	GPL-2.0
+linux/include/asm-generic/sections.h	b7d898e5c0a6442446d25c3a0c69a0b3e211b1e515c6ec18be04d671dbc2e491	GPL-2.0
+linux/include/asm-generic/set_memory.h	bf52d192a1d561ac43e380f16c5cd3ae88f5d349dc31b96b99c4c18b3e6e1fc8	GPL-2.0
+linux/include/asm-generic/thread_info_tif.h	60e450d7308c84a56fa1cc18520ad7d4fde53650c7b9e0af988f95f0129341f9	GPL-2.0
+linux/include/asm-generic/topology.h	a1709eadf6f1aa60bd2115d485f20834db67e540b0e5c3af3687a7354e410f5f	it under the terms of the GNU General Public License as published by
+linux/include/asm-generic/video.h	5b7a18d275e0d4c78a33f2613fff5d56360f4899c3e00c934c8f2d3999c806d4	GPL-2.0
+linux/include/crypto/sha2.h	4e641bbd195343894bf8f3ba071078c10d375ebbd5503b28bc78bc42618dbb2d	GPL-2.0
+linux/include/drm/clients/drm_client_setup.h	43105064511faa076c0b3a217e886d8babb8ce45c73c198f7f498d579fcf99c8	MIT
+linux/include/drm/drm_accel.h	0aeb28f89232ddd687c0249661bab7176f17dd4c7e15b5fa03d90547f6f757c3	GPL-2.0
+linux/include/drm/drm_atomic.h	26ca0368628739a74e413518822ac92c2dbe369eec42b53d3eefff28e4f5675c	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_atomic_helper.h	defd9e744bb190b42c0fc0bf3ced4bbea840fff3d5e078e21381e8fe4eb3878c	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_atomic_state_helper.h	165ed56511b0b1c45640aea35ee60b4728335a7c264526deeca7967d90cea45c	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_atomic_uapi.h	0fabc1d74c02a65b37b3d9ac505ec85362cbcb427e297227e3f3e059bec361fe	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_auth.h	3c4f8759e905141c9128260f185e7c9a0289b7aff9bacbb5bb4ee4f292f2b726	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_blend.h	46a47b37fcb9dbb1da3f98d58db0075d21b1a0cde21290c5d627d4ace05f044f	Permission to use, copy, modify, distribute, and sell this software and its
+linux/include/drm/drm_bridge.h	b89d12dade74a7a9e58869ce35d70037dbec4877f9da665aa81ff81785996f0c	Permission to use, copy, modify, distribute, and sell this software and its
+linux/include/drm/drm_bridge_helper.h	ee9a7fe207e920e69500038d00fb65354cd9b9c09ae14805c6c2f00957f4513d	GPL-2.0-or-later
+linux/include/drm/drm_cache.h	2626120d1dd4222c14779b71a352e239aa80536aeebc1e742cf552abb77598ed	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_client_event.h	ded8cfb90be305ff3cf26ffa91913b3bad50d281309ae9798301d0db59afe5ab	GPL-2.0 or MIT
+linux/include/drm/drm_color_mgmt.h	2d9ef9b280ee72734e9ef65fd6b6c33c636ab481080b7defc411fe0c23aff0c2	Permission to use, copy, modify, distribute, and sell this software and its
+linux/include/drm/drm_connector.h	e5d4137b60b9c9e13e9a37642bc36a81eca00d459cfad059536a0e53ad481d5e	Permission to use, copy, modify, distribute, and sell this software and its
+linux/include/drm/drm_crtc.h	5256a74b6b1d614bd8410c01c0c9c654d38355af660ba4b6928ea96ad183ac27	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_crtc_helper.h	c81f00db30ddb11af48f7f6497141ef9e2513b00ac51731880d0cbe606dcf46d	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_damage_helper.h	9cdfef500b856dfa83ec743bd379c0e05a07718a80252f818cf05a704226fd26	GPL-2.0 OR MIT
+linux/include/drm/drm_debugfs.h	f3f4c6d7765e4f36c03aef98c17912ff9cec01534a0d7c20aa8375d6cb8fee88	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_debugfs_crc.h	fca5a1b50b80cc6b3bd120175e10c657bf47a75a9a6313f9e7a6bf146a73885d	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_device.h	1f29ed695cc07ceaba8901030584df1fed4779ad1d50fd5d8d288d9f39a94049	-
+linux/include/drm/drm_drv.h	66242b7bb8c93671e3b23791daac0d521d8cccac37370b7dd046748798bde47e	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_edid.h	62d60d78c2bbb1f25668fc3af4719f61b88cf8622b3914e91c997b005eccfc20	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_eld.h	c727bcb398db53d5f774e39363dc4ffbf8ef7832ef0d1d2570a618e10937b507	MIT
+linux/include/drm/drm_encoder.h	445f36154601a1618d971afcf2f8fa9000e0a828b86d65a16aab26a89745474b	Permission to use, copy, modify, distribute, and sell this software and its
+linux/include/drm/drm_exec.h	98ec19aabea147b2c62f264a02bdbdad498ce0d8294d6628c27f710c7833bff0	GPL-2.0 OR MIT
+linux/include/drm/drm_fbdev_shmem.h	1f05cfb9a274be7e7208f29478b23777d00a90f18119236b4a5b40fb6418604c	MIT
+linux/include/drm/drm_file.h	a3798138a06092678a091617183e4be65eee8becbef0f25452c08556f4b5b38b	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_flip_work.h	d20dcd1362a2227cf3b161e78edd8d2c08672d54e161eceb13844043bfd472f3	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_format_helper.h	cf940ef5275dcc5c574e010135bc1384235d8da9a422ae27f5e47bd5a3a01af0	GPL-2.0-or-later
+linux/include/drm/drm_fourcc.h	96caef825e036aeb4736fec6614b39ea5d4d7fa0e8eb81f7d10fc8e40be5338c	Permission to use, copy, modify, distribute, and sell this software and its
+linux/include/drm/drm_framebuffer.h	2434559e427dc128a7b45fb4c36d9ba37f8c822aaa72d920a4045ca9ca4eed0a	Permission to use, copy, modify, distribute, and sell this software and its
+linux/include/drm/drm_gem.h	5cec5762deae8f5e2f2a559b2b9d233f545422e7f9aac3570d5568c2e894db8e	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_gem_atomic_helper.h	0f9c57cd46436d2e60caf9c7c68d65d86b1a36becff0217525f2be8f7bc443f8	GPL-2.0-or-later
+linux/include/drm/drm_gem_framebuffer_helper.h	8f342a750ab6ae4485020cbeafee5ff06e58b2f7bc8fe0cd4d5d53080fead43d	-
+linux/include/drm/drm_gem_shmem_helper.h	cec2dc2cbea5b1fee71f863f03eaac3860a2c704e9135badf822b8036dc8f37a	GPL-2.0
+linux/include/drm/drm_gpuvm.h	04e1e16c4e77ca813ad41c304580b6f39e0a822ab8e48ff5e01dc3c3e978e294	GPL-2.0-only OR MIT
+linux/include/drm/drm_ioctl.h	19e9387b68cc066bf98ff22add414855d82084486ddcd5344594c883e415d4ac	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_lease.h	e8459d83ec91e6336763afbca326321967e2d25d1666f693218811154ceb77b2	GPL-2.0-or-later
+linux/include/drm/drm_managed.h	18c8af7e58168c5e5cb9d3a66ff75975219c8d9895e6946eb38f3951779d3707	GPL-2.0
+linux/include/drm/drm_mm.h	f77781d73fc713fa76b60972cde2d6684c88fdee7b7eea5ded9348f723c1a03a	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_mode_config.h	06161bd3e29e68f5d81f32620571cc45df9762902d013185c2b4b5a717a3457e	Permission to use, copy, modify, distribute, and sell this software and its
+linux/include/drm/drm_mode_object.h	65bfb936e94ccb2fbfca867538cd03c329688574e5dce9305ddd967db93ce0f2	Permission to use, copy, modify, distribute, and sell this software and its
+linux/include/drm/drm_modes.h	d2502e077f292cffda4ca98d8c83df610397cb62637bb932d3b4256c9ce73759	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_modeset_helper.h	5cb81097fd0b29a7152ecc823cca988d55cc974f9a92948adedd00afb8dd4eae	Permission to use, copy, modify, distribute, and sell this software and its
+linux/include/drm/drm_modeset_helper_vtables.h	b299e4fad16a31b5d8ab6a84defaa87034dd9bad3b46dcc6006a64b7e586efd0	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_modeset_lock.h	c41c21cd102a3a5a42ffa2be8599308fdb962bc7fc5ea15fbda7cbc1e2958244	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_of.h	02a6c8a97c19d7d07502294e0e670c8c19acd09411bee868ce5fc6e5b8f82c1f	GPL-2.0
+linux/include/drm/drm_panel.h	bdf2a6559ca06d773068f39154cd4d3badc1dfcfeee0151ee97c151a7e8dd6d4	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_panic.h	cd28be77003893282ef7108a50ec572ad6d2b33b3a26a4ab0c366c291e5156cb	GPL-2.0 or MIT
+linux/include/drm/drm_plane.h	effbea193575e3c2734c5baea585e93acf1987a45e46458f7153e53c7c234d48	Permission to use, copy, modify, distribute, and sell this software and its
+linux/include/drm/drm_plane_helper.h	81995b67aea55f88f0d57a98c3672e8a3ea18ea00d0243ee21e8a3a2541d644e	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_prime.h	4b3362896d4752b57c5d9ffffd905080193292c15443e01e173b23c77a869c5f	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_print.h	00c6b2883e81ed9a986b7226861cef2922473e5e3cb48b0b2c551269d11dcb95	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_privacy_screen_consumer.h	43f310e92522933f889e2f65ee2cd18a2e4dcf30b9e078a9d549e6d36289f521	MIT
+linux/include/drm/drm_privacy_screen_machine.h	41bf104768bc24bb34e3aa207d8a1ae267f0a3679f1dae7b189a36b41082a36f	MIT
+linux/include/drm/drm_probe_helper.h	bcafa5e1b9751c3518348f8deee0de9532f7d70f8eb88233583bbfd7784a842f	GPL-2.0 OR MIT
+linux/include/drm/drm_property.h	e32b29da2ddd823ebe51d4a0e4221517214be4d901a46b498ec2a36211c561eb	Permission to use, copy, modify, distribute, and sell this software and its
+linux/include/drm/drm_rect.h	9faf2644c273934c05e4dbc788afe2dec58aac2b22b6eb31a29a9a39821ed353	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_self_refresh_helper.h	3c21220a5da75301faa25b4cd4d72036a25c6278c131b046b2afe54ce099f9ed	MIT
+linux/include/drm/drm_simple_kms_helper.h	c57d04007663706aa6c8ded8921e4b0b596f04cc667a0d18f360c2e0e363e863	GPL-2.0-or-later
+linux/include/drm/drm_syncobj.h	fb97882ee3220ff6a99d60d2332d7b0afa473d569500cf1042c05dd16534c3da	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_sysfs.h	727b2026d293f3a7db028f776deb6ad7ae4b4fb937b37c95e1c887e27facc7bc	GPL-2.0
+linux/include/drm/drm_util.h	263cc418eee6cbbd34a4cfe36f6d9a18933704b22024fd627ff921a195f72ff4	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_utils.h	31cfdcefedf3e8ba4ab1982ec42242b8a268ae7998aa0fbbd4c2eb0b8c58e6da	MIT
+linux/include/drm/drm_vblank.h	6a46c358b601d132d6f32109e7d3e9da7f19ad6b4469e488026718c5fd8f071a	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_vblank_helper.h	4e47c783c8379177323f864ee437f404eea7846982afd1013910ca6c2c9d6969	GPL-2.0+
+linux/include/drm/drm_vblank_work.h	7449e01915ddd1e389da5106eb40c0809341c2ce110aef2437e6064c15156c40	MIT
+linux/include/drm/drm_vma_manager.h	76497508aeee275b309dd61c2480adf6086dab998fd52e5f30ecb735923418d8	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/drm/drm_writeback.h	dd2f21c4209ffa7f1e96dd29d4bdae594d1d4e6ab9443a4731546ff9cefa9855	GPL-2.0
+linux/include/kunit/visibility.h	da7cc25c8e9b3ef86d3d86f016a0a70570c6cecd30615992729601b73d424343	GPL-2.0
+linux/include/linux/acpi.h	da5aea6b59ffb8b8e422880100724ae3186f9cced0d2dd00531cae3f0e628abe	GPL-2.0-or-later
+linux/include/linux/alarmtimer.h	56f4ac55d0aefeb2b5f94d758f35f50bbb58da6f23a0bf1774d70d7c5b306700	GPL-2.0
+linux/include/linux/align.h	4da2b94e368dab1745dc81e83bd29f580c6620e4f3fa19c871a77b10c31bee36	GPL-2.0
+linux/include/linux/alloc_tag.h	b8e745b2e706b33a8f0ca24487f8784c3cdf9fdde1fbb61a7d5698785e6198d7	GPL-2.0
+linux/include/linux/anon_inodes.h	56799310505d5f2a348fb94a7b422166d56d461bddc0146ab50471c9e353c397	GPL-2.0
+linux/include/linux/aperture.h	0738559a7af8ce36f454a075dbfecc6a45363dc55f3b4d243d2843bb83d28679	MIT
+linux/include/linux/arch_topology.h	4bcaf2baff1acddfdd83696544c7ff2c011a6f8d269b9d2a38db414f46652117	GPL-2.0
+linux/include/linux/args.h	bf2270bc92ca719ae469ea793c35d91c66f21c25757a24a64feeb9700e1c2b36	GPL-2.0
+linux/include/linux/array_size.h	f57b8e8f14d930b6884384a048fb97f450d2e6cee7e3da2bf6977e89cc1c97da	GPL-2.0
+linux/include/linux/assoc_array.h	7da09a8548b89f69290d7bb6725296419707dc960b737d003d733dad5421d90c	GPL-2.0-or-later
+linux/include/linux/atomic.h	4d53d1ce680486a9b9bd97ad529c2382509827784e8afee4835c2bfffa1691ad	GPL-2.0
+linux/include/linux/atomic/atomic-arch-fallback.h	17cf45a143a47a91f9a44fd641742812ba85ed8449b8960ca9a84d1edddee20c	GPL-2.0
+linux/include/linux/atomic/atomic-instrumented.h	bef32e54acce59c6b99721c90084f12ed5fa24990ef5b56cedece911dd320828	GPL-2.0
+linux/include/linux/atomic/atomic-long.h	bc1842b39b3ef1765b757b5c7fd452aeffc26ef216721efad4bcf143013624cb	GPL-2.0
+linux/include/linux/auxvec.h	827b08f3e0962054f2164ba5c35a429635c42ce5d41df2bb8171d30fa3259409	GPL-2.0
+linux/include/linux/average.h	d09058e439d1c790917b501f89545b590a35ea0a8a8ed58bcafecea86e6bce19	GPL-2.0
+linux/include/linux/backing-dev-defs.h	dd69a35b4def6f5e34a6a950790cc8920b79209bb7af6a39fabd3d7473d24e03	GPL-2.0
+linux/include/linux/backlight.h	47dcd65cc7cf3c47ece3a5b1936f063c0733a90b4aeab700d3ce5561c8bca29a	GPL-2.0
+linux/include/linux/bit_spinlock.h	c067bb6285dab7aa8d5c67df8a2cfaded4b7ed442320e148c579636296f19d99	GPL-2.0
+linux/include/linux/bitfield.h	0bb8d4d74538627e64531e15e8f7fb092ce0961ec0544d5d7fe4225d37ebb289	GPL-2.0-only
+linux/include/linux/bitmap-str.h	ea4663231fe9174f4e1307f876dd77f92e0178e3993e9ec57c75e22f1d476637	GPL-2.0
+linux/include/linux/bitmap.h	69b7f73e5bf226cffb7f8621bd0549154f432edae996d2a366b984ca9a96a16b	GPL-2.0
+linux/include/linux/bitops.h	227976be35dcb5dbd33ec602c9b5affbb678e1c8c0ce8465b1bc7dd5fcd32801	GPL-2.0
+linux/include/linux/bits.h	fec9de74956535b6664b36ef4e1b0399af0cdc63e50002dbe83c09e1c066825f	GPL-2.0
+linux/include/linux/blk_types.h	5411927fca94df9d9441b753b41d6587513259206757804a1ead7fbb01338676	GPL-2.0
+linux/include/linux/bottom_half.h	b29af1ca1000c13ed1eaf0f4a0452415972f51c5f97720f0fcc985ca403fe5a4	GPL-2.0
+linux/include/linux/bpf-cgroup-defs.h	8a4c4088c56678695a8fa09e3292af1b4798e81b45555c758928d37fe0ecb856	GPL-2.0
+linux/include/linux/bpf.h	ff115e53167212ddb1d432f5069fe0d7e80bed6a6b2ec06521fff1153e7ed45f	GPL-2.0-only
+linux/include/linux/bpfptr.h	bf181f0e3b416ccd0f2795d79e8e3b093e529cfbfb0706c0e16636da11110128	GPL-2.0-only
+linux/include/linux/bsearch.h	3923d8b820f5fa5049739d538b5ec0b651ba178fff0c2a1578c1b5052d74ace4	GPL-2.0
+linux/include/linux/btf.h	2b8c886aa74bc2eacc23ec33537b7ae46e79afbc3f7f4b97d80b72b81a8eaff8	GPL-2.0
+linux/include/linux/btf_ids.h	6e02c68637627f692d25cb77833c092f60ecd51130978df1dd5c530a0d68f383	GPL-2.0
+linux/include/linux/bug.h	23db83e55937d09415957272b4348135b720e7c5717912ef9181ab2b3c6457b5	GPL-2.0
+linux/include/linux/build_bug.h	ede623eec68a1f3fbda34c9c4771aa2b20c4579409b69a2a0d8a4e28a78b6393	GPL-2.0
+linux/include/linux/buildid.h	a8729af936a2b1ebde8c5902b5e51a8f5b3b206ced35e6a087041a7a05e549cf	GPL-2.0
+linux/include/linux/bvec.h	e35c8700b0c774adae2b32e4f26618ca243607e8fc768678a47925e92c401a68	GPL-2.0
+linux/include/linux/byteorder/generic.h	6b3facab3b763a327c3c24c198f1a43ac0f3e8964e5feb0292d909694f90589d	GPL-2.0
+linux/include/linux/byteorder/little_endian.h	7a212870a285445786fa8e4f6e0c7dcf5061b6ee00019c1bd4ce4c3e7bbf4e05	GPL-2.0
+linux/include/linux/cache.h	80126344324f512af39227e0c54ea4dc19933e6943fdedf900fb3cbf9d3f654a	GPL-2.0
+linux/include/linux/cacheflush.h	adbd8bd9d471d4b9e54a27330de0ef2657406862b5bb15cf92ed511da7be53c1	GPL-2.0
+linux/include/linux/cacheinfo.h	9c59fbc2f9124229dfe74040e6be273269d559f134023d7aa147bb2410e41949	GPL-2.0
+linux/include/linux/capability.h	b8edf895734673067a4cca3b3062b16c134b7c068110a85e5746d90f17dd9af4	GPL-2.0
+linux/include/linux/cc_platform.h	125681195c24de026c9c62eebf5c0cab95f61e12be4d9264928088a020c939a3	GPL-2.0-only
+linux/include/linux/cfi.h	7408d555696d87bd6133248d6cb6fb8c60a8eb0d3ff928e72ce4bce6f3b4685e	GPL-2.0
+linux/include/linux/cgroup-defs.h	b01dd0806d1b34c10cdf046f0ca237b33bd2f2685548d67b357c795fad8ffb52	GPL-2.0
+linux/include/linux/cgroup.h	8a8f88c781e2359d38722bf7ec8c24e436aa08fcbd4250592ccdb0d53874188c	GPL-2.0
+linux/include/linux/cgroup_dmem.h	c41a25aa4013011d2d0a5d19ad4344221e61fc90b69bc4f073908db546946c3e	MIT
+linux/include/linux/cgroup_namespace.h	6e8b3d15185f31183f52352a49a7a6c9d52a3e9f2a251ba3ae5e7a3dc9039286	GPL-2.0
+linux/include/linux/cleanup.h	2fcef5801b03cc15fbad8aa674e8c61c6a38901a8dccc42128123fab2027baeb	GPL-2.0
+linux/include/linux/clocksource_ids.h	ed611deecdb3e383f0090e4b36635821ff3d998d6e01aba60f19bf88a52ddfee	GPL-2.0
+linux/include/linux/codetag.h	ab4c883639125832a6c374222ebc1cd83a5c2fcb950e1a34ced5fbdf98527d0e	GPL-2.0
+linux/include/linux/compiler-context-analysis.h	148e1930ffcfe5c7b390dce3099cd064c757ea3e6e3a6041fbe43ec39e39dcdd	GPL-2.0
+linux/include/linux/compiler-gcc.h	6ec78cc88063f9ae619fa0419a93bc28de0cb463e596179863ea83079f37d771	GPL-2.0
+linux/include/linux/compiler-version.h	71b523f4f5ae572c6cee7fb2d62617ef900f3024619b1a61c8d9e758dfa002c8	GPL-2.0-only
+linux/include/linux/compiler.h	cc1b7b0efa54b278f1f5e0eae03e67a25fe2f9bffa5f41b888001b8cb1313775	GPL-2.0
+linux/include/linux/compiler_attributes.h	860f32920502426b1d840969071dfdabf09e3b9e083cfa8393422bc373fba6ad	GPL-2.0
+linux/include/linux/compiler_types.h	28bbd658a20cf4b72eb0759f2ff095a8cd317f719d8aa94c9298d6d0e2e77268	GPL-2.0
+linux/include/linux/completion.h	db5aac6634fbb92542486d273d93861dfd29061043d461ae494cfa2b2e9f4e4b	GPL-2.0
+linux/include/linux/component.h	f7c1d30b78a2a255fe66f75754929d5524d6394988c4743c8970e75a96d85d2f	GPL-2.0
+linux/include/linux/const.h	17aaf8663019f1988881952a031fa12aefa9127af9ea1d546202af632b2f0adf	-
+linux/include/linux/container_of.h	28b735d62e73541345c11101e343bb202694226bc22d93a719c3bf9c57648304	GPL-2.0
+linux/include/linux/context_tracking_irq.h	c96be4f34ef8e3082e2bbed00e876e29e88068349fd7c8617a0694111691a467	GPL-2.0
+linux/include/linux/context_tracking_state.h	7f648a773d3209a14195d161acf686db731fe5e3492aa68c64672593a03a11ae	GPL-2.0
+linux/include/linux/cpu.h	dc43b3f7401abc5d1b46f43ea1e82104e710adcb97a835dd2fb74f0743d67410	GPL-2.0
+linux/include/linux/cpu_smt.h	5dbac941da623e99712c7d5f7ae93c84c96ac48359675de748aa0332b77a56ef	GPL-2.0
+linux/include/linux/cpuhotplug.h	bfcb84fea79dd339b708c7ff92ffb7594c1ca65a8abfab3152c86d79101ca056	GPL-2.0
+linux/include/linux/cpuhplock.h	46bc063a134afb726ee816a1befd3fc632cfe7297e1046861283a62afd10b4d9	GPL-2.0
+linux/include/linux/cpumask.h	a93481ac56d2317b770f0eedb1aada44e289aac36d8dc5d405ea08ddded86457	GPL-2.0
+linux/include/linux/cpumask_types.h	18fed6ff401fc75c739b468ff7ffdbb5342178051e14796b58d6a0c4efbcc636	GPL-2.0
+linux/include/linux/cred.h	dd44541616a54ecf0af6f543d6dc1228999e858d111fb86ad24fba91164d799f	GPL-2.0-or-later
+linux/include/linux/ctype.h	eb8af725f1e42866009e36ed110bc03d0b6e3eb522b475573e7226530f803d50	GPL-2.0
+linux/include/linux/dcache.h	35911060959f449dbd1a15d10c06bce478f26c4c4c423cca46849817708a2f72	GPL-2.0
+linux/include/linux/debug_locks.h	35cde540de6c6b48044c9ea142508444a19c991b2dcd016f9358cccb936a84e7	GPL-2.0
+linux/include/linux/debugfs.h	cc612bdc46f428ac661da0eb4b3425defefcb35654139bdda7223ebbad3ca8f5	GPL-2.0
+linux/include/linux/debugobjects.h	6e69f0f903311b6e53f97218e1550f96a9875aace57bcca93188b056ad08ebf2	GPL-2.0
+linux/include/linux/delayed_call.h	c139dd95fcefa1d9ff38ab3c8ab232da992295e98d7d7404842003b2f1df18fc	GPL-2.0
+linux/include/linux/dev_printk.h	ba476a7261040b824eedb7d55a97c3f65be10870deb73baf8700c4310c56c769	GPL-2.0
+linux/include/linux/device.h	27088ee29e052d2d4032b8ed0edf23a5b4055da5f7ce8e5fa7a5219a634aa3b3	GPL-2.0
+linux/include/linux/device/bus.h	2925c9eed45b784683499137be606cb9d607cda6c9af0351ed54d9ed51758ca0	GPL-2.0
+linux/include/linux/device/class.h	f053e3d98422ef129f054be5d825e398e86704cc6c03210d508683775a0b01a3	GPL-2.0
+linux/include/linux/device/devres.h	275638bcb5e116b7546b9f60607c462b0c40c8814dc8e1ef372eaaed1f3cbd90	GPL-2.0
+linux/include/linux/device/driver.h	f103b4925305db24e33ce6a2c999e2fa28b1ac967615d312e486336201bbca6c	GPL-2.0
+linux/include/linux/dma-buf.h	dd0fe17a32118ccaa84c41c32590693bf109f69be19e911b4d7a940cdcf40de1	GPL-2.0-only
+linux/include/linux/dma-direction.h	72a8aa889dc17dac3f58e7c674fbf9bdaa8d45b9f7d2f9e4b09795f22749b899	GPL-2.0
+linux/include/linux/dma-fence-array.h	47e7e8c866eb2348c6acc25788078bc560f0da8e3ff2c5ee6dc7581e4701a9ad	GPL-2.0-only
+linux/include/linux/dma-fence-chain.h	c86c1bebdf3d7676cab2e8a76f08af339e09f8d4f46472577c5e7aa490b0d02b	GPL-2.0-only
+linux/include/linux/dma-fence-unwrap.h	04e488c82d9f0d68ee9b9ce171c60b6ee08e10211daa020ec0bdbc40fb36dd5c	GPL-2.0-only
+linux/include/linux/dma-fence.h	5fd0bb3e8ad45a4c522a2a8fbd8d76bdbd1d40b17ff0cdc557a717572a1769ae	GPL-2.0-only
+linux/include/linux/dma-mapping.h	d8e6f160eff91019bdc96dbaa5a2bc0837dec915fea5731b958f6328366c54d3	GPL-2.0
+linux/include/linux/dma-resv.h	f629666c24ad18fedc5c85c7c65169805b80fc83886b462fb58846ffbb2d27ee	but is dual licensed:
+linux/include/linux/dmapool.h	0512656b6bf4af490071c08f483095188628e0e63e9a77859ac969611b914734	This file is licensed under  the terms of the GNU General Public
+linux/include/linux/dmi.h	5b40d13c1532a7d1989077a8a6617cd053f21dde744e1f3f1df25fcddde8e59a	GPL-2.0
+linux/include/linux/dqblk_qtree.h	ec0dcf5c821ac39532c79dc92e887841739e6a157983cc94faeeb89b9e9e06de	GPL-2.0
+linux/include/linux/dqblk_v1.h	d239362ccec9716023a0eae23aaf34e7d5dd7261fe8076cb862faea0e3c79e77	GPL-2.0
+linux/include/linux/dqblk_v2.h	dd846e5d131f1f60f650a789de05dc7e55a127c0779c6c113bcb03a0d35cd41d	GPL-2.0
+linux/include/linux/dynamic_debug.h	7d069d591a5324fe2d91de53f3d2c32c71749161a505f825c34120b9fadb2a67	GPL-2.0
+linux/include/linux/elf.h	ca735899fd2c19c7d387f6a361d54878b3feff287ab025295f215f606e9f5e3e	GPL-2.0
+linux/include/linux/energy_model.h	48eeab266493e24a077e5dca9717ef7eaa2d53162d360ee6925cd99f204c0cb4	GPL-2.0
+linux/include/linux/err.h	39cb4711c8d97ad37d3bfdacc99e758140eb90cc8f73eca69a3c1bd0d584c10b	GPL-2.0
+linux/include/linux/errno.h	e49469284a3014e6cbca27f852a75e4e540818d38b33edff7eb2c4fe8dd268c6	GPL-2.0
+linux/include/linux/error-injection.h	ac8e661b257ba4d90fc66c49deb89396101711563449685a4722437172a0308d	GPL-2.0
+linux/include/linux/errseq.h	c22d636d1eb4f5812ab7150751869979b34f073475e5a78a42dbee3e75e99a17	GPL-2.0
+linux/include/linux/eventfd.h	3e4be8a75902ad79fb7f777a4e7e653850aa9cd592aceaf41f1ed5c905fda293	GPL-2.0
+linux/include/linux/export.h	4ad93a3c87f955bad3fde700801cc787b9d50b30137e6db5aff45001fe678b9d	GPL-2.0-only
+linux/include/linux/fault-inject-usercopy.h	f8650a9e615e0680d3f63d955a169f21f623aab860b1f925cf5a9dd3bf7165cb	GPL-2.0
+linux/include/linux/fb.h	0389ad027ffe8461e0e68c4b70e1489e5be5abb21f8f8a298b97be321797f417	GPL-2.0
+linux/include/linux/fcntl.h	3596923a526ffc73d9445e1b7488593a3f3c29c35a05cfe85c6573dae4262078	GPL-2.0
+linux/include/linux/file.h	33a3333977ffcffb0cb22290b9718c4359cf3939e77ea9876341fc5d664d2637	GPL-2.0
+linux/include/linux/file_ref.h	6f8d93585a850bfc6205f82a670c266e41fb4c67be943a3bd1a4f88eda8504ae	GPL-2.0-only
+linux/include/linux/find.h	b8b91218c4f7b48ff780e3b1df65f2adc3193775798febea29a2b7c6d73fd000	GPL-2.0
+linux/include/linux/flex_proportions.h	4731cdffa5ad2b8eda8ffad4320973fcb6187a6a9dc0b6ac7dbc6c5df0244bbc	GPL-2.0
+linux/include/linux/folio_queue.h	d3e0655f405c331875a1421dc7b15cbbfc9d888cdb91bd121739886cf90234a0	GPL-2.0-or-later
+linux/include/linux/freezer.h	d06c0817c3b4308b70ba0bbbcf6518c630309e1d2502c542422c585249cc297b	GPL-2.0
+linux/include/linux/fs.h	f7c58471d88d0b968a2a7906ce4c5ab00ada56f7790a1faf7725133e6b5a7035	GPL-2.0
+linux/include/linux/fs_context.h	8c4f2befb892a627573fef5973d04448d69af3ff865afbda68e2c0a6aedc8b1f	GPL-2.0-or-later
+linux/include/linux/fs_parser.h	6331bbec084ba37fb5f5d7f6c34f92b04ad748e41051bb62fcabf66013c15353	GPL-2.0-or-later
+linux/include/linux/fs_types.h	5671cc8c73ab31cc42da2f9f7cbdb4467f3e5432bf278f5b1da1c77028164b32	GPL-2.0
+linux/include/linux/ftrace.h	670b8b1d0fbb33cbf42efd7c20ca0847f34d1fdfacd9ec8b400415d581bdf600	GPL-2.0
+linux/include/linux/ftrace_irq.h	28666f49ef06b938309751257cf6b2a670770c30a231b37f9299df317051728b	GPL-2.0
+linux/include/linux/fwnode.h	d58b863353cdfdab5031c75d8ff0d85dc786fd05cb99993fd28be68b59de86ad	GPL-2.0-only
+linux/include/linux/gfp.h	a6fe8c1754daf501a8408cea321557c96e068cbd1636e03cea3c62bc36113b43	GPL-2.0
+linux/include/linux/gfp_types.h	679394be954668ab8e1d104df064495e4a1f1acf637884ea27d53f1f3c97f46b	GPL-2.0
+linux/include/linux/hardirq.h	71537117b656276a3826a93b1b7996b14a7d12c11c02321dc5881b5db5d8560d	GPL-2.0
+linux/include/linux/hash.h	3619d01cd90fdaa882cccd85e1dfefe200de0578f7e2f5ccccb8cda9add4629c	-
+linux/include/linux/hdmi.h	465d746311c9135bd85c23ed7efe10399831c1bacd0c830824e398fc80611096	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/linux/hex.h	b367b30dcb8c0e971110bc73ee1c06801d1059336646e626ce84d66f1f8f6774	GPL-2.0
+linux/include/linux/highmem-internal.h	d8efbddf57587aa0c699a80fdcbfd5d5739568e5a39ab194aaf9fdbdf9ceb045	GPL-2.0
+linux/include/linux/highmem.h	35e77f1fd63078f2fa30e99555498ece3ef8faf2f548f5c6e5b5cbf573604c4b	GPL-2.0
+linux/include/linux/highuid.h	cf83180733c5f9283367c990224ffef7de7526f132d23061337e8e04534aa7e5	GPL-2.0
+linux/include/linux/hrtimer.h	b10d9a5ff36c0e999b5a756b291282504e91ea9389e9764ac4d1db13b9d89d39	GPL-2.0
+linux/include/linux/hrtimer_defs.h	20e88e379907abe980c3e3d43f1f1aac8ee6229580e1e4ef78bed994afe71f1a	GPL-2.0
+linux/include/linux/hrtimer_types.h	a08b4a143625258acdc48820a330c012671a82288c5d9c5ed8b998256e20c155	GPL-2.0
+linux/include/linux/huge_mm.h	358f42b5f38ded9a2d4250286a8d34f52c6e99ab05d2430afbb940f633d6dc58	GPL-2.0
+linux/include/linux/hugetlb_inline.h	33317b640f212c51264a187b939c8f622e7d3909df388b9b506b04b02a5bd13d	GPL-2.0
+linux/include/linux/i2c.h	f36f4c56bd2d85d314687efcc03a8451d9a4e1ac53b45834030c645672e91867	GPL-2.0-or-later
+linux/include/linux/idr.h	8f4de38006634e185c936a8844c49c1e2b75d43305783bcb8bc4000298d9b6ef	GPL-2.0-only
+linux/include/linux/init.h	d932beb0f7ac42f6e77e0b1f7caf58c54e72184fa08dff510f4ecd0cff7dcd35	GPL-2.0
+linux/include/linux/instruction_pointer.h	4377b75a38de319f5ed6c066abfa59a875d50267b5f22879589694d99b3b0cb4	GPL-2.0
+linux/include/linux/instrumentation.h	1c86755e66b043b79ac93efe169c3346e6723f2e19fa379a0dd10fb7a3c0002f	GPL-2.0
+linux/include/linux/instrumented.h	8f1562ec522eb76375c49faec4a6de5c7eb64d7e6e6dc74b77af542ebc5eef8e	GPL-2.0
+linux/include/linux/interrupt.h	b50577a09506b6f8429e5a7d787011daab0ddca9fbf4022ff609fde95abcad76	GPL-2.0
+linux/include/linux/interval_tree.h	97c4b042b616a25ed6fe09334a7d4e4ef6abdecddea83c9fafbb2f2f06815b85	GPL-2.0
+linux/include/linux/interval_tree_generic.h	63d1436230b6d026132826d214be09e29e234694e96e986733036f7c8e07101d	GPL-2.0-or-later
+linux/include/linux/io.h	f29a80797eefafbac9a9a63365d1fe1df01b78be1e23ef908f27425dda93dae5	GPL-2.0-only
+linux/include/linux/iocontext.h	d2af33ba870c75bd7173a405ccd3d8f8c9d6e4eaea5422eccbd8abc1ff63f903	GPL-2.0
+linux/include/linux/ioport.h	a3b815e66ad2dde1cdd6c064b1f9b8db44c87baa3c8ef4d403569b69a3f463c1	GPL-2.0
+linux/include/linux/ioprio.h	6c2e7b2a57af782db5d7a0a089df894e4fd4ba62e3d515a17977c187add94a15	GPL-2.0
+linux/include/linux/iosys-map.h	d2a7b810a8b0853878972dae1f2dcd1b35e936426847d504effe0911c90adf9f	GPL-2.0-only
+linux/include/linux/irq_work.h	686037a7bf5de84a0fa5a6dbc02ca43c82715e2a24d848efcb3dfebc7638900d	GPL-2.0
+linux/include/linux/irq_work_types.h	27f488817230873274bccc9e7caa46b534390209b1a16ea9566c71be12196193	GPL-2.0
+linux/include/linux/irqdomain.h	827bbed95dd4e9d4a29f927990e666f448c2a123bc8ead967c907cf9081cf90e	GPL-2.0
+linux/include/linux/irqdomain_defs.h	db16958e6d22b2e2d2144e3054c0cd6cab9b7ed0b51b6ee7f1841ffb46e5ee68	GPL-2.0
+linux/include/linux/irqflags.h	a75ca718d7055b83e41215e619c410b8cd646a6aa07ea7bf2eb272b07288efd2	GPL-2.0
+linux/include/linux/irqflags_types.h	b3b246519f20d5440a72ae7fddfbf14b387fd41a2692ed6df5b73b8b8efccfac	GPL-2.0
+linux/include/linux/irqhandler.h	955d4b4b45f48fb3bddf83ab249dcdf84ec96d27287696c7e40974205e317894	GPL-2.0
+linux/include/linux/irqnr.h	c33a1f71f35d3df836e394380cbf3e7d1b9b51d27520cb202a9ab15baa28c752	GPL-2.0
+linux/include/linux/irqreturn.h	c16fe17d5894d2ecd20f20f3c0828a6ce854dd5245b21399a93663d28523381f	GPL-2.0
+linux/include/linux/jiffies.h	0f1fef80f090052d587e42455e57ae86ccf88b2dcffff6eff5dcabd151546ca6	GPL-2.0
+linux/include/linux/jump_label.h	2ea12dd858b6ebed6b88419a7b8267c8790397ef9473abc492b0821d01ba7bae	GPL-2.0
+linux/include/linux/kallsyms.h	f9b5ec692eaa59efc3324a875577dc9d67140ffd8401dab39b86cb458a3a5644	GPL-2.0
+linux/include/linux/kasan-checks.h	d6fb283c5ffeea532e1b778fe1bc8d44ea8547b25101068f84f277000a1e391b	GPL-2.0
+linux/include/linux/kasan-enabled.h	35a167f9f139dec1af0adf851703c5ab6eb136cf2906c3c5e461477da40da870	GPL-2.0
+linux/include/linux/kasan-tags.h	bf08ef46a05060f9663849cfaee0de419d505e38c90da29c444893b02e5e2844	GPL-2.0
+linux/include/linux/kasan.h	0ab8e8f6842e86a994f084a9e4fb19b7c5102d804487df6ac0f18e9dcfffce92	GPL-2.0
+linux/include/linux/kconfig.h	1b51cc51b6e4beb9b249853e0a0774f63679599f9a27b9e9fb8cc26ca14265f1	GPL-2.0
+linux/include/linux/kcsan-checks.h	92309886f1022c575bff725610023a3897021b2a371a1c963a579f823886c0d6	GPL-2.0
+linux/include/linux/kcsan.h	a332c6b22f6910f3019e74a8aa9043c02468c9d97e10a8fc76820f3f5b96423a	GPL-2.0
+linux/include/linux/kdev_t.h	88c47d8d1979f2c0e11aca3ad52f07d8da574db821a5a2b17bf64c5495991015	GPL-2.0
+linux/include/linux/kern_levels.h	335dbe3d399e5c055bf7d3decb962fab05992781e5722b766ad0d021519c19ae	GPL-2.0
+linux/include/linux/kernel.h	cfcd17de58cbac041f21aa35b0fd0fceac077ebfc7140a307b41764ada459038	GPL-2.0
+linux/include/linux/kernel_read_file.h	edb9e361b3c807b1ea8e58803595feb4a38a9926bf0391c98aec65e83d397750	GPL-2.0
+linux/include/linux/kernel_stat.h	2683015756d7f394215a8caf0aa914ee1b6709b2f66b1b960530e340ddc4900d	GPL-2.0
+linux/include/linux/kernfs.h	fe9180b733c8ec2f031ea5028100cc483919d5413efafcac57e62fbeb3cce619	GPL-2.0-only
+linux/include/linux/key.h	4f7e464bb45be643c915acbb4046195ac3a33dae75ada593fd16ef14ead3115f	GPL-2.0-or-later
+linux/include/linux/kfifo.h	2a8764ab8c920b487b064b2f2620b4b43f69632ebef65ffa11e5914f5146bf71	GPL-2.0-or-later
+linux/include/linux/kgdb.h	b8acc949923c02a8033200ff105f54e770fc9fb760a94156c90453a7212a0857	This file is licensed under the terms of the GNU General Public License
+linux/include/linux/klist.h	36dabc4fdf26834ebe82f128fa2fcae99b3559e24a635b0ba3d26c91af6519cd	GPL-2.0-only
+linux/include/linux/kmemleak.h	1f4d46a8ccde1c85a7adef36fa094fdd889eb030850f9c734c1c91c4e46546eb	GPL-2.0-only
+linux/include/linux/kmod.h	530ec2b2debfcd63ea3107db190ea7460dbecfbd72eb40d4e225f075f44b9617	GPL-2.0-or-later
+linux/include/linux/kmsan-checks.h	87a03d85d44e194eece06879ebe3d72f157cbeb61b86a1f7ffa8bc721b51c7e3	GPL-2.0
+linux/include/linux/kmsan.h	825c3fb3b496d888b76d083be4e3941e2bf7992df8b9d76c9dfae1d0a0ccac2e	GPL-2.0
+linux/include/linux/kmsan_types.h	38ae26869850f435ab1bded9cae66d1a324fa321b9bebceb8c493cdadc496fb2	GPL-2.0
+linux/include/linux/kmsg_dump.h	605031638340f9506422bb4d347bdfd4db5fc8a54e961f44ac15807d5e77946d	License.  See the file COPYING in the main directory of this archive
+linux/include/linux/kobject.h	17078e8c6ec568b14791f13ae1223df70a4a6363cde0e1894872dbe1248ac506	GPL-2.0
+linux/include/linux/kobject_ns.h	4b8285e11bf9d28f36647eef81d7b1dbd641d0c55ea6df0e46ba92f7632cc80f	GPL-2.0
+linux/include/linux/kprobes.h	a7d80833b1fe5542e3f563455d41b08c8b80b6c37d594a0e055d89f436ba20c6	GPL-2.0-or-later
+linux/include/linux/kref.h	a77b706c7a47d837edbb0432c674fb840627bbe507887f9c5e88cc7191cb9f20	GPL-2.0-only
+linux/include/linux/kstrtox.h	cde8bd2a9838b4dba345461204fd86c90b0bf4a66eaa23a03078bc3deb1aac98	GPL-2.0
+linux/include/linux/kthread.h	9208cb960a53e6aa64f5578c225eb118f649bee407cdb7ab12d684a8c4e1248d	GPL-2.0
+linux/include/linux/ktime.h	e86942e72ec8a9cf8a72d5956de3fab121691353aea3dd8086b7817c438988d2	-
+linux/include/linux/latencytop.h	72822537bd6fd027403df29fcc36b962befc5b15f115de7a2e0f7ffc9655cb50	GPL-2.0
+linux/include/linux/limits.h	0ed7dfdba324e0ce1fc732cd580338a2535727cc6a2103af9fbe027601092e33	GPL-2.0
+linux/include/linux/linkage.h	7032c93f8b3be3170944453b633d84767ff62215e7d9b481debe6c31387e6efd	GPL-2.0
+linux/include/linux/list.h	21a72dc77fa7bfef0d4452e3e52026f2cd272c6f73ba404254b70f03ed1e4cd4	GPL-2.0
+linux/include/linux/list_bl.h	41efcf2268066221e832a09ef9b0df0e62c16ac94bb91f2131adde5b868227ad	GPL-2.0
+linux/include/linux/list_lru.h	74ab386c18f67166c53372a776f9738814cbb7419b41b1e504be2a5936365efb	GPL-2.0
+linux/include/linux/list_nulls.h	f5b20f4769f0a383d9aa6e0a589f7fca33dd3d7085d2189c5508f9b65c8964d0	GPL-2.0
+linux/include/linux/list_sort.h	6ce508fac7ae6e1c65d9e7fe892c158bf5cf8de312a7b34bbf8d25d5ee15c503	GPL-2.0
+linux/include/linux/llist.h	9bcf60ea87e78c4c97d4f56b8304b11755e3bed37e6199ba618155c23609bbe8	GPL-2.0-only
+linux/include/linux/local_lock.h	d5c23c5c6595a1098e26d75bf7e01b90890c9d41131bb99014e839fa8ceb19d5	GPL-2.0
+linux/include/linux/local_lock_internal.h	f6cc06cae4652a9d75899553a19cf1f39067a83b75ce20f30326cdf76595ba86	GPL-2.0
+linux/include/linux/lockdep.h	e666f5591667dd59308eff030a3a579f9a51c6a9487579e4e8d6cd6492e2c92d	GPL-2.0
+linux/include/linux/lockdep_types.h	46a38bae728ff9956b635089f9bd8170ae73354de3f82158012c357bb8c75cb0	GPL-2.0
+linux/include/linux/lockref.h	9dfbbb0dc51af77e2233f3f118887d7cc5901b503bc3f86b49a9dab07c473867	GPL-2.0
+linux/include/linux/log2.h	7d9ebbffb69b781e5cb75fc768f44dfcf743bbcbafc0e7d12139c3d71e61bfb5	GPL-2.0-or-later
+linux/include/linux/logic_pio.h	7ab50b6cac5faecc9a835781a560ed1722ccfe4628e27c7585448340fa1ae323	GPL-2.0+
+linux/include/linux/lsm/apparmor.h	ee03153fab6cfbbcf4584c89d1245c5faea535c2d5d906951db74638eb7ce047	GPL-2.0
+linux/include/linux/lsm/bpf.h	a140e31adc6212c7a4a78e7bf76287a7de004b4d5ad384485171d1696187bac8	GPL-2.0
+linux/include/linux/lsm/selinux.h	cc5f989abb43177a789539f2c8404b2730acae692730936df4e37288fe708473	GPL-2.0
+linux/include/linux/lsm/smack.h	df863553df1d764256b3fa7c238d2f1929ddd6bf2621550130fdbc10d7ffcd69	GPL-2.0
+linux/include/linux/maple_tree.h	ea68e54ce6dcc7a3dcb25592695487b5baa503f2f56663e68da9a7f352ce2137	GPL-2.0+
+linux/include/linux/math.h	b5438e316556c1c62286f066117ffad8f0117f222a751ce4aa37d724123b740d	GPL-2.0
+linux/include/linux/math64.h	568a0aa14c3be4c8bd813450da842d49812ed41b43d4d9bd24f4ca38f721c5b5	GPL-2.0
+linux/include/linux/mem_encrypt.h	9127d4bf29518838371b32c9ade9fdcbad43cca3a0c19471c1c79e4de5f33133	GPL-2.0-only
+linux/include/linux/memcontrol.h	08b20129daa331982c06157ed9dbc4ad825dd5cf0c8b205cd4a8a324167247b7	GPL-2.0-or-later
+linux/include/linux/memory_hotplug.h	bbe9855b6122b9a58d8e0b3ee2445d45bdf0f9c118877dea5e9213b6c34ddc6e	GPL-2.0
+linux/include/linux/mempolicy.h	30f5333b10154940dbce654a980bc31f1f82f13f589c29e4a124b033a8b29b39	GPL-2.0
+linux/include/linux/memremap.h	ac6c088c59224fe7bfee2b42488f0915269704c090e63d00263d8ea341f12039	GPL-2.0
+linux/include/linux/migrate_mode.h	567e4a39413807db4de3717657971422c3688a935ebd5144c82f851624ec1599	GPL-2.0
+linux/include/linux/minmax.h	b8238217810a9f69b0f44961fba61f346b6fd9d7037a4c083ee65afd5264a777	GPL-2.0
+linux/include/linux/mm.h	6071f59d696d6456d75be33cda2fe79823f1579333a7be00d9b50bccafcc72e4	GPL-2.0
+linux/include/linux/mm_types.h	78a7900b4f39cd6502bad6df06bdc296bf408909bfd8704a1f1d553588092f1b	GPL-2.0
+linux/include/linux/mm_types_task.h	dbe5d4b227842a1c54f23ac3278adf0a30cc749237eb134a184ac4b3c312a615	GPL-2.0
+linux/include/linux/mman.h	fb951f3dacffbf8b69452643acb8d0c6b659c42eb823cbbc82331f48a072818d	GPL-2.0
+linux/include/linux/mmap_lock.h	bca50c974db5be77e743406fde7af97f15db1e40e07f27dcde39039bf2cef3b7	GPL-2.0
+linux/include/linux/mmdebug.h	b1ee00b23d98985b49657bc6e65e9b812f4cd24f1ae13b0a952c771082d2adac	GPL-2.0
+linux/include/linux/mmu_notifier.h	dd5660c4481d8739e2aae7394f8422f43cc77e910147431099e9b27d14298bbd	GPL-2.0
+linux/include/linux/mmzone.h	8653d8ee6b0ebd419f5e553952a8db29f9ee85d2d902d651a2936ed256f1bebd	GPL-2.0
+linux/include/linux/mnt_idmapping.h	36f4fd5197124979b4da1fe12afcc7b3151815f29a158e0babda6837de4ce04a	GPL-2.0
+linux/include/linux/mod_devicetable.h	557c5bf1c421783f41af9b5e0e1527505d7cc63a95a22de394aa5db381a443ad	GPL-2.0
+linux/include/linux/module.h	a34d4f8464bc06d08f41bbd7f99f422221552056ecd2d58829e9dd2016309416	GPL-2.0-only
+linux/include/linux/moduleparam.h	72c963dbbc52f0527de7f7c1ea5c5aac4796dedf38c3fc7f4a0c9882da0f7666	GPL-2.0
+linux/include/linux/mount.h	c655ddb28187e957830acd39816b8b11580331cc41f5f29c43c0871ab4435171	GPL-2.0
+linux/include/linux/msi_api.h	1d862ce499bc934e0c2e1e72d6bd6eb681c44d5ee30a24387db2f8b7811c570c	GPL-2.0
+linux/include/linux/mutex.h	0a2d01622c134acf57bcf8381e44821b5c058b51ea983eaf304f5085cd51b3e9	GPL-2.0
+linux/include/linux/mutex_types.h	c96488bb111b8b470c993b1ee25456c4e0bb81395df0810fe67c24b65f67f5ab	GPL-2.0
+linux/include/linux/netdevice_xmit.h	809193a59a470383a63622175cf3122582c48a4b26581cb392cde8520c8c0d81	GPL-2.0-or-later
+linux/include/linux/node.h	032265a3aa63252b739282a5ddc42e2a9d1494b3a8d35ad2763f97d208e1df1c	GPL-2.0
+linux/include/linux/nodemask.h	ab508f2919b67dd0cf13face173622b0304ea7549fae8a992103540dd053cc4e	GPL-2.0
+linux/include/linux/nodemask_types.h	5cfa961902f8bf99463bd044ec6fa0821fdaebfc475399a225cf49205e80df66	GPL-2.0
+linux/include/linux/nospec.h	4b1c3e8df068c08e39270af094be697d8d7471ca7f7ebbcf94ce7f2d281b1c8d	GPL-2.0
+linux/include/linux/notifier.h	b05d41ce3a8bd9e9db094a0c22c0ac97210ced1ef5b38bf5fc9350b6a8fd12b2	GPL-2.0
+linux/include/linux/ns_common.h	d245e45a582fdf471c966b5e6d23ef97a21033f01ef4e33fd7a8db0626ee568c	GPL-2.0
+linux/include/linux/nsproxy.h	2f66f36134f8981c3a395267dbd4dea33ae691873c257d87d5098663a6592e5f	GPL-2.0
+linux/include/linux/numa.h	d64e28ca042dfe536eb8ac21aa5335e7ec8c3b5d8c4fb1c8a933d4da9f2e4543	GPL-2.0
+linux/include/linux/objpool.h	aad7a5b1b4f842e8538ae20075079761131a9ae74562d39a821d9b7ca89164ef	GPL-2.0
+linux/include/linux/objtool.h	6f6ccae7add0adc5dbef427973942dc8691fea9422371a1dc7b41dbd967e1d44	GPL-2.0
+linux/include/linux/objtool_types.h	58e04bf65531968500f437dd0394b8c06f09c42f0744b0d83d374390f722f5af	GPL-2.0
+linux/include/linux/of.h	9edf35d31f8d6dd14919dd043e73a2eab96238a6f8974d9fcc0899f3d2aca3a4	GPL-2.0+
+linux/include/linux/of_graph.h	57453364daa086db85a6088ee422905c9dedd4af705806da8eaf583048aca640	GPL-2.0
+linux/include/linux/once_lite.h	708801b7f811230138199c06adb6ae04a7e8ef5c45ec0a8408a343528bc124cf	GPL-2.0
+linux/include/linux/osq_lock.h	33b208bb2c56c99eaf22d98363542595386dcc5197fdaef2b89b849f277ae124	GPL-2.0
+linux/include/linux/overflow.h	b802da0ae323a3e428e2e535fa65838c276a4eac256d0d7ef3b380c671933a2a	GPL-2.0 OR MIT
+linux/include/linux/page-flags-layout.h	997aaa25c0560598d630936080a584e4db5f49b10e2f65a959ffab0a33d0fe42	GPL-2.0
+linux/include/linux/page-flags.h	1b9097d3f1a12d18c851b1d0b3ebd48934ef36be4e26708bb0a9cf3139601bae	GPL-2.0
+linux/include/linux/page_counter.h	e47692a3bfff492c1a8a95062eb477e15714ddf30631fd05b260d00afff9386f	GPL-2.0
+linux/include/linux/page_ext.h	a51f9b39ea892abd1a301e944578724ffb572bd10402d7c0f34668bac2de9b28	GPL-2.0
+linux/include/linux/page_ref.h	f1807696021cd696bee12fbc7a353f6e8b45c1811d7219bc41f3cc8fa2fa0694	GPL-2.0
+linux/include/linux/page_table_check.h	a74626d75bf676102a9e4f0134cd612bbc678e488fe8e82a2193830143c32cfb	GPL-2.0
+linux/include/linux/pageblock-flags.h	8a6f37f60046e3c63bc02619546313d8b5da334116286fbfe5426f5c8d74c4e6	GPL-2.0-only
+linux/include/linux/pagemap.h	6fd96816fdf0325e4490b7cb04078e9059ee5443d33154dd6069bbd26622e1f2	GPL-2.0
+linux/include/linux/pagevec.h	b5ab95c07fdc938aa773b0bf371c03c03aa2fb8f6c6b2f41628ffc6ad6b5abd4	GPL-2.0
+linux/include/linux/panic.h	93d5a852802fe5d28e793e5405af4df5fd7868f110cd7bfefa489d04d9be84ef	GPL-2.0
+linux/include/linux/path.h	0e8f5c7649ea4f6830871af1ab6257affe5f5e6c5c12b6034bddce7c80848084	GPL-2.0
+linux/include/linux/pci.h	c64655d71f44fe65070f8304fc8d4146a174652bdc8ee6e52051030aadb8dcca	GPL-2.0
+linux/include/linux/pci_ids.h	10405f88f3336b6d2bfa3ae25c94922ac6e21adeb1f079ffa681030cd8175014	GPL-2.0
+linux/include/linux/percpu-defs.h	a5ff95075c3c2a480e6550bf0ad7d1084b4183a552ce147bcfdff2d4a8600145	GPL-2.0-only
+linux/include/linux/percpu-refcount.h	46271ac091f25a74d0560c9dba9d438feb2bb24a616655fb935db07bc705db9e	GPL-2.0
+linux/include/linux/percpu-rwsem.h	704b173ba6f67298adf6d8a727457bff7add7d7d7361775cf60d2e9ac3f3fa15	GPL-2.0
+linux/include/linux/percpu.h	44209431de44abef68f3675dd33a7d970effb3c5ce77b06ebfaf50130ad5a9f5	GPL-2.0
+linux/include/linux/percpu_counter.h	4a107bc381b3b5425b8ff441f7487d97ba6883dc6f5b426c4bd361ad7cbef896	GPL-2.0
+linux/include/linux/personality.h	019f12b41a17c6db362a4c8cb46b5091325b9c055f2fd39fce49bd299185e2e7	GPL-2.0
+linux/include/linux/pfn.h	3b9a212b275177f0cabbf6d33378c0a5eb2251b78755861f89c123edf59171c8	GPL-2.0
+linux/include/linux/pgalloc_tag.h	f8fa19c65f1a7a48594fd13e0a7e4fff1cf2fd1ac42e3b79f2b0dadfb389fa79	GPL-2.0
+linux/include/linux/pgtable.h	3ed7de8f22ac53e76025bc96ea5b3340881d0fc09b11c690625b32137a3fb6ef	GPL-2.0
+linux/include/linux/pid.h	d2b857299aa505f9232fa0cff856f9f0a336644549f447964a1f7e31cd1daee8	GPL-2.0
+linux/include/linux/pid_namespace.h	9f3dce63262f154ebcc539005a82b5340368ebc81b52b1cf94df0a8a5cb948d9	GPL-2.0
+linux/include/linux/pid_types.h	a75de7369fcec82ace68e84e42a2e0170eb7d2123175147d4483220718543b32	GPL-2.0
+linux/include/linux/platform_device.h	ef133f0b145364b6ffd5ccab8f6ff29e2b0b180b2055b2cb1e6d5eb16ffd0789	GPL-2.0-only
+linux/include/linux/plist_types.h	7f32464bc5db2d540b40d7094848d7f20eb1637a075e6184d8f4a7935c006678	GPL-2.0-or-later
+linux/include/linux/pm.h	408aa9ad3d291c01e916cce8fcd9138c87dcc64264afecbe9dd5221fcca356e1	GPL-2.0-or-later
+linux/include/linux/pm_wakeup.h	da6e286383312e5ad728c01eb0216e732829080d7df3f113cbd67b73091c8b18	GPL-2.0-or-later
+linux/include/linux/poison.h	84adcca301c008e5d070def3eafa152aca2e218d7ef6d6d7d7000dbe01efc0e2	GPL-2.0
+linux/include/linux/poll.h	2e9d66ec3a6ae91ae35d1e2065e90f42116e48081c68456da56594656b6022eb	GPL-2.0
+linux/include/linux/posix-timers.h	5aa804807519b6f26918c7dab72a3e22bd50e898763f434ab51b2c58c275988c	GPL-2.0
+linux/include/linux/posix-timers_types.h	ac76f15816fa0fe641f580e833f15a4b62ae8d814e9d762617697e6ad5de300f	GPL-2.0
+linux/include/linux/preempt.h	9cc25405f07889e8e221b98b4944e6038a791fb1ab4238bca272df75c2defb26	GPL-2.0
+linux/include/linux/printk.h	1370eb800844965cec14e8545cc4c11fe443bc1d3bb08b39cce7e47642ce9aec	GPL-2.0
+linux/include/linux/projid.h	a24b5f538550a6f89baee80500bab66c9e10fff8b18af6f6a597883b39381783	GPL-2.0
+linux/include/linux/property.h	b990ae2250b22b4c2dea0f0fccbaf2a40b8ac3c61b4731f4735504a5dc7d9743	GPL-2.0-only
+linux/include/linux/pseudo_fs.h	f1263f34e343916b61519c3e7b105fcac4e7252ab2f8f7d74f0a38e64a41c257	-
+linux/include/linux/psi_types.h	483269b27c82b438450632555aba2ba8a9c47b608243f78a029c4300b3618ccc	GPL-2.0
+linux/include/linux/ptrace.h	1150f9a6c9e4dea3247183c16995f8ef4420cdfdb91bf3e4281cfc52e5f9c04c	GPL-2.0
+linux/include/linux/quota.h	6acf78eaa04504881dff7f38fc4e85a4a76c0ec1054d123a778ee8e3c7980a5b	-
+linux/include/linux/radix-tree.h	fe9a3fcc465541926488720246bf1029424a1ca72ceeaff438647640c823a892	GPL-2.0-or-later
+linux/include/linux/random.h	0e21fe7e448d2c3497b3ae8d3ae902312ab71bb40123540ea7068ceb4ee3c6f9	GPL-2.0
+linux/include/linux/range.h	53d229eb121f80033e628bf1207794220bb1728a84c09ea13789f3de918f917f	GPL-2.0
+linux/include/linux/ratelimit.h	03d803e46c04ad72155723dd5dcc24cdf5136b74d9feb90a0a7c5603041f579c	GPL-2.0
+linux/include/linux/ratelimit_types.h	64a3e42f62e01ea44f00c936f3dbf1ae7314a0cc1726151aeefc54b3b0b187aa	GPL-2.0
+linux/include/linux/rbtree.h	3ad9041b6544b62183389683691a1504fefa73285cfd760e7b57c46ad5f0fb73	GPL-2.0-or-later
+linux/include/linux/rbtree_augmented.h	f7a36c43f11f36a239aad2cbca57c06782860331c2bf925d0af7c01600de71c7	GPL-2.0-or-later
+linux/include/linux/rbtree_latch.h	97ab1d5953dc0c4a573b6b9dbb6b203a437aec566d0d1fa3b6c154ea7d2ad0f1	GPL-2.0
+linux/include/linux/rbtree_types.h	bb78534d4212776381b3b849ad6ce1009b9d3fdfb87e19f51e5e9449e7f03e22	GPL-2.0-or-later
+linux/include/linux/rcu_segcblist.h	c2f41815e3bbd8c6edfb5d7ecf9c744fd66962fc44ee6114c8634f844d542141	GPL-2.0+
+linux/include/linux/rcu_sync.h	094a0089e24fc158c77c3bd7f90c5e8f9eab6285480c970d7556977cc616554e	GPL-2.0+
+linux/include/linux/rculist.h	80b24f738f1bf46dc2a88a746d34fea39791be890e288bfb5c81c7638637c421	GPL-2.0
+linux/include/linux/rculist_bl.h	4f86cb6c51c5553a1fb91b04a3348315ebcda2e239582d425d61e7cc38c7d2a3	GPL-2.0
+linux/include/linux/rculist_nulls.h	c4a356c05d7d5e3a8ea7919981fbe34c2a3f13261a288e7ffdcbe243986f67a2	GPL-2.0
+linux/include/linux/rcupdate.h	3162164dd021f8f3880de7c188cb5cde34908b1fcfeaebe9554b91b2622849a5	GPL-2.0+
+linux/include/linux/rcupdate_trace.h	c657a3d7f451c08dbdfee5799f5d21e067f8acc99aa0d121fe73fda5dcb6876b	GPL-2.0+
+linux/include/linux/rcuref.h	a813ad378460a5bdfa1d3fd3e7abc4fdfd28a1ddad165823973dcaabcbbe6c89	GPL-2.0-only
+linux/include/linux/rcutiny.h	7cfee4b62dade843b88378f6e572cd81f3b7128a69886571117fc78fa0d9d39e	GPL-2.0+
+linux/include/linux/rcuwait.h	31ac3086e003b55c23bfe0e3793d83c3ca2dc9f96268a2da4828f59851a9e9eb	GPL-2.0
+linux/include/linux/refcount.h	138348cedf2dd2ee4bb5defb880c575db997dab0561abdd805534d83750dca80	GPL-2.0
+linux/include/linux/refcount_types.h	1cd15b66e38dc4408329d4bd61ec605222a5c440dde64a0af7e73dcfc1a2472f	GPL-2.0
+linux/include/linux/regulator/consumer.h	87501f03cd27f1be8ae24ea6c4d26d63eda3521d528fa37a543a418c9140b9e7	GPL-2.0-only
+linux/include/linux/resource.h	3f2fab184ae97b394a899404a7fe35b2282dcfca7a05e3aef48c7585623ef68a	GPL-2.0
+linux/include/linux/resource_ext.h	ceb825f3b32b03399f07478fc8d317998bacf7760cd52a4e50506d8efbbd13b4	GPL-2.0-only
+linux/include/linux/restart_block.h	85f426110ecc3a198a6c3542fdd996b2f6ef9c9218af7f798d5da49fddff26cb	GPL-2.0
+linux/include/linux/rethook.h	3b705968074b6b29a48c3590ce49bdaef6523b22256d6a808a2792f1e0f3e989	GPL-2.0
+linux/include/linux/rtmutex.h	a2ea576274cd60e5c5c0abc5824c300289ac5c195ef3187fb3a2521f0409db1d	GPL-2.0
+linux/include/linux/rv.h	adc95c17a7e66cc58ad34cbcfca7bdb90848be320f7cfdabcd453231fc4d8f12	GPL-2.0
+linux/include/linux/rw_hint.h	c12e3e2c54ad298d76417511ae55487d9d8d4fd1cbdb8d04d1a3567362c4a992	GPL-2.0
+linux/include/linux/rwlock.h	d5fb02b9dcfd89c504fb9e2f891c86a65429c46b183b47c4e932469de05af0db	Released under the General Public License (GPL).
+linux/include/linux/rwlock_types.h	6a2732d4a34602cfb0a51d7022d04cd40d89d94157b7fff6882a371ba5b9cfc9	Released under the General Public License (GPL).
+linux/include/linux/rwsem.h	80dea70d8d59bdc46cf194c695e7b0f7fcce9d9fc7634c61a5f04b4a83ff00a3	GPL-2.0
+linux/include/linux/scatterlist.h	a99c1e67fc4765ed6deb1d86bc0ac323d807ad96ff21f53db9ef8a7cc8c4468a	GPL-2.0
+linux/include/linux/sched.h	77985ca9b866d5d7d25b68d6c4c69ae6102a4e982928479f025298427addc727	GPL-2.0
+linux/include/linux/sched/coredump.h	208c7673ba59a6675ae353a4e59e61ec2cda731d61effa682b11ca7d52e6b224	GPL-2.0
+linux/include/linux/sched/cpufreq.h	4bcfad3bb863714c8b7cddc56fd8adcfb45b7d5660f52dd150ba87de4b831bc5	GPL-2.0
+linux/include/linux/sched/ext.h	4a13b9884a239142e3ddfe8026f6f1f471e844189edfc8c3cb9306332acd38aa	GPL-2.0
+linux/include/linux/sched/idle.h	f323fb3c2c157012d8be3aa24b65a53650deeb8e7e7e55310f2fd1c90f928bcd	GPL-2.0
+linux/include/linux/sched/jobctl.h	a75580ee0688850fdccdb862f4996e4b355b406d77a63803a34a036d0bea41c6	GPL-2.0
+linux/include/linux/sched/mm.h	d6146e280957c672e4168c8f332967c75a9f1890b9d4fcc505715f0218f8d4ae	GPL-2.0
+linux/include/linux/sched/prio.h	6799482082e27f9bdb43ccd037c5a6a49c406af836dc05a1f5e8c160e2880870	GPL-2.0
+linux/include/linux/sched/rt.h	4f4fb57b92b2cc1c5fdbd719f5e6ff2ebdc0b5fb303c9fae83a101074064824f	GPL-2.0
+linux/include/linux/sched/sd_flags.h	3948beba57cc1a5ccd046f6558513322bcd97a5c9ca038afcb85dc546429111c	GPL-2.0
+linux/include/linux/sched/signal.h	3487251ee8ce14006690d6736d9e99b12ef904011a3d3ac4ea961ade416d8346	GPL-2.0
+linux/include/linux/sched/task.h	852788879f7ff0cbfad5393d47bbcc03405145de442b54febd96978028c458fd	GPL-2.0
+linux/include/linux/sched/topology.h	01a5de9c2cad90604377f4b9e99644770e19616fe753bbbb2190f5db696e54e5	GPL-2.0
+linux/include/linux/sched/types.h	0198ec83dbfda783f202d45ea7d18ff0d1c2145dcd8e23c875bd7a0c6d73e71c	GPL-2.0
+linux/include/linux/sched/user.h	6ef778d4ad50112dfb73d959c3c51d3e5a5ecc5bb1ca7b4fc7c514bfe124cbe5	GPL-2.0
+linux/include/linux/seccomp.h	07000b35cb4737bf3d4e357ce7ff01e34081815fa96df29f2bf95979b7aaa83a	GPL-2.0
+linux/include/linux/seccomp_types.h	459da86d2802e665931ccf75afbd9bc6351d1559681e9b2c7eba7ee44c584deb	GPL-2.0
+linux/include/linux/security.h	86bc0a97e816779d2f8e5400eaf326811aeab7d82cedaf238457b14513c8a583	it under the terms of the GNU General Public License as published by
+linux/include/linux/sem_types.h	059f02e475a32b7d92b639948eebbd0063696c3923de4122779f2eee065055df	GPL-2.0
+linux/include/linux/semaphore.h	f5609f37a5f33ab088b794036ce278f4ad9bd2fa34f0cb1056c6497321e000d1	GPL-2.0-only
+linux/include/linux/seq_buf.h	dbf7656fef0dc84deb8a079cfe62ab64cbe4e0319beee173ac29971bc4fa621e	GPL-2.0
+linux/include/linux/seq_file.h	100774e0627f263e40b822100f15f996bc4c0c5eab8695c58cc6727b1796ea31	GPL-2.0
+linux/include/linux/seqlock.h	0b6f998bd8f081538c2d293ecab8559bde235871f227756b35662b9d9fd5c3a7	GPL-2.0
+linux/include/linux/seqlock_types.h	f5b7f873421dfcbf40aee47c738beedd155931c5d796921d644da3ecbcfa71e4	GPL-2.0
+linux/include/linux/shm.h	315d1d9ce87d22828cc9865b3d5c6b51280d41e2195dd033482872d377772ccd	GPL-2.0
+linux/include/linux/shmem_fs.h	ceb0cfdbd00ca351e8d04060ab25b41c615c8e19d9243ca5866816a27a1bdac2	GPL-2.0
+linux/include/linux/shrinker.h	c6602b4cfe912798c5fda13c372e3c9005553a03406a86a5a733bde0247cc6f2	GPL-2.0
+linux/include/linux/signal.h	f6b75a1b35c5fb2b0e5994964ce75ef30bcdd0a4d412f8755c0c791d56a7eab4	GPL-2.0
+linux/include/linux/signal_types.h	cb4773aeeaf5521855e63b4449bc41a09d00f59650cf678868ac96755c2f5dba	GPL-2.0
+linux/include/linux/sizes.h	a21721bd920547c0f47e618810fbb71eddc312f3d405c40f02ee980a98d10b88	GPL-2.0-only
+linux/include/linux/slab.h	d3a7999286cbba4e0bb51db023dd5926ce13a355a574e4bbe86d638e6183fed1	GPL-2.0
+linux/include/linux/smp.h	dd6b3256853cc4183cf7e94324cdbcc3634502ee4b2c91ff1a1c888cf69bfdb2	GPL-2.0
+linux/include/linux/smp_types.h	10b6d7896fc9aa4ac4e7d41e91a476b4e83aa492e88493866488c6646c9fefcc	GPL-2.0
+linux/include/linux/sockptr.h	9c134512be6b60a1d66df26135115764672a14a62b0b6f58a49e78ee93e7bbc9	GPL-2.0-only
+linux/include/linux/sort.h	b86790fb965405059e4baed4d2eeba60774fb0d99e727d5fb8f3a82df5d34d97	GPL-2.0
+linux/include/linux/spinlock.h	84d5174da1ddc48421c9b4c3ba471a15ab1aeba297ee16380e61e133c919eb27	GPL-2.0
+linux/include/linux/spinlock_api_up.h	546b7ff889d0e6bd37351e7c5f063418db1e8638f3bf40149661649575a20437	Released under the General Public License (GPL).
+linux/include/linux/spinlock_types.h	7902577850f337ae011bf873d13d2e44c15704e27536c96b7fb017f7774e1a66	Released under the General Public License (GPL).
+linux/include/linux/spinlock_types_raw.h	ac3a04935e8ccd0e5a76669cc7c792bbfb5b0f0681834ace6583dc7a2b0020d2	-
+linux/include/linux/spinlock_types_up.h	26eed04f00f6f6df75c31e9200791b48554ea8034393594e08e8b17a49673931	Released under the General Public License (GPL).
+linux/include/linux/spinlock_up.h	f842d0c0bf2e8d501c32a59280e4e3ae2dab9a2f62b32a221252f3612a65a579	Released under the General Public License (GPL).
+linux/include/linux/sprintf.h	72a0226d5631211916ccce67a50033e53f0bba043ca39823d4f346179ecff9df	GPL-2.0
+linux/include/linux/srcu.h	c125ec07dd0d9ead2740b8d893fb7258bbaf4108da85d3152d3c58312cfde2b0	GPL-2.0+
+linux/include/linux/srcutiny.h	6718aaad144ad6770964c123de3c50cd99f409ededdf0d912065e0f261d5e5c9	GPL-2.0+
+linux/include/linux/stackdepot.h	a20049661946e32496357f3969cfa9e9e69db05116c922496c70fd098c871bd9	GPL-2.0-or-later
+linux/include/linux/stacktrace.h	527ffdc71bc925a7dda45e62f3680b1c3e6f70fd85252759f8c850ddf88aab43	GPL-2.0
+linux/include/linux/stat.h	189c21c895c453c9b1022da7b2d907e09dc4e0fef5e7bbd165dd32f930a30e1b	GPL-2.0
+linux/include/linux/static_call.h	0c23de51f4e7ae7a8cd59949188986daea891651d3217b0df154c44d8eeeff78	GPL-2.0
+linux/include/linux/static_call_types.h	886d2713ef01a7d470465685b55615198292b55a842528711b83ad0385d72e60	GPL-2.0
+linux/include/linux/static_key.h	304f1660452c3e2786323b7bbcecd1d4a83017ef71f45339e4b0b2614ce9df63	-
+linux/include/linux/stdarg.h	789912218665044af9f7040dfbb7a9e17c0b900efb8f1fa326d91857d51b6365	GPL-2.0-or-later
+linux/include/linux/stddef.h	c82111d604529fc0543048f99c4aad5276ac1afcc4427cc6c7c5d33798ca60a0	GPL-2.0
+linux/include/linux/string.h	6dad7c9cb1d6adf132da850f32fc7c3fbb263086925393db7fe1ef02d4f18881	GPL-2.0
+linux/include/linux/string_choices.h	057c043cfc1ed90beaab10874e239d4b994d34d850c8a960be1857da31ad20eb	GPL-2.0
+linux/include/linux/string_helpers.h	a09fedc20fc8c61098d002fdcafa6a0b1989a40bce9ea3663ecea89ea5606cf4	GPL-2.0
+linux/include/linux/stringhash.h	d5516b7211c9c44dbec9aa3aff42515eefaaa24afb7a130496c483262cc1891f	GPL-2.0
+linux/include/linux/stringify.h	a7fd23c88d861142792d9233eb7a7e535b936690a2873af66524cafd2879d5e4	-
+linux/include/linux/suspend.h	e1c9f7487235cc525f9232b2e026328c70b56e02c8d056fb3453834a12a8d71b	GPL-2.0
+linux/include/linux/swab.h	0256ce360a3c5b3f65fd341df2857505334f60889eb83c72cdf8fe3dde338de6	GPL-2.0
+linux/include/linux/swait.h	859a8fedaa8847f64086cd5df319d0ba89e98b8082308ea3890cd79608f150d9	GPL-2.0
+linux/include/linux/swap.h	8a1eedacb9b5dbe11191011ba535cf08243f90e6a5ba22e1e6895e68f1b94c42	GPL-2.0
+linux/include/linux/sync_core.h	8d2e00a8620cf78b70559844913d2628598c276b9a4b65d39000eafe39059bd4	GPL-2.0
+linux/include/linux/sync_file.h	56ecd6fe4dc56a20b9a328394875adf41c15a8a5b6dbb69d2d9864b23ba0ddc5	GNU General Public License for more details.
+linux/include/linux/syscall_user_dispatch_types.h	d05a0b7d53c38d98f4effa41ddc09e2c0e61220c840be1636e6d89e5c357c04b	GPL-2.0
+linux/include/linux/sysctl.h	68ebc4b5a6c877240729b3358eded048a4bdc525c0a2739848471ac9fc9d2b49	GPL-2.0
+linux/include/linux/sysfs.h	6c508364b156ee9c6b32c562bc57255d5d7b17ae68963dc742c300c3e5ddd474	GPL-2.0
+linux/include/linux/task_io_accounting.h	b7b280bb0a4b6d0373820ac155b104929711238ca6854e844108dd781c035859	GPL-2.0
+linux/include/linux/thread_info.h	73fe213525bc27f67b93958a43f9b916dbf354416998dafefeb7c527a256e396	GPL-2.0
+linux/include/linux/threads.h	ac7161de729d183418eee161e1d0bbc2253839139d20e1d8a278510b6108d130	GPL-2.0
+linux/include/linux/time.h	1632adf829e28c143aa9bd4cfd4a100d57c2b22b7f13e069f6dae545a2dc1c98	GPL-2.0
+linux/include/linux/time32.h	bc152e162f8ca79b088bcdf35584860a8ff4618fe2294158de0f439609eb31d4	-
+linux/include/linux/time64.h	4cc08243de589f85df68411aa998af561e77fb7c3ed024dfc2ed7738606ce1b1	GPL-2.0
+linux/include/linux/timekeeping.h	4b5ee837f71627db11e1deb8a945359bcfb82595442e4e1b1539d8921dc178e9	GPL-2.0
+linux/include/linux/timer.h	7b819326e4d7f782a0896088c1696f5dd5b3942fbe33b6ffec54e2e65842e3e1	GPL-2.0
+linux/include/linux/timer_types.h	4c8300df1f7f8d098104e08d71959b40a83ff821ffff041a467ac04ad7937151	GPL-2.0
+linux/include/linux/timerqueue.h	032cc2f66d2400fa24aff0894c58f9121f0ae2bda25d818b31edd9041aca12a1	GPL-2.0
+linux/include/linux/timerqueue_types.h	c3427ebec62a97fe0040d0a520ae680d74a440cc4b1abb92e1a5be1f51e5b88b	GPL-2.0
+linux/include/linux/timex.h	cd3b5c33208c1b3ded9a6fc793837e1d1d83d98b8c884e2b314bbc2d6e89052f	Permission to use, copy, modify, and distribute this software and its
+linux/include/linux/topology.h	fedc6ab27374ef64da31b13eaeeb385d3bbdbacc719d3e90dffeafa25ee02521	it under the terms of the GNU General Public License as published by
+linux/include/linux/trace_clock.h	061587b1de8a3e681b6d6d4c983cd0e5e00859413c9755a938d6a604a935a1fd	GPL-2.0
+linux/include/linux/trace_printk.h	889c4238f2cd0e9283447d0b2757baf3854c052c961d2c55783e20b2dff0d439	GPL-2.0
+linux/include/linux/trace_recursion.h	dadb1ef4d5809bc4dbf7983a720b5d7831c07335fb81f37ee027508e036df0ff	GPL-2.0
+linux/include/linux/tracepoint-defs.h	95c648ae6bf9155abf96d39632ae1d27624fe2d72e09f257749edf30dd0cbb0b	GPL-2.0
+linux/include/linux/tracepoint.h	1b84fc141650c8c00104b9a6b1ef6259f71f2272576deaa35e8eeb032923a284	GPL-2.0-only
+linux/include/linux/typecheck.h	a456610ba55e62234f7c830d6017d3bd17b3c97397b9e5eb009b758da13aa878	GPL-2.0
+linux/include/linux/types.h	a03b3d471b24744121f708d536649d93beede2e7990864e7d2c452b3583ec9e2	GPL-2.0
+linux/include/linux/u64_stats_sync.h	9c2d9a1e3b25b648e5c6a5e0f65d0fa0212e02c0da5e5186ba2d8d4926245b05	GPL-2.0
+linux/include/linux/uaccess.h	f8c6294e16a350b06e5a7b50d382aee248ce137a3beca27f361ad7627d4aef9c	GPL-2.0
+linux/include/linux/ucopysize.h	b2fb1ce73b59ce516c4a837e05ef5ebd7a521033359839f5197989316b2291b5	GPL-2.0
+linux/include/linux/uidgid.h	b3f1ccc674126ec3d9a6ffc476b918686bf493c36c94767406f6b676548ef8d4	GPL-2.0
+linux/include/linux/uidgid_types.h	ce6861038ba92b3158709823578d38977e0d43fe305164348ab5b2da599184ea	GPL-2.0
+linux/include/linux/uio.h	797f1a6352b23c477e24b8587d536a852ee162662242b76b94e486d8c83a3792	GPL-2.0-or-later
+linux/include/linux/umh.h	f0002537741ab5b124ec980051f2d91c459cf79452e89e1b1684108104f053d5	-
+linux/include/linux/unaligned.h	877cc68addf72f84834a7da87c09fc54b86cb383d6a3d93f2a97a16e751458ce	GPL-2.0
+linux/include/linux/unaligned/packed_struct.h	a62c3ed307ba2d0417ec6ab4327649bb0a944869da47999b33ed1153e9e4f0e3	-
+linux/include/linux/unicode.h	858559f50ff283538321647f8d6803ed74a7376bbe1ad6bcc2dea07ed4faff63	GPL-2.0
+linux/include/linux/unwind_deferred_types.h	5163d626060e186a19f6f4b31e41469fcc8b29d57f4375ce431a9f7e24d55aaa	GPL-2.0
+linux/include/linux/uprobes.h	f59d02ddb377d8fd7d641853305cedd7148eec97e2ddd353fb4fb0dfadf5cf6e	GPL-2.0-or-later
+linux/include/linux/user_namespace.h	445489abca4659653f2de0b000c34283fe626e34ff1f262fce84ed927182b800	GPL-2.0
+linux/include/linux/userfaultfd_k.h	4832e0d84587a8295ece421310c90eb8d986b5322b0091289b71350bd7f6aee8	GPL-2.0
+linux/include/linux/util_macros.h	2c42a9cfb9f6f7b7dc9c339154ee90975745b7080306241acbc1f3f01edba07d	GPL-2.0
+linux/include/linux/uuid.h	a7c5418fa73f15fc23a1c04a1580fbe48559a9394254c8b396ec2df6924e029e	GPL-2.0-only
+linux/include/linux/vfsdebug.h	d63161137a5ceb0c5ffa78a36a54c37b8b603be6a6d07f290d5b228dce128356	GPL-2.0
+linux/include/linux/vga_switcheroo.h	51f6d3b8df055e7c2afdba1a4c264a9f66cd25f770f56c5a9ce9eccaf86a4400	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/linux/vgaarb.h	7d820c1ea71ad35c200f3e84ce69c865302913ba52dd932cdbedb589e639fc60	MIT
+linux/include/linux/virtio.h	b755225845717db632e06cdd9a0d7f5c9ac7042f18e66a7c814d78504364d8e7	GPL-2.0
+linux/include/linux/virtio_byteorder.h	985eb2e72ce24ea172ec57614d0548712d508c96b9a180c346c927749e98349c	GPL-2.0
+linux/include/linux/virtio_config.h	16cf61ad032dd5a50b5238e2742c554ae8451cafefe9d567db86710b2e9030bc	GPL-2.0
+linux/include/linux/virtio_dma_buf.h	9aa83f0da07d9cf7e5253c51add35eacac85dec814e0c0404d2e440c2147f846	GPL-2.0
+linux/include/linux/virtio_features.h	2e564e6e24e21d79e82d93d14cf50114f0cc0f7f8f9ffbbe98d8c88e84391ca3	GPL-2.0
+linux/include/linux/virtio_ring.h	f8414b3b9ce56e19e7eeacbead9e5a2464f4ba65f67e0aab37980a966c2803f7	GPL-2.0
+linux/include/linux/vm_event_item.h	77a72ded28f757b54011220d01df9dc77edb84a94523ee87ea5be22221f8e2e5	GPL-2.0
+linux/include/linux/vmalloc.h	f67e60caae71ebbd199c38c4935530fd730eb734bb0542be01d46afa42eb026d	GPL-2.0
+linux/include/linux/vmpressure.h	29f54d6dfb43d5b7f3de3d4f724134308b28881dd4eb0eb6019c5c3a43b387d2	GPL-2.0
+linux/include/linux/vmstat.h	35bf285c4eaefab60500825dbe7ade16c5126e8036ab391ce690c04502f097f7	GPL-2.0
+linux/include/linux/vtime.h	45fc546681f2718d66f48332adf42423d0d331840875ae55bc69a41bc77cfff2	GPL-2.0
+linux/include/linux/wait.h	db22e0aae0b41416a4f6696bb1e479b5bc39e813eaf0bc5dc9e1fb90e4910674	GPL-2.0
+linux/include/linux/wait_bit.h	e7ebd3a710c70fb038e036d65571ed447ca5df54c1e7fb6aae84b6aa78c991c0	GPL-2.0
+linux/include/linux/wordpart.h	1622fd72851be5e59a98553f5220dd6082bdf3cfecfca45230573cb9cd751391	GPL-2.0
+linux/include/linux/workqueue.h	7acbe4a5a005128962c216e1c1edc64c5e21e58d56373dc1f38710c685c5b519	GPL-2.0
+linux/include/linux/workqueue_types.h	1355c26bc1c4b351c8bffb42eeb3fca1c6a90e8a2b37b58883da81f2903ea465	GPL-2.0
+linux/include/linux/writeback.h	0fd2268aca76f61a22fb379cea5536d1654dca55d3280f58ed4f2873e4630f80	GPL-2.0
+linux/include/linux/ww_mutex.h	a4216cd4c28faab0ca2e8dd1a421565b98241ad4a639020190812d299107dbb1	GPL-2.0
+linux/include/linux/xarray.h	be3707d0f78bbf6ddf64ac16885f0ed4c6ccd083cc3d8197e92f3a9ad2c03dd4	GPL-2.0+
+linux/include/linux/xattr.h	e1f3fe0b41b24b1669488156727ae147cbad96b58d473bd08ea7612f9e6e868c	GPL-2.0
+linux/include/linux/zswap.h	fbf32ca20363162641949cdbec87b5258d30b219687b4d6ba4ae703e94da2b9a	GPL-2.0
+linux/include/trace/../../drivers/gpu/drm/drm_trace.h	0b4779e5ccc62e11e2854a89797cb39f97ef21030c114d05e0a2782e670b54f6	GPL-2.0
+linux/include/trace/../../drivers/gpu/drm/virtio/virtgpu_trace.h	0f3c8851f7e42743315014d3f9ddfea56b4abfc053305d5f46fd935da45e2ca0	GPL-2.0
+linux/include/trace/define_trace.h	40e1178cf2e1e53952358928814e5960207c5fe6346107ea701a0e1e48630990	GPL-2.0
+linux/include/trace/events/dma_fence.h	52efa22e8d8171f29bc324780d9431a119a15cf08011468c55b15ad1b3991fb5	GPL-2.0
+linux/include/uapi/asm-generic/bitsperlong.h	fa25db88dc972820b72f8baf9cea6f39ca7f5bd0cf39182089409f6676fa90b6	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/asm-generic/errno-base.h	2c148e92b8318deeb767fabd60822113e575ee664ff09a1873aed8f7a495793c	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/asm-generic/errno.h	fb7b5a504015f3a9074c641e7371b250d867d751d90e4a22a8ac17fced3d50af	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/asm-generic/fcntl.h	08449ed601f650b5f6afbf8a4cfd7129242107e3d1c46c1f0c0abfedb44a21a4	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/asm-generic/hugetlb_encode.h	5729768670c725f24359cea8da0e5520fbdff157c3303a54b1e00797a96aa943	-
+linux/include/uapi/asm-generic/int-ll64.h	faca16150492e943a43c83e6b3069531dd498ef15dc612fb2051b88f7da83afc	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/asm-generic/ioctl.h	8629514cdd724a7100fc6eea84d93db5fbc3285431a1631a77c7f8006b70bce0	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/asm-generic/mman-common.h	52849c062488fdaaa877e7a491bec38643e732dc04baa2f6e15b365ab77eb504	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/asm-generic/mman.h	bd9550ecdd91d875315f2c8965263e30b5457611526d7e0db69943843f536343	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/asm-generic/param.h	aebe74d8dfe3078a039a3a5faad35d9840c67e6472239e78bd8340bb6deaebfe	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/asm-generic/poll.h	800ec73ce21e427587fda77b35a804f522d9e4a18eef87d516e10d1b28fc8b90	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/asm-generic/posix_types.h	059c34f03abc8247a9ad9fbbfc86b12f56b9b620a81fa3b84c0c7dd9214068ab	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/asm-generic/resource.h	ff487485f1e1b56fa1f4199272288f9984956b9f6b33e56a88544bf87093284d	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/asm-generic/siginfo.h	22b270974fa6db12d9278a58bf412411f15c2c4e90ad861e4e0e54e662356e52	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/asm-generic/signal-defs.h	6b3e6cb49936df8565f3adce214586d423cc9e5cba4af5ba29b90d3e1f9d9c31	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/asm-generic/types.h	e768a8355242ccf2c18e629ff7cebd9cbeda19e7f6823e16f163efa02ce29d35	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/drm/drm.h	9adac9567a18a234770d98a31c6c505a18e2db02fb0eca596730314d86a46549	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/uapi/drm/drm_fourcc.h	d521522ed871d67578e0eb9682541d49041e3dc3f5b1aafac6f3ba9e6cf9c566	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/uapi/drm/drm_mode.h	40b502fee0f74fe46366afd7a744e7e125580d55a86167dca3592a7cef009754	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/uapi/drm/virtgpu_drm.h	3fb60f5131574dd1fb4aff3e10a45448fa67fe10796e0cf21c6ee583eb996cbd	Permission is hereby granted, free of charge, to any person obtaining a
+linux/include/uapi/linux/auxvec.h	8dadb9bdd5f00bbcbb6439086f5a9d429b4eff457a61b11ce08941d1dd8d60fa	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/bits.h	384a342b436c974782d101b5ba6e43d35c23d93de0f6530b22b513d46ff094e8	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/bpf.h	6758b1dd0af2e35cee4d4d3341b3078cae74613f8869f79c8750d11290f0ff33	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/bpf_common.h	adc9e87d1a335379ffe3658547635904cae6ccb8b7d1e578d0c25b50aa44db04	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/btf.h	757cfa95d42fdd1b64c0b4996bb9c18fd86b936466d3772e1b89de86d2835f15	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/byteorder/little_endian.h	f005eb98e6d873eac1f07f7fbc9a7223be0fdca99579e539c242814172f3556b	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/capability.h	ca365c79695eda6afe5fccdc37c7ce3f4b3bf6a95420b7a8801dd71f2d494311	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/cec.h	748e4604eff363d7469585a49961a7fbda6d679427c11babf01c0c1e50ad6e43	((GPL-2.0 WITH Linux-syscall-note) OR BSD-3-Clause)
+linux/include/uapi/linux/cgroupstats.h	997dbe3228b648e8653e7d53d3221af13a79682ef6a13054792cacd218038d7e	LGPL-2.1 WITH Linux-syscall-note
+linux/include/uapi/linux/const.h	7c7e4ca1e5b509688d5cd246c23271c12824b43abc40ef5cbbda24c40d5ddfd9	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/dma-buf.h	01b82c25b8b8b5d287422010374e6f84082795af8d0a53d760aabda938681dd3	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/dqblk_xfs.h	5fd24b79fce2c9a0de957c8611143555c4d769148a32e77bf14d763e8eb4c3c7	LGPL-2.1+ WITH Linux-syscall-note
+linux/include/uapi/linux/elf-em.h	e72cca577a97d1fccc7f4e5d37b39b401a527a97f02e589255c247b63cb227d2	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/elf.h	6264e8d45a1be1852bdac5481420f2df4df071e6da3918af01f84bbe9bfc7e07	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/errno.h	a47fb2f49bce0546a1e88805cec954338abb1b2ac87de042166e8e3a74b23261	-
+linux/include/uapi/linux/eventfd.h	d1917ce4c807a11f3cd0492f76c06ccff99483e9c8fa66cc53fdd2a324a03e46	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/eventpoll.h	5550fcd320468d703a56172a35ab6f46dd6b1ca858bf5832df74af693ebd78fd	GPL-2.0+ WITH Linux-syscall-note
+linux/include/uapi/linux/fb.h	43a7af44c603d279a65ad45b06ed5f927f9ae98a93604259f6d8f51ead8fbb32	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/fcntl.h	d58b0d209a572c4351757404252bf0bb398cabf1879b52bdd27497a2eeea87ba	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/filter.h	8b07bc3c8bcaa4b43318c43e588e36258bdc6a80848efce51158a274b664be7b	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/fs.h	bf3363a0a2afe6165311e9827958d89d9ecbe101a79782a3b4bd76699841d263	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/i2c.h	8b4f0e08de273edb14e2ae289c8988fac2f025564cdda7d9323ef6a90ca0cbaa	GPL-2.0+ WITH Linux-syscall-note
+linux/include/uapi/linux/ioctl.h	ba73b5892de6605e6c40b151820e367dfcb98cbdb3f8f468c5ef2bd8437df873	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/ioprio.h	b9fbd261e2893ae568f08414300cfd8f9b1cfcd7fd83c706c81b2b0eaeda61c6	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/irqnr.h	e202d1d01363068bfd5f0d11a634c799c7b2299e9282c337a0c37970338b7cf0	-
+linux/include/uapi/linux/kdev_t.h	232a7c06c56de7bf1c3ba1def81834fda292c3e1771c36d01c7d2085106ca80a	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/kernel.h	a569645840e482111fdfb6830bbb8336934bad5c1a7d939c17898d97e108a02f	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/libc-compat.h	4886a3a9d77db62a2e32fa3a0927f9d2f3a3a666781ac07243ef18f7a33d5c4a	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/limits.h	5c047eb319a61e211442af30493b420eb9e721a1eceee552258dce0d5a26dede	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/lsm.h	a19a8afbe91fbc57d8245a23c6e37ebd11b3cfc068771288beace8b24f3c09bb	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/magic.h	e9db5b4791371c03a4f9be955417bb7814987bfae032ad86bd27003d2df8796e	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/media-bus-format.h	e5e34cdd20f0cff9ac4b3e7a3c430e7939d2d4b2caae0c7cd0c2590223f43cf4	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/mei.h	0648683ead984c854e97a2859a6528ac8b6b447bf250756100737ab573c0563d	((GPL-2.0 WITH Linux-syscall-note) OR BSD-3-Clause)
+linux/include/uapi/linux/mei_uuid.h	314ec95b586f037ab64d73a7c534081e3999c16621379f2081905253c0586f89	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/mempolicy.h	cef447fc54b5fe3f39e221a036cd38c190fdb35b6de06e097146b2b28e339dc7	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/mman.h	52171ae3d85576f1f1bbc9cb1c7b77888fd8e4e44b71ab23a95e11bec4e460c8	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/openat2.h	1c694c33d2d60cb8767c34bf52e536dc9e30dc78b90cbeaf73ac9c6b2271a23c	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/param.h	75c3c810ab5732ae2bca3d5947821db5e61d203ba3b00f658472232295d66849	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/pci.h	67460035758063ac16dc158590322a1a67a95a53eddba6a93d106e052c6370f7	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/pci_regs.h	2c366db9fca301457193d5f2782500243f30cde8ba2f32c1087a21433701f512	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/personality.h	5171b16b3b1aed8db98af650868ec69d5347accc9eb7f562fb3492a67554dbb1	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/poll.h	87ba188970e3cae1a7d6376c739a18e98d3cea1f7dba1bebdc046310f1671dc6	-
+linux/include/uapi/linux/posix_types.h	bc68636a383418f235d3457e4b21cf27cefc7c7f3edea4c1f6706f1018db196f	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/ptrace.h	a84ea8a9eb063438511fbb200d4df0e052b5551b82a6bbed71fb02ea823a6adb	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/quota.h	7512a6620118fd2294f19a307f414b12473b87b29a94af4aefd28112539f901d	-
+linux/include/uapi/linux/random.h	294f92c49dccecb29b19b6ce44f3e87c89bd79315a36c53c6e7a29804d33c10f	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/resource.h	42f158b8dbdb7ad125a7d8c294e58a7f1a0a14107522fbaa2bb7fd92f1ba1922	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/rseq.h	aea8d4292268ef48f76423f78aaf60591620a1b76d70a78dfacdc1d290d56099	GPL-2.0+ WITH Linux-syscall-note
+linux/include/uapi/linux/sched.h	2081b07cee6adab443e4ba320d0ccb13db4c97bed64f3eefafbfde2f25c833a4	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/sched/types.h	c7b77be9d131d2ef071383858d45a065d4237e676118f93eb98f2fa52c378901	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/seccomp.h	38a129b0b1e0c5cbae3b01bb159810a5cc290d7823d4c386f71d70b16e93d8dd	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/signal.h	4744021d82b90e0dd5bbad5283c98361aad73510127d19c2bd4103c7d21234d8	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/stat.h	c900a05e031d999074db5ac3567f651ce2cf2f9f9e0a686810d6453c9f8b9526	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/stddef.h	69910a7b45c6bc74d0a59f0d4404ad9dbd9e1ba47d144461eaed09fb41a6a418	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/string.h	0ad5788ad9b356a76e9388d0bbff9f7c8e3dbc1dd7ca54bf47c99f5e78f41f7a	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/swab.h	ff86981a34dd0092b9ac98549e133f725eef9e6021e0ddf98759e7fe2575207a	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/sync_file.h	1efa644060a2f3f504bcb1e7559d7728ee989fb3412d7b18e437f3c2b7ed6f50	GPL-1.0+ WITH Linux-syscall-note
+linux/include/uapi/linux/sysctl.h	ac767cf015a1c8bacfd8b660f9335af2aa68363aff26551058566ccb6d74e8b4	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/sysinfo.h	b803e9e4c4d3cb43b265d9d046fcce6b731af8bf04e78b5c0708e926a6d8f9e2	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/taskstats.h	0193e07cc8a2dd867438360b569cfb70813b004041e3593d2661c24a72330bc2	LGPL-2.1 WITH Linux-syscall-note
+linux/include/uapi/linux/time.h	b0364314ca37dcaf82d18ed6e7bd201fb658cff80f40637dae192ec8665a9eea	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/time_types.h	45f5bd4a2412fe6c1f1415a1e00e8521ad45f37117ab7dd1e9fafd7f922b224a	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/timex.h	bb95ba42ac8169c0ddbb4192dac37210cfa883b0200b6db00eabb33a35f6c7ec	Permission to use, copy, modify, and distribute this software and its
+linux/include/uapi/linux/types.h	f22c5bf977c0bb939577ce7aaa3f69c74e2f5cfa4cd42ff6fb768ce119c9c6fd	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/uio.h	872db059bdc6e8faa84360aae36ce2d6e90f7372c918e841a7b0c271e481abc7	GPL-2.0+ WITH Linux-syscall-note
+linux/include/uapi/linux/unistd.h	01a6f7628ed6f3511eade5891e631c05679e141d031e689a6d028e840032e394	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/vesa.h	3f7e96dafaf2c5eebf5b63f2e0e00157ae6817213983056c4006205754d09067	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/linux/virtio_config.h	00291a2835f3011b420077c8bddb5bfacfc65b982a8c85e29d5574dee8913ebd	This header, excluding the #ifdef __KERNEL__ part, is BSD licensed so
+linux/include/uapi/linux/virtio_gpu.h	1665b49e5a886e54df1af97266763eef90f37ed2d24dfdc1274ed5a015df1a3f	This header is BSD licensed so anyone can use the definitions
+linux/include/uapi/linux/virtio_ids.h	e9957fd3ce022c978b4d06e6e222e74d9cb4697d17cda4001608b635c9516c0f	This header is BSD licensed so anyone can use the definitions to implement
+linux/include/uapi/linux/virtio_ring.h	57fd059ebd45422fce646bc81d9c6a148f6d9dc15354573f389d53264dec193c	This header is BSD licensed so anyone can use the definitions to implement
+linux/include/uapi/linux/virtio_types.h	3a6bf6debdb7873b234ca57693a61a77b6b43c68b90d60bfc14ae5fcce5d6d09	This header is BSD licensed so anyone can use the definitions to implement
+linux/include/uapi/linux/xattr.h	d32560f914b4b70448b980cb774181e03af9824a0c65acbfe628a51af0813b89	GPL-2.0 WITH Linux-syscall-note
+linux/include/uapi/regulator/regulator.h	06f4e0b521ae339fa6c2063ed0296dc1c6a5cc282dfe080550adb59b6472e32a	GPL-2.0 WITH Linux-syscall-note
+linux/include/vdso/align.h	8e7ce9486c193d4a46395d4f14d56c01a0f9e06e95fd4d5bdd9b35a236d98ff8	GPL-2.0
+linux/include/vdso/bits.h	ef5190bae70874421bd1cd564885f483787203cb65485af5104d57991238538b	GPL-2.0
+linux/include/vdso/cache.h	7cf987365a5ed2a3cea1ac1afe31d23c5287af54a9b99417e30f545fdc8a2ded	GPL-2.0
+linux/include/vdso/const.h	063bec23979bceeb3207d1778776bd86eb44d0f5dd6e30b2b4c39cedc2e32490	GPL-2.0
+linux/include/vdso/jiffies.h	8ddcec4187616b2a4855e4219b454ee0890a4eeb52bad4f51d8384d76a84a3c3	GPL-2.0
+linux/include/vdso/ktime.h	c416fe9f93d429fb83288e6f28c13506fd7e2053f0e26bde1d2e9410aaa45740	GPL-2.0
+linux/include/vdso/limits.h	653708a73389bd7a9ef4dd85acf45f19227ac60f2dc133d6285af29cff774544	GPL-2.0
+linux/include/vdso/math64.h	3fb06f1564244c3ab205abe547072fb4204ad6252a59cc4c2dfd8050fd9bdb75	GPL-2.0
+linux/include/vdso/page.h	fa583d2a3e6097cc91c569552d971e5320f775feeeda99fb11bb9a664a014596	GPL-2.0
+linux/include/vdso/time.h	d40b62cfecc09799273dc366662d994698eb00e09170579777941b3ed7ab13f9	GPL-2.0
+linux/include/vdso/time32.h	3ba3cd73b09102bae2888f1434057163b2bba8ae7cef49ec7aed840edaae7e23	GPL-2.0
+linux/include/vdso/time64.h	7bea2fb74771207f25d0d7659867388c65b74479e0aa7903c4ad0c7e8fac5834	GPL-2.0
+linux/include/vdso/unaligned.h	05fc4b17cc6db5aae3ab23bed11bd47cae124b2d61eb0cdebf860c976015ae34	GPL-2.0
+linux/include/video/cmdline.h	71261d99a3318785b7da1b9af83b0467f44ba34c1ed1bb6934008f84bd2f757f	GPL-2.0
+linux/include/video/display_timing.h	5979cba090aebe352bec6d0b213a8fa46463d0cf2ca3f2e87100884bce9e7a9e	GPL-2.0-only
+linux/include/video/nomodeset.h	ea778093d9851de955c6280f2edda634873ca0e11fe9598bdfb1a79a3def6076	MIT
+linux/include/video/of_display_timing.h	89bc46750e0c64f82a6f1d62479747dc9693390252932a0bd29f1ed5ab1744bc	GPL-2.0-only
+linux/include/video/of_videomode.h	3eb1983016a492ce0cc7543eede52e12a93bedd996bc3ccfd15d5a09363396ca	GPL-2.0-only
+linux/include/video/vga.h	5d5aa8b7751ac4a5dddb3e2320a5211727c9c3f9eb827811990f293b3b439311	Public License.  See the file COPYING in the main directory of this
+linux/include/video/videomode.h	60aff2497a8fcde06919e44c787a08267894be8444daf28d1256b25c1361a2c1	GPL-2.0-only
+linux/include/xen/balloon.h	d696e542baa76257444904a41c88a539cd0272cbd2e53b8351dd7d3200de8bde	GPL-2.0
+linux/include/xen/interface/hvm/start_info.h	64d4b9a24ef618adcb0c92f866003b4f326d7c0d83ce69fee8f45456d9893ab6	MIT
+linux/include/xen/xen.h	2df26b7cf7e170f3e09babaa3aa45578ceabd5e5a42dde382c48e67188ef9cc8	GPL-2.0
+linux/lib/bitmap.c	c616e82207126892621e6285f1d29690b1da0c8f167cab3b9ec898b559942806	GPL-2.0-only
+linux/lib/ctype.c	1675d7654e76e66979b031d05570f73438f1f3808fca8c6f1d51274181ad2d59	GPL-2.0
+linux/lib/find_bit.c	5d9a03505728d024e52462662252c127545b0629ff2f7006e4d494372d30459d	GPL-2.0-or-later
+linux/lib/hexdump.c	140a2d3793e01a5a80f6b8e23b24256a5072ab4edf0e69796944d61cb65baa87	GPL-2.0-only
+linux/lib/hweight.c	c4da85f3aab22244a6029b5745e3d74efdc310a5227951ef82df4219af4f9931	GPL-2.0
+linux/lib/idr.c	4ad9d9784081a2b1d8aaa8875ec07a29b2faea0a960356d424b9c825290a4570	GPL-2.0-only
+linux/lib/kasprintf.c	6706bce50db2579ee692b1eb4e332636291febf983952b4251bbf26f2ba70b1d	GPL-2.0
+linux/lib/list_sort.c	86a2015938a007314f7e87a6c113f17fa7ea12ed77e306154ab69ca6f416ecc8	GPL-2.0
+linux/lib/radix-tree.c	71b4e536fcdc6bc52857bdb255f06d4b303e9e5e9c3d63f621ef1e91d103421e	GPL-2.0-or-later
+linux/lib/radix-tree.h	fa9aeb8dc0b7ef14854330cd4d3a50f423e6f690ac269a61d62a9ae6c0147125	GPL-2.0+
+linux/lib/rbtree.c	4bb8e833493fbf6c6060601c6a5b48e8fcbe6283ec376e241b9929bf33054733	GPL-2.0-or-later
+linux/lib/refcount.c	d35f23e0b0e7b5c1348009c7bb0dddfdd5826cb26d0fdb35ddef2ba19e34b1e8	GPL-2.0
+linux/lib/scatterlist.c	f3edcdb42381918defa8378b34553a3db14e83f77889839251bfc85318e84479	GPL-2.0-only
+linux/lib/seq_buf.c	7ffaa2b3cdf9b3c70b704c935a95375b196eaaef46e482257da03a1bbbca4415	GPL-2.0
+linux/lib/sort.c	170c3d659431e12106045d72228e0998006a7b5f7e1be6737ef2658554f870b6	GPL-2.0
+linux/lib/xarray.c	b2d275008a1f24090b9c6a3019faad73ac21c326e080c4488e89f13bd575da61	GPL-2.0+
