@@ -11,7 +11,7 @@ use std::sync::Arc;
 use std::task::{Context, Waker};
 
 use common::dma::Dma;
-use driver_graphics::{BlobCreateParams, BlobInfo, Fence, RenderDevice, RenderFeatures};
+use driver_graphics::{BlobCreateParams, BlobInfo, FenceLeaf, RenderDevice, RenderFeatures};
 use syscall::{EINVAL, EIO, ENOMEM};
 use virtio_core::spec::{Buffer, ChainBuilder, DescriptorFlags};
 use virtio_core::transport::{Error, Queue};
@@ -349,7 +349,7 @@ impl RenderDevice for VirtGpuRender {
         context_id: u32,
         ring_idx: Option<u8>,
         command: &[u8],
-    ) -> syscall::Result<Arc<Fence>> {
+    ) -> syscall::Result<Arc<FenceLeaf>> {
         if !self.contexts.contains(&context_id) {
             return Err(syscall::Error::new(EINVAL));
         }

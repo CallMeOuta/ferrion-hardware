@@ -8,8 +8,6 @@ use std::fs::File;
 use std::io::{self, Write};
 use std::marker::PhantomData;
 use std::rc::Rc;
-use std::sync::Arc;
-use std::sync::atomic::AtomicUsize;
 use std::task::{Context, Waker};
 
 use graphics_ipc::redox_uapi_exts::{
@@ -45,7 +43,6 @@ mod syncobj;
 pub use blob::{BlobCreateParams, BlobInfo};
 pub use flip::FlipCompletion;
 pub use render::{RenderDevice, RenderFeatures};
-pub use submit::Fence;
 pub use syncobj::{FenceLeaf, SyncFence, Syncobj};
 
 #[derive(Debug, Copy, Clone)]
@@ -265,7 +262,6 @@ impl<T: GraphicsAdapter> GraphicsScheme<T> {
             GraphicsSchemeData {
                 adapter,
                 waker,
-                live_fences: Arc::new(AtomicUsize::new(0)),
                 sync_timer,
                 disable_graphical_debug,
                 objects,
@@ -409,17 +405,6 @@ impl<T: GraphicsAdapter> GraphicsScheme<T> {
                         handle.mark_read_notified();
                     }
                 }
-                GraphicsResource::Fence(fence) => {
-                    if fence.should_post_event() {
-                        self.handler
-                            .socket()
-                            .write_response(
-                                Response::post_fevent(id, EventFlags::EVENT_READ.bits()),
-                                SignalBehavior::Restart,
-                            )
-                            .unwrap();
-                    }
-                }
                 GraphicsResource::SyncFile(sf) => {
                     if sf.should_post_event() {
                         self.handler
@@ -448,7 +433,6 @@ resource_scheme! {
         DrmBuffer(DrmBuffer<T>),
         RenderRoot(render::RenderRoot<T>),
         RenderHandle(render::RenderHandle<T>),
-        Fence(submit::FenceResource<T>),
         SyncobjFd(syncobj::SyncobjFd<T>),
         SyncFile(syncobj::SyncFile<T>),
     }
@@ -457,7 +441,6 @@ resource_scheme! {
 struct GraphicsSchemeData<T: GraphicsAdapter> {
     adapter: T,
     waker: Waker,
-    live_fences: Arc<AtomicUsize>,
     sync_timer: syncobj::WaitTimer,
 
     disable_graphical_debug: Option<File>,

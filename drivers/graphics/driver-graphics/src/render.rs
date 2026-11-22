@@ -22,7 +22,8 @@ use syscall::schemev2::NewFdFlags;
 use syscall::{EINVAL, ENODEV, ENOENT, ENOSYS, Error, EventFlags, MODE_CHR, MapFlags, MunmapFlags, Result};
 
 use crate::blob::{BlobCreateParams, BlobInfo, RenderBlobs};
-use crate::{Fence, GraphicsAdapter, GraphicsResource, GraphicsSchemeData, ioctl};
+use crate::syncobj::{FenceLeaf, SyncFence};
+use crate::{GraphicsAdapter, GraphicsResource, GraphicsSchemeData, ioctl};
 
 /// The device features render handles report, as Linux's virtio-gpu driver reports them.
 #[derive(Clone, Copy, Debug, Default)]
@@ -74,7 +75,7 @@ pub trait RenderDevice: Debug {
         _context_id: u32,
         _ring_idx: Option<u8>,
         _command: &[u8],
-    ) -> Result<Arc<Fence>> {
+    ) -> Result<Arc<FenceLeaf>> {
         Err(Error::new(EINVAL))
     }
 }
@@ -122,9 +123,9 @@ pub(crate) struct RenderHandle<T> {
     pub(crate) blobs: RenderBlobs,
     pub(crate) num_rings: u32,
     pub(crate) known_resources: HashSet<u32>,
-    pub(crate) resource_fences: HashMap<u32, Arc<Fence>>,
-    pub(crate) last_fence: Option<Arc<Fence>>,
-    pub(crate) pending_fences: HashMap<i32, Arc<Fence>>,
+    pub(crate) resource_fences: HashMap<u32, SyncFence>,
+    pub(crate) last_fence: Option<SyncFence>,
+    pub(crate) pending_fences: HashMap<i32, SyncFence>,
     next_fence_handle: i32,
     pub(crate) pending_waits: HashMap<Id, crate::submit::PendingWait>,
     pub(crate) syncobjs: crate::syncobj::SyncobjTable,
@@ -160,7 +161,15 @@ impl<T> RenderHandle<T> {
         }
     }
 
-    pub(crate) fn alloc_pending_fence(&mut self, fence: Arc<Fence>) -> i32 {
+    fn take_ready_wait(&mut self, id: Id) -> Result<Option<crate::submit::PendingWait>> {
+        match self.pending_waits.get(&id) {
+            None => Ok(None),
+            Some(wait) if !wait.is_ready() => Err(Error::new(syscall::EWOULDBLOCK)),
+            Some(_) => Ok(self.pending_waits.remove(&id)),
+        }
+    }
+
+    pub(crate) fn alloc_pending_fence(&mut self, fence: SyncFence) -> i32 {
         loop {
             let id = self.next_fence_handle;
             self.next_fence_handle = self.next_fence_handle.checked_add(1).unwrap_or(1);
@@ -168,6 +177,42 @@ impl<T> RenderHandle<T> {
                 self.pending_fences.insert(id, fence);
                 return id;
             }
+        }
+    }
+}
+
+impl<T: GraphicsAdapter> RenderHandle<T> {
+    fn render_ioctl(
+        &mut self,
+        scheme_data: &mut GraphicsSchemeData<T>,
+        id: Id,
+        cmd: u64,
+        payload: &mut [u8],
+        in_fence: Option<SyncFence>,
+    ) -> Result<usize> {
+        let waker = &scheme_data.waker;
+        let sync_timer = &scheme_data.sync_timer;
+        let device = scheme_data
+            .adapter
+            .render_device()
+            .ok_or(Error::new(ENODEV))?;
+        let mut pending_wait = None;
+        let res = ioctl::virtgpu::call_render_ioctl(
+            device,
+            self,
+            waker,
+            sync_timer,
+            id,
+            cmd,
+            payload,
+            in_fence,
+            &mut pending_wait,
+        );
+        if let Some(wait) = pending_wait {
+            self.pending_waits.insert(id, wait);
+            Err(Error::new(syscall::EWOULDBLOCK))
+        } else {
+            res
         }
     }
 }
@@ -202,67 +247,52 @@ impl<T: GraphicsAdapter> ResourceSync for RenderHandle<T> {
         metadata: &[u64],
         ctx: &CallerCtx,
     ) -> Result<usize> {
-        if let Some(wait) = self.pending_waits.get(&ctx.id) {
-            let Some(result) = wait.poll_result() else {
-                return Err(Error::new(syscall::EWOULDBLOCK));
-            };
-            self.pending_waits.remove(&ctx.id);
-            return result;
-        }
+        let in_fence = match self.take_ready_wait(ctx.id)? {
+            Some(crate::submit::PendingWait::Wait(_)) => return Ok(0),
+            Some(crate::submit::PendingWait::Execbuffer { in_fence, .. }) => in_fence,
+            None => None,
+        };
         if let Some(res) = crate::syncobj::poll_pending_wait(self, ctx.id, metadata[0], payload) {
             return res;
         }
-        let waker = &scheme_data.waker;
-        let sync_timer = &scheme_data.sync_timer;
-        let device = scheme_data
-            .adapter
-            .render_device()
-            .ok_or(Error::new(ENODEV))?;
-        let mut pending_wait = None;
-        let res = ioctl::virtgpu::call_render_ioctl(
-            device,
-            self,
-            waker,
-            sync_timer,
-            ctx.id,
-            metadata[0],
-            payload,
-            &mut pending_wait,
-        );
-        if let Some(wait) = pending_wait {
-            self.pending_waits.insert(ctx.id, wait);
-            Err(Error::new(syscall::EWOULDBLOCK))
-        } else {
-            res
-        }
+        self.render_ioctl(scheme_data, ctx.id, metadata[0], payload, in_fence)
     }
 
     fn call_with_handles(
         &mut self,
-        _scheme_data: &mut Self::SchemeData,
+        scheme_data: &mut Self::SchemeData,
         handles: &mut [Self::ResourceEnum],
         payload: &mut [u8],
         metadata: &[u64],
-        _ctx: &CallerCtx,
+        ctx: &CallerCtx,
     ) -> Result<usize> {
-        crate::syncobj::render_handle_call_with_handles(self, metadata[0], handles, payload)
+        if metadata[0] != redox_ioctl::virtgpu::EXECBUFFER {
+            return crate::syncobj::render_handle_call_with_handles(self, metadata[0], handles, payload);
+        }
+        let in_fence = match self.take_ready_wait(ctx.id)? {
+            Some(crate::submit::PendingWait::Execbuffer { in_fence, .. }) => in_fence,
+            Some(crate::submit::PendingWait::Wait(_)) => return Err(Error::new(EINVAL)),
+            None => match handles {
+                [GraphicsResource::SyncFile(sync_file)] => Some(sync_file.fence().clone()),
+                _ => return Err(Error::new(EINVAL)),
+            },
+        };
+        self.render_ioctl(scheme_data, ctx.id, metadata[0], payload, in_fence)
     }
 
     fn dup(
         &mut self,
-        scheme_data: &mut Self::SchemeData,
+        _scheme_data: &mut Self::SchemeData,
         buf: &[u8],
         _ctx: &CallerCtx,
     ) -> Result<ResourceOpenResult<Self::ResourceEnum>> {
         let cmd = buf
             .get(..8)
             .map(|cmd| u64::from_ne_bytes(cmd.try_into().unwrap()));
-        match cmd {
-            Some(
-                redox_ioctl::virtgpu::FENCE_DUP_EXECBUFFER
-                | redox_ioctl::virtgpu::FENCE_DUP_UNSIGNALED,
-            ) => crate::submit::dup_fence(self, &scheme_data.live_fences, buf),
-            _ => crate::syncobj::render_handle_dup(self, buf),
+        if cmd == Some(redox_ioctl::virtgpu::FENCE_DUP_EXECBUFFER) {
+            crate::submit::dup_fence(self, buf)
+        } else {
+            crate::syncobj::render_handle_dup(self, buf)
         }
     }
 

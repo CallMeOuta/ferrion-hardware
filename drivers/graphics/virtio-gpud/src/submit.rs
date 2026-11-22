@@ -5,7 +5,7 @@ use std::sync::Arc;
 use std::task::{Context, Waker};
 
 use common::dma::Dma;
-use driver_graphics::Fence;
+use driver_graphics::FenceLeaf;
 use syscall::{EBUSY, EINVAL, EIO, ENOMEM};
 use virtio_core::spec::{Buffer, ChainBuilder, DescriptorFlags};
 use virtio_core::transport::{Error, Queue};
@@ -59,7 +59,7 @@ impl SubmitQueue {
         ctx_id: u32,
         ring_idx: Option<u8>,
         command: &[u8],
-    ) -> syscall::Result<Arc<Fence>> {
+    ) -> syscall::Result<Arc<FenceLeaf>> {
         if self.pending.len() >= MAX_IN_FLIGHT_SUBMITS {
             return Err(syscall::Error::new(EBUSY));
         }
@@ -108,31 +108,30 @@ impl SubmitQueue {
             .build();
 
         let queue = self.control_queue.clone();
-        let fence = Fence::new(fence_id);
+        let fence = FenceLeaf::new_unsignaled(b"controlq", self.waker.clone());
         let done = fence.clone();
         let mut fut = Box::pin(async move {
             let (_, [_, response]) = queue.send(chain).await.into_parts();
             let response: Dma<ResponseHeader> = response.into_inner();
-            let status = if response.ty == CommandTy::RespOkNodata as u32 {
+            if response.ty == CommandTy::RespOkNodata as u32 {
                 if (response.flags & VIRTIO_GPU_FLAG_FENCE) != 0 && response.fence_id != fence_id {
                     log::warn!(
                         "virtio-gpu: submit ctx {ctx_id}: expected fence {fence_id}, got {}",
                         response.fence_id
                     );
                 }
-                0
+                done.signal();
             } else {
                 log::warn!(
                     "virtio-gpu: submit ctx {ctx_id} fence {fence_id}: device answered {:#x}",
                     response.ty
                 );
-                if response.ty == CommandTy::RespErrOutOfMemory as u32 {
-                    -(ENOMEM as i32)
+                done.signal_error(if response.ty == CommandTy::RespErrOutOfMemory as u32 {
+                    ENOMEM as i32
                 } else {
-                    -(EIO as i32)
-                }
-            };
-            done.signal(status);
+                    EIO as i32
+                });
+            }
         });
 
         let mut cx = Context::from_waker(&self.waker);

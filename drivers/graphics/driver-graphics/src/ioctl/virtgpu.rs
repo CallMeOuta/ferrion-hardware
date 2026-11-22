@@ -30,6 +30,7 @@ pub(crate) fn call_render_ioctl<T>(
     req_id: Id,
     cmd: u64,
     payload: &mut [u8],
+    in_fence: Option<crate::syncobj::SyncFence>,
     pending_wait: &mut Option<crate::submit::PendingWait>,
 ) -> Result<usize> {
     match cmd {
@@ -38,7 +39,7 @@ pub(crate) fn call_render_ioctl<T>(
         virtgpu::GEM_CLOSE => virtgpu::GemClose::with(payload, |data| handle.blobs.gem_close(device, data)),
         virtgpu::MAP => virtgpu::VirtgpuMap::with(payload, |data| handle.blobs.map_ioctl(data)),
         virtgpu::EXECBUFFER => virtgpu::VirtgpuExecbuffer::with(payload, |data| {
-            crate::submit::execbuffer(device, handle, data)
+            crate::submit::execbuffer(device, handle, data, in_fence, pending_wait)
         }),
         virtgpu::GETPARAM => virtgpu::VirtgpuGetparam::with(payload, |mut data| {
             data.set_value(getparam(device, data.param())?);

@@ -426,6 +426,21 @@ impl Syncobj {
         Ok(fence)
     }
 
+    pub(crate) fn can_attach(&self, point: u64) -> bool {
+        if point == 0 {
+            return true;
+        }
+        let mut state = self.state.lock().unwrap();
+        state.refresh();
+        state.signaled_point >= point
+            || state.timeline.contains_key(&point)
+            || state.timeline.len() < MAX_TIMELINE_POINTS
+    }
+
+    pub(crate) fn find_fence(&self, point: u64) -> Result<SyncFence> {
+        self.find_transfer_fence(point)
+    }
+
     fn find_transfer_fence(&self, point: u64) -> Result<SyncFence> {
         let mut state = self.state.lock().unwrap();
         state.refresh();
@@ -1004,6 +1019,10 @@ impl<T> SyncFile<T> {
             pending_merges: HashMap::new(),
             _adapter: PhantomData,
         }
+    }
+
+    pub(crate) fn fence(&self) -> &SyncFence {
+        &self.fence
     }
 
     pub(crate) fn should_post_event(&mut self) -> bool {
