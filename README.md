@@ -1,20 +1,21 @@
-# ferrion-driver-host
+# ferrion-hardware
 
-FerrionOS's driver host: Linux's own GPU drivers, compiled unchanged against a shim that provides the kernel interfaces they call, run as one user-space process per GPU and offered to programs as a FerrionOS scheme. Programs, Mesa and the compositor talk to it exactly as they talk to FerrionOS's native GPU driver.
+FerrionOS's hardware support, in two parts.
 
-The decision and its reasons are FerrionOS's ADR 0046 in the [FerrionOS repository](https://github.com/CallMeOuta/FerrionOS); FerrionOS builds this repository through a recipe pinned by commit.
+- **Profiles** (`profiles/<vendor>/<model>/`): one per machine. A profile picks each device's driver (one of FerrionOS's own, or a Linux driver through the driver host), the firmware packages, and the machine's quirks, and its README says what works on that machine, as shown by FerrionOS's checks. The idea comes from nixos-hardware's per-machine profiles.
+- **The driver host** (`driver-host/`): Linux's own drivers, compiled unchanged against a shim that provides the kernel interfaces they call, run as one user-space process per device and offered to programs as a FerrionOS scheme. Programs, Mesa and the compositor talk to it exactly as they talk to FerrionOS's native drivers. The decision and its reasons are FerrionOS's ADR 0046.
+
+FerrionOS's own drivers stay in the [FerrionOS repository](https://github.com/CallMeOuta/FerrionOS) with the rest of the system; FerrionOS builds this repository through a recipe pinned by commit.
 
 ## Status
 
-Nothing runs yet. The first slice is Linux's virtio-gpu driver inside FerrionOS in a virtual machine, compared pixel for pixel with FerrionOS's own `virtio-gpud` and with a Linux guest on the same device. The AMD GPU driver for real hardware follows, then `nouveau` with Mesa's NVK for NVIDIA.
-
-## What is in it
-
-- Linux's driver files, from one long-term branch (6.18.y), byte for byte as released. A line that has to change is recorded with its reason.
-- The shim, the front end that serves the scheme, and the back ends: FerrionOS's own code, written from FreeBSD's LinuxKPI and OpenBSD's DRM layer as references.
+Nothing runs yet. The driver host's first slice is Linux's virtio-gpu driver inside FerrionOS in a virtual machine, compared pixel for pixel with FerrionOS's own `virtio-gpud` and with a Linux guest on the same device. The AMD GPU driver for real hardware follows, then `nouveau` with Mesa's NVK for NVIDIA. There are no profiles yet.
 
 ## Licenses
 
-The program as a whole is licensed under the GNU General Public License, version 2 only (`LICENSE`), because it links Linux's GPL-2.0 files. Each file keeps its own notice: Linux's files carry theirs, and FerrionOS's own files are under the MIT license (`LICENSES/MIT.txt`), as is code taken from the BSD layers with its original notice.
+Each file keeps its own notice.
 
-On real hardware a GPU driver here can read and write any memory its device can reach, so FerrionOS runs it only behind an IOMMU that confines the device.
+- `driver-host/` builds a program that links Linux's GPL-2.0 files, so that program as a whole is licensed under the GNU General Public License, version 2 only (`LICENSE`). Linux's files carry their own notices; FerrionOS's own files in it are under the MIT license (`LICENSES/MIT.txt`), as is code taken from the BSD layers with its original notice.
+- `profiles/` is FerrionOS's own work under the MIT license (`LICENSES/MIT.txt`).
+
+On real hardware a driver in the host can read and write any memory its device can reach, so FerrionOS runs it only behind an IOMMU that confines the device.
