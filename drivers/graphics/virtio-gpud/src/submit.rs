@@ -1,14 +1,15 @@
-use std::future::Future;
+use std::collections::VecDeque;
+use std::future::{Future, poll_fn};
 use std::pin::Pin;
 use std::slice;
 use std::sync::Arc;
-use std::task::{Context, Waker};
+use std::task::{Context, Poll, Waker};
 
 use common::dma::Dma;
 use driver_graphics::FenceLeaf;
 use syscall::{EBUSY, EINVAL, EIO, ENOMEM};
 use virtio_core::spec::{Buffer, ChainBuilder, DescriptorFlags};
-use virtio_core::transport::{Error, Queue};
+use virtio_core::transport::{Error, PendingRequest, Queue};
 
 use crate::render::ResponseHeader;
 use crate::{CommandTy, ControlHeader, VIRTIO_GPU_FLAG_FENCE, VIRTIO_GPU_FLAG_INFO_RING_IDX};
@@ -24,10 +25,18 @@ struct CmdSubmit {
 
 const _: () = assert!(size_of::<CmdSubmit>() == 32);
 
+struct Unplaced {
+    chain: Vec<Buffer>,
+    fence: Arc<FenceLeaf>,
+    fence_id: u64,
+    ctx_id: u32,
+}
+
 pub struct SubmitQueue {
     control_queue: Arc<Queue>,
     waker: Waker,
     next_fence_id: u64,
+    unplaced: VecDeque<Unplaced>,
     pending: Vec<Pin<Box<dyn Future<Output = ()>>>>,
 }
 
@@ -44,6 +53,7 @@ impl SubmitQueue {
             control_queue,
             waker,
             next_fence_id: 1,
+            unplaced: VecDeque::new(),
             pending: Vec::new(),
         }
     }
@@ -60,7 +70,7 @@ impl SubmitQueue {
         ring_idx: Option<u8>,
         command: &[u8],
     ) -> syscall::Result<Arc<FenceLeaf>> {
-        if self.pending.len() >= MAX_IN_FLIGHT_SUBMITS {
+        if self.pending.len() + self.unplaced.len() >= MAX_IN_FLIGHT_SUBMITS {
             return Err(syscall::Error::new(EBUSY));
         }
         let cmd_size = u32::try_from(command.len()).map_err(|_| syscall::Error::new(EINVAL))?;
@@ -107,41 +117,76 @@ impl SubmitQueue {
             .chain(Buffer::new(response).flags(DescriptorFlags::WRITE_ONLY))
             .build();
 
-        let queue = self.control_queue.clone();
         let fence = FenceLeaf::new_unsignaled(b"controlq", self.waker.clone());
-        let done = fence.clone();
-        let mut fut = Box::pin(async move {
-            let (_, [_, response]) = queue.send(chain).await.into_parts();
-            let response: Dma<ResponseHeader> = response.into_inner();
-            if response.ty == CommandTy::RespOkNodata as u32 {
-                if (response.flags & VIRTIO_GPU_FLAG_FENCE) != 0 && response.fence_id != fence_id {
-                    log::warn!(
-                        "virtio-gpu: submit ctx {ctx_id}: expected fence {fence_id}, got {}",
-                        response.fence_id
-                    );
-                }
-                done.signal();
-            } else {
-                log::warn!(
-                    "virtio-gpu: submit ctx {ctx_id} fence {fence_id}: device answered {:#x}",
-                    response.ty
-                );
-                done.signal_error(if response.ty == CommandTy::RespErrOutOfMemory as u32 {
-                    ENOMEM as i32
-                } else {
-                    EIO as i32
-                });
-            }
+        self.unplaced.push_back(Unplaced {
+            chain,
+            fence: fence.clone(),
+            fence_id,
+            ctx_id,
         });
-
-        let mut cx = Context::from_waker(&self.waker);
-        if fut.as_mut().poll(&mut cx).is_pending() {
-            self.pending.push(fut);
-        }
+        let waker = self.waker.clone();
+        self.place(&waker);
         Ok(fence)
     }
 
+    fn place(&mut self, waker: &Waker) {
+        while let Some(next) = self.unplaced.pop_front() {
+            match self.control_queue.send_now(next.chain, waker) {
+                Ok(request) => {
+                    let mut fut = Box::pin(complete(request, next.fence, next.fence_id, next.ctx_id));
+                    let mut cx = Context::from_waker(&self.waker);
+                    if fut.as_mut().poll(&mut cx).is_pending() {
+                        self.pending.push(fut);
+                    }
+                }
+                Err(chain) => {
+                    self.unplaced.push_front(Unplaced { chain, ..next });
+                    break;
+                }
+            }
+        }
+    }
+
+    pub fn flush(&mut self) {
+        if self.unplaced.is_empty() {
+            return;
+        }
+        futures::executor::block_on(poll_fn(|cx| {
+            self.place(cx.waker());
+            if self.unplaced.is_empty() {
+                Poll::Ready(())
+            } else {
+                Poll::Pending
+            }
+        }));
+    }
+
     pub fn poll_pending(&mut self, cx: &mut Context<'_>) {
+        self.place(cx.waker());
         self.pending.retain_mut(|fut| fut.as_mut().poll(cx).is_pending());
+    }
+}
+
+async fn complete(request: PendingRequest, done: Arc<FenceLeaf>, fence_id: u64, ctx_id: u32) {
+    let (_, [_, response]) = request.await.into_parts();
+    let response: Dma<ResponseHeader> = response.into_inner();
+    if response.ty == CommandTy::RespOkNodata as u32 {
+        if (response.flags & VIRTIO_GPU_FLAG_FENCE) != 0 && response.fence_id != fence_id {
+            log::warn!(
+                "virtio-gpu: submit ctx {ctx_id}: expected fence {fence_id}, got {}",
+                response.fence_id
+            );
+        }
+        done.signal();
+    } else {
+        log::warn!(
+            "virtio-gpu: submit ctx {ctx_id} fence {fence_id}: device answered {:#x}",
+            response.ty
+        );
+        done.signal_error(if response.ty == CommandTy::RespErrOutOfMemory as u32 {
+            ENOMEM as i32
+        } else {
+            EIO as i32
+        });
     }
 }

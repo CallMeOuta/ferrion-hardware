@@ -426,6 +426,15 @@ impl Queue {
         }
     }
 
+    pub fn send_now(&self, chain: Vec<Buffer>, waker: &Waker) -> Result<PendingRequest, Vec<Buffer>> {
+        self.check_chain(&chain);
+        let ticket = self.submit_waiting(chain, waker)?;
+        Ok(PendingRequest {
+            queue: self.sref.upgrade().unwrap(),
+            state: PendingState::Submitted(ticket),
+        })
+    }
+
     /// Returns the number of descriptors in the descriptor table of this queue.
     pub fn descriptor_len(&self) -> usize {
         self.descriptor.len()

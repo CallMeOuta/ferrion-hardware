@@ -281,6 +281,7 @@ impl RenderDevice for VirtGpuRender {
     }
 
     fn create_context(&mut self, capset_id: u32, name: &[u8]) -> syscall::Result<u32> {
+        self.submits.flush();
         if self.contexts.len() >= MAX_CONTEXTS {
             return Err(syscall::Error::new(ENOMEM));
         }
@@ -314,6 +315,7 @@ impl RenderDevice for VirtGpuRender {
     }
 
     fn destroy_context(&mut self, context_id: u32) {
+        self.submits.flush();
         if !self.contexts.remove(&context_id) {
             return;
         }
@@ -329,18 +331,22 @@ impl RenderDevice for VirtGpuRender {
     }
 
     fn create_blob(&mut self, params: BlobCreateParams<'_>) -> syscall::Result<BlobInfo> {
+        self.submits.flush();
         self.blobs.create_blob(&self.control_queue, params)
     }
 
     fn map_blob(&mut self, res_id: u32) -> syscall::Result<usize> {
+        self.submits.flush();
         self.blobs.map_blob(&self.control_queue, res_id)
     }
 
     fn unmap_blob(&mut self, res_id: u32) {
+        self.submits.flush();
         self.blobs.unmap_blob(&self.control_queue, res_id);
     }
 
     fn destroy_blob(&mut self, res_id: u32) {
+        self.submits.flush();
         self.blobs.destroy_blob(&self.control_queue, res_id);
     }
 
