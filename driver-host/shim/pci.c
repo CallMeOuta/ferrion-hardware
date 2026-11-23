@@ -113,16 +113,16 @@ int pci_write_config_byte(const struct pci_dev *dev, int where, u8 val)
 	return write_config(where, 1, val);
 }
 
-u8 pci_find_next_capability(struct pci_dev *dev, u8 pos, int cap)
+static u8 walk_capabilities(struct pci_dev *dev, u8 pointer, int cap)
 {
 	unsigned int n;
 	u8 next;
 
-	pci_read_config_byte(dev, pos, &next);
+	pci_read_config_byte(dev, pointer, &next);
 	for (n = 0; n < FERRION_PCI_CAP_WALK_MAX && next >= PCI_STD_HEADER_SIZEOF; n++) {
+		u8 pos = next & ~3;
 		u8 id;
 
-		pos = next & ~3;
 		pci_read_config_byte(dev, pos + PCI_CAP_LIST_ID, &id);
 		if (id == 0xff)
 			break;
@@ -133,6 +133,11 @@ u8 pci_find_next_capability(struct pci_dev *dev, u8 pos, int cap)
 	return 0;
 }
 
+u8 pci_find_next_capability(struct pci_dev *dev, u8 pos, int cap)
+{
+	return walk_capabilities(dev, pos + PCI_CAP_LIST_NEXT, cap);
+}
+
 u8 pci_find_capability(struct pci_dev *dev, int cap)
 {
 	u16 status;
@@ -140,7 +145,7 @@ u8 pci_find_capability(struct pci_dev *dev, int cap)
 	pci_read_config_word(dev, PCI_STATUS, &status);
 	if (!(status & PCI_STATUS_CAP_LIST))
 		return 0;
-	return pci_find_next_capability(dev, PCI_CAPABILITY_LIST, cap);
+	return walk_capabilities(dev, PCI_CAPABILITY_LIST, cap);
 }
 
 u16 pci_find_ext_capability(struct pci_dev *dev, int cap)
