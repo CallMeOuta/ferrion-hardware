@@ -391,6 +391,7 @@ void class_remove_file_ns(const struct class *cls, const struct class_attribute 
 {
 }
 
+#ifdef CONFIG_SYSFS
 int sysfs_create_link(struct kobject *kobj, struct kobject *target, const char *name)
 {
 	return 0;
@@ -399,6 +400,7 @@ int sysfs_create_link(struct kobject *kobj, struct kobject *target, const char *
 void sysfs_remove_link(struct kobject *kobj, const char *name)
 {
 }
+#endif
 
 int __register_chrdev(unsigned int major, unsigned int baseminor, unsigned int count, const char *name,
 		      const struct file_operations *fops)
@@ -465,6 +467,7 @@ struct fwnode_handle *fwnode_find_reference(const struct fwnode_handle *fwnode, 
 	return ERR_PTR(-ENOENT);
 }
 
+#ifdef CONFIG_DMI
 const struct dmi_system_id *dmi_first_match(const struct dmi_system_id *list)
 {
 	return NULL;
@@ -474,6 +477,7 @@ const char *dmi_get_system_info(int field)
 {
 	return NULL;
 }
+#endif
 
 bool video_firmware_drivers_only(void)
 {
@@ -498,11 +502,14 @@ const char *video_get_options(const char *name)
 	return named ? named : global;
 }
 
+#ifdef CONFIG_VIDEO
 bool video_is_primary_device(struct device *dev)
 {
 	return false;
 }
+#endif
 
+#ifdef CONFIG_VGA_ARB
 int vga_get(struct pci_dev *pdev, unsigned int rsrc, int interruptible)
 {
 	return 0;
@@ -511,6 +518,7 @@ int vga_get(struct pci_dev *pdev, unsigned int rsrc, int interruptible)
 void vga_put(struct pci_dev *pdev, unsigned int rsrc)
 {
 }
+#endif
 
 static int param_set_bool_value(const char *val, const struct kernel_param *kp)
 {
@@ -529,7 +537,7 @@ static int param_set_bool_value(const char *val, const struct kernel_param *kp)
 
 static int param_get_bool_value(char *buffer, const struct kernel_param *kp)
 {
-	return sysfs_emit(buffer, "%c\n", *(bool *)kp->arg ? 'Y' : 'N');
+	return scnprintf(buffer, PAGE_SIZE, "%c\n", *(bool *)kp->arg ? 'Y' : 'N');
 }
 
 static int param_set_int_value(const char *val, const struct kernel_param *kp)
@@ -548,7 +556,7 @@ static int param_set_int_value(const char *val, const struct kernel_param *kp)
 
 static int param_get_int_value(char *buffer, const struct kernel_param *kp)
 {
-	return sysfs_emit(buffer, "%d\n", *(int *)kp->arg);
+	return scnprintf(buffer, PAGE_SIZE, "%d\n", *(int *)kp->arg);
 }
 
 static int param_set_ulong_value(const char *val, const struct kernel_param *kp)
@@ -567,7 +575,7 @@ static int param_set_ulong_value(const char *val, const struct kernel_param *kp)
 
 static int param_get_ulong_value(char *buffer, const struct kernel_param *kp)
 {
-	return sysfs_emit(buffer, "%lu\n", *(unsigned long *)kp->arg);
+	return scnprintf(buffer, PAGE_SIZE, "%lu\n", *(unsigned long *)kp->arg);
 }
 
 const struct kernel_param_ops param_ops_bool = {
@@ -609,6 +617,7 @@ int add_uevent_var(struct kobj_uevent_env *env, const char *format, ...)
 	return 0;
 }
 
+#ifdef CONFIG_SYSFS
 int sysfs_emit_at(char *buf, int at, const char *fmt, ...)
 {
 	va_list args;
@@ -621,3 +630,4 @@ int sysfs_emit_at(char *buf, int at, const char *fmt, ...)
 	va_end(args);
 	return min_t(int, len, PAGE_SIZE - at - 1);
 }
+#endif

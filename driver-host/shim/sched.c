@@ -624,10 +624,12 @@ void put_pid(struct pid *pid)
 		ferrion_abort("put_pid: the shim creates no struct pid");
 }
 
+#ifdef CONFIG_MULTIUSER
 bool capable(int cap)
 {
 	return false;
 }
+#endif
 
 void kernel_fpu_begin_mask(unsigned int kfpu_mask)
 {

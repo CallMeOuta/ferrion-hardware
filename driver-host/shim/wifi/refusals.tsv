@@ -1,0 +1,130 @@
+# SPDX-License-Identifier: GPL-2.0-only
+symbol	group	filled by
+ferrion_pci_info	Simulator PCI transport	never: this simulator backend has no PCI device access
+ferrion_pci_read_config	Simulator PCI transport	never: this simulator backend has no PCI device access
+ferrion_pci_write_config	Simulator PCI transport	never: this simulator backend has no PCI device access
+ferrion_pci_map_bar	Simulator PCI transport	never: this simulator backend has no PCI device access
+ferrion_pci_irq_start	Simulator PCI transport	never: this simulator backend has no PCI device access
+ferrion_uevent	Device events	WF3: control scheme event transport
+ferrion_wifi_namespace_sysfs	Namespace sysfs	never: the host has no namespace sysfs mounts
+ferrion_wifi_parameters	Module parameter mutation	WF2: simulator parameter control
+___pskb_trim	Socket buffers	WF2: bounded simulation packet buffers
+__alloc_skb	Socket buffers	WF2: bounded simulation packet buffers
+__dev_get_by_index	Network devices	WF2: simulator interfaces and frame delivery
+__dev_queue_xmit	Network devices	WF2: simulator interfaces and frame delivery
+__flush_workqueue	Work and tasks	WF2: simulated work, tasklets and threads
+__hw_addr_init	Network devices	WF2: simulator interfaces and frame delivery
+__hw_addr_sync	Network devices	WF2: simulator interfaces and frame delivery
+__hw_addr_unsync	Network devices	WF2: simulator interfaces and frame delivery
+__netdev_alloc_skb	Socket buffers	WF2: bounded simulation packet buffers
+__platform_driver_register	Device model	WF2: simulator device lifecycle
+__pskb_pull_tail	Socket buffers	WF2: bounded simulation packet buffers
+__skb_get_hash_net	Network devices	WF2: simulator interfaces and frame delivery
+__skb_gso_segment	Network devices	WF2: simulator interfaces and frame delivery
+__tasklet_schedule	Work and tasks	WF2: simulated work, tasklets and threads
+alloc_netdev_mqs	Network devices	WF2: simulator interfaces and frame delivery
+alloc_workqueue_noprof	Work and tasks	WF2: simulated work, tasklets and threads
+blocking_notifier_call_chain	Synchronization	WF2: crypto registration and wait semantics
+blocking_notifier_chain_register	Synchronization	WF2: crypto registration and wait semantics
+blocking_notifier_chain_unregister	Synchronization	WF2: crypto registration and wait semantics
+cancel_delayed_work	Work and tasks	WF2: simulated work, tasklets and threads
+cancel_work_sync	Work and tasks	WF2: simulated work, tasklets and threads
+class_register	Device model	WF2: simulator device lifecycle
+class_unregister	Device model	WF2: simulator device lifecycle
+csum_partial	Network devices	WF2: simulator interfaces and frame delivery
+d_path	Tracing, debugfs and debugging aids	never: no debug or proc filesystem
+dev_addr_mod	Network devices	WF2: simulator interfaces and frame delivery
+dev_alloc_name	Network devices	WF2: simulator interfaces and frame delivery
+dev_change_net_namespace	Network devices	WF2: simulator interfaces and frame delivery
+dev_close	Network devices	WF2: simulator interfaces and frame delivery
+dev_get_by_index	Network devices	WF2: simulator interfaces and frame delivery
+dev_kfree_skb_any_reason	Network devices	WF2: simulator interfaces and frame delivery
+dev_kfree_skb_irq_reason	Network devices	WF2: simulator interfaces and frame delivery
+device_bind_driver	Device model	WF2: simulator device lifecycle
+device_create	Device model	WF2: simulator device lifecycle
+device_release_driver	Device model	WF2: simulator device lifecycle
+device_rename	Device model	WF2: simulator device lifecycle
+do_exit	Work and tasks	WF2: simulated work, tasklets and threads
+do_trace_netlink_extack	Netlink	WF3: supplicant control transport
+down_read	Synchronization	WF2: crypto registration and wait semantics
+down_write	Synchronization	WF2: crypto registration and wait semantics
+drop_reasons_register_subsys	Socket buffers	WF2: bounded simulation packet buffers
+drop_reasons_unregister_subsys	Socket buffers	WF2: bounded simulation packet buffers
+dst_release	Network devices	WF2: simulator interfaces and frame delivery
+eth_mac_addr	Network devices	WF2: simulator interfaces and frame delivery
+eth_type_trans	Network devices	WF2: simulator interfaces and frame delivery
+eth_validate_addr	Network devices	WF2: simulator interfaces and frame delivery
+ether_setup	Network devices	WF2: simulator interfaces and frame delivery
+ethtool_op_get_link	Network devices	WF2: simulator interfaces and frame delivery
+faux_device_create	Device model	WF2: simulator device lifecycle
+faux_device_destroy	Device model	WF2: simulator device lifecycle
+flush_delayed_work	Work and tasks	WF2: simulated work, tasklets and threads
+free_netdev	Network devices	WF2: simulator interfaces and frame delivery
+genl_notify	Netlink	WF3: supplicant control transport
+genl_register_family	Netlink	WF3: supplicant control transport
+genl_unregister_family	Netlink	WF3: supplicant control transport
+genlmsg_multicast_allns	Netlink	WF3: supplicant control transport
+genlmsg_put	Netlink	WF3: supplicant control transport
+get_net_ns_by_pid	Network devices	WF2: simulator interfaces and frame delivery
+gro_receive_skb	Network devices	WF2: simulator interfaces and frame delivery
+iov_iter_advance	Pages, mappings and user memory	never: no client user-page mappings
+iov_iter_extract_pages	Pages, mappings and user memory	never: no client user-page mappings
+kfree_skb_list_reason	Socket buffers	WF2: bounded simulation packet buffers
+kthread_create_on_node	Work and tasks	WF2: simulated work, tasklets and threads
+ktime_get_with_offset	Time	WF2: simulated clock and timer lifecycle
+mangle_path	Tracing, debugfs and debugging aids	never: no debug or proc filesystem
+netdev_set_default_ethtool_ops	Network devices	WF2: simulator interfaces and frame delivery
+netif_carrier_off	Network devices	WF2: simulator interfaces and frame delivery
+netif_carrier_on	Network devices	WF2: simulator interfaces and frame delivery
+netif_receive_skb	Network devices	WF2: simulator interfaces and frame delivery
+netif_receive_skb_list	Network devices	WF2: simulator interfaces and frame delivery
+netif_rx	Network devices	WF2: simulator interfaces and frame delivery
+netlink_broadcast_filtered	Netlink	WF3: supplicant control transport
+netlink_register_notifier	Netlink	WF3: supplicant control transport
+netlink_unicast	Netlink	WF3: supplicant control transport
+netlink_unregister_notifier	Netlink	WF3: supplicant control transport
+platform_driver_unregister	Device model	WF2: simulator device lifecycle
+pskb_expand_head	Socket buffers	WF2: bounded simulation packet buffers
+register_netdevice	Network devices	WF2: simulator interfaces and frame delivery
+register_netdevice_notifier	Network devices	WF2: simulator interfaces and frame delivery
+register_pernet_device	Network devices	WF2: simulator interfaces and frame delivery
+release_firmware	Firmware	WF3: regulatory database loading
+request_firmware	Firmware	WF3: regulatory database loading
+request_firmware_nowait	Firmware	WF3: regulatory database loading
+round_jiffies	Time	WF2: simulated clock and timer lifecycle
+round_jiffies_relative	Time	WF2: simulated clock and timer lifecycle
+round_jiffies_up	Time	WF2: simulated clock and timer lifecycle
+rtnl_is_locked	Network devices	WF2: simulator interfaces and frame delivery
+rtnl_lock	Network devices	WF2: simulator interfaces and frame delivery
+rtnl_unlock	Network devices	WF2: simulator interfaces and frame delivery
+seq_write	Tracing, debugfs and debugging aids	never: no debug or proc filesystem
+sk_skb_reason_drop	Socket buffers	WF2: bounded simulation packet buffers
+skb_add_rx_frag_netmem	Socket buffers	WF2: bounded simulation packet buffers
+skb_clone	Socket buffers	WF2: bounded simulation packet buffers
+skb_clone_sk	Socket buffers	WF2: bounded simulation packet buffers
+skb_complete_wifi_ack	Socket buffers	WF2: bounded simulation packet buffers
+skb_copy	Socket buffers	WF2: bounded simulation packet buffers
+skb_copy_bits	Socket buffers	WF2: bounded simulation packet buffers
+skb_copy_expand	Socket buffers	WF2: bounded simulation packet buffers
+skb_csum_hwoffload_help	Network devices	WF2: simulator interfaces and frame delivery
+skb_dequeue	Socket buffers	WF2: bounded simulation packet buffers
+skb_ensure_writable	Socket buffers	WF2: bounded simulation packet buffers
+skb_pull	Socket buffers	WF2: bounded simulation packet buffers
+skb_push	Socket buffers	WF2: bounded simulation packet buffers
+skb_put	Socket buffers	WF2: bounded simulation packet buffers
+skb_queue_head	Socket buffers	WF2: bounded simulation packet buffers
+skb_queue_purge_reason	Socket buffers	WF2: bounded simulation packet buffers
+skb_queue_tail	Socket buffers	WF2: bounded simulation packet buffers
+skb_trim	Socket buffers	WF2: bounded simulation packet buffers
+synchronize_net	Network devices	WF2: simulator interfaces and frame delivery
+tasklet_kill	Work and tasks	WF2: simulated work, tasklets and threads
+tasklet_setup	Work and tasks	WF2: simulated work, tasklets and threads
+timer_shutdown_sync	Time	WF2: simulated clock and timer lifecycle
+unpin_user_page	Pages, mappings and user memory	never: no client user-page mappings
+unregister_netdev	Network devices	WF2: simulator interfaces and frame delivery
+unregister_netdevice_notifier	Network devices	WF2: simulator interfaces and frame delivery
+unregister_netdevice_queue	Network devices	WF2: simulator interfaces and frame delivery
+unregister_pernet_device	Network devices	WF2: simulator interfaces and frame delivery
+up_read	Synchronization	WF2: crypto registration and wait semantics
+up_write	Synchronization	WF2: crypto registration and wait semantics
+wait_for_completion_killable_timeout	Synchronization	WF2: crypto registration and wait semantics

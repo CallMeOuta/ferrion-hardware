@@ -546,10 +546,12 @@ void pci_dev_put(struct pci_dev *dev)
 		put_device(&dev->dev);
 }
 
+#ifdef CONFIG_APERTURE_HELPERS
 int aperture_remove_conflicting_pci_devices(struct pci_dev *pdev, const char *name)
 {
 	return 0;
 }
+#endif
 
 struct resource *__devm_request_region(struct device *dev, struct resource *parent, resource_size_t start,
 				       resource_size_t n, const char *name)

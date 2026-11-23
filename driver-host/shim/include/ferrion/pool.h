@@ -4,9 +4,7 @@
 
 #include <linux/types.h>
 
-#define FERRION_PAGE_OFFSET 0x100000000000UL
-#define FERRION_VMEMMAP_BASE 0x200000000000UL
-#define FERRION_PHYS_LIMIT (1UL << 40)
+#include <ferrion/address.h>
 
 void ferrion_pool_init(void);
 bool ferrion_linear(const void *addr);

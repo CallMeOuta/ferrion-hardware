@@ -339,6 +339,7 @@ void ferrion_vlog(int level, const char *prefix, const char *fmt, va_list args)
 	ferrion_log(level, line, min(o.len, sizeof(line) - 1));
 }
 
+#ifdef CONFIG_PRINTK
 int _printk(const char *fmt, ...)
 {
 	va_list args;
@@ -348,6 +349,7 @@ int _printk(const char *fmt, ...)
 	va_end(args);
 	return 0;
 }
+#endif
 
 static void dev_vlog(int level, const struct device *dev, const char *fmt, va_list args)
 {
@@ -358,6 +360,7 @@ static void dev_vlog(int level, const struct device *dev, const char *fmt, va_li
 	ferrion_vlog(level, prefix, fmt, args);
 }
 
+#ifdef CONFIG_PRINTK
 void _dev_printk(const char *level, const struct device *dev, const char *fmt, ...)
 {
 	va_list args;
@@ -394,6 +397,7 @@ void _dev_info(const struct device *dev, const char *fmt, ...)
 	dev_vlog(LOGLEVEL_INFO, dev, fmt, args);
 	va_end(args);
 }
+#endif
 
 int dev_err_probe(const struct device *dev, int err, const char *fmt, ...)
 {
@@ -461,6 +465,7 @@ int scnprintf(char *buf, size_t size, const char *fmt, ...)
 	return min_t(int, len, size - 1);
 }
 
+#ifdef CONFIG_SYSFS
 int sysfs_emit(char *buf, const char *fmt, ...)
 {
 	va_list args;
@@ -471,3 +476,4 @@ int sysfs_emit(char *buf, const char *fmt, ...)
 	va_end(args);
 	return min_t(int, len, PAGE_SIZE - 1);
 }
+#endif
