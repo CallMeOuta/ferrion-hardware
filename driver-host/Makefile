@@ -86,7 +86,7 @@ check-link: $(O)/census/linux.o $(O)/census/host.o $(FRONTEND_LIB)
 	$(CENSUS) check
 
 $(HOST): check-link initcalls.ld
-	$(CC) -static -o $@ -Wl,-T,initcalls.ld $(LINUX_OBJS) $(SHIM_OBJS) $(REFUSAL_OBJ) $(HOST_OBJS) $(FRONTEND_LIB)
+	$(CC) -static -o $@ -Wl,--gc-sections -Wl,-T,initcalls.ld $(LINUX_OBJS) $(SHIM_OBJS) $(REFUSAL_OBJ) $(HOST_OBJS) $(FRONTEND_LIB)
 
 clean:
 	rm -rf $(O)
