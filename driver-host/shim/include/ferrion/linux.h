@@ -39,5 +39,6 @@ int ferrion_vformat(char *buf, size_t size, const char *fmt, va_list args);
 void ferrion_vlog(int level, const char *prefix, const char *fmt, va_list args);
 
 void ferrion_user_window(const void *base, unsigned long len);
+const struct file_operations *ferrion_chrdev_fops(unsigned int major);
 
 #endif

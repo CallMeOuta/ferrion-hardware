@@ -429,6 +429,16 @@ void __unregister_chrdev(unsigned int major, unsigned int baseminor, unsigned in
 			chrdevs[i] = (struct chrdev){ 0 };
 }
 
+const struct file_operations *ferrion_chrdev_fops(unsigned int major)
+{
+	unsigned int i;
+
+	for (i = 0; i < FERRION_CHRDEVS_MAX; i++)
+		if (chrdevs[i].major == major)
+			return chrdevs[i].fops;
+	return NULL;
+}
+
 loff_t noop_llseek(struct file *file, loff_t offset, int whence)
 {
 	return file->f_pos;

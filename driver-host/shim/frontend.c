@@ -36,9 +36,10 @@ void *ferrion_drm_open(void)
 	file->f_inode = inode;
 	file->f_mode = FMODE_READ | FMODE_WRITE;
 	file->f_flags = O_RDWR;
-	ret = drm_open(inode, file);
+	file->f_op = ferrion_chrdev_fops(DRM_MAJOR);
+	ret = file->f_op && file->f_op->open ? file->f_op->open(inode, file) : -ENODEV;
 	if (ret) {
-		pr_err("ferrion: drm_open failed: %d\n", ret);
+		pr_err("ferrion: opening the DRM device failed: %d\n", ret);
 		iput(inode);
 		kfree(file);
 		file = NULL;
