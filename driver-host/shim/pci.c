@@ -453,6 +453,9 @@ static struct pci_dev *pdev_new(const struct ferrion_pci_info *info)
 	pdev->dma_mask = DMA_BIT_MASK(32);
 	pdev->dev.dma_mask = &pdev->dma_mask;
 	pdev->dev.coherent_dma_mask = DMA_BIT_MASK(32);
+	pdev->dev.dma_parms = &pdev->dma_parms;
+	pdev->dma_parms.max_segment_size = SZ_64K;
+	pdev->dma_parms.segment_boundary_mask = 0xffffffff;
 	pdev->dev.bus = &pci_bus_type;
 	pdev->dev.release = pdev_release;
 	device_initialize(&pdev->dev);
