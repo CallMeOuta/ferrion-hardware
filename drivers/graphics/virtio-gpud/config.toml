@@ -1,0 +1,6 @@
+[[drivers]]
+name = "virtio-gpu"
+class = 3
+vendor = 0x1AF4
+device = 0x1050
+command = ["virtio-gpud"]
