@@ -15,3 +15,4 @@ lib/kasprintf.o
 lib/seq_buf.o
 lib/hexdump.o
 lib/bitmap.o
+drivers/virtio/

@@ -1,27 +1,16 @@
 symbol	group	filled by
-__devm_request_region	PCI and device registers	L1b
-__dma_sync_sg_for_cpu	DMA mapping	L1b
-__dma_sync_sg_for_device	DMA mapping	L1b
-__folio_batch_release	Pages, mappings and user memory	L1b
 __get_user_4	Files, user access and ioctl plumbing	L1c
+__modver_version_show	Device model, modules and sysfs	cut: nothing reads sysfs (ADR 0046)
 __put_user_4	Files, user access and ioctl plumbing	L1c
 __put_user_8	Files, user access and ioctl plumbing	L1c
 __seq_puts	Tracing, debugfs and debugging aids	cut: debugfs and proc files (ADR 0046)
-alloc_anon_inode	Files, user access and ioctl plumbing	L1c
 alloc_file_pseudo	Files, user access and ioctl plumbing	L1c
 anon_inode_getfile	Files, user access and ioctl plumbing	L1c
-aperture_remove_conflicting_pci_devices	PCI and device registers	L1b
-cachemode2protval	Pages, mappings and user memory	L1b
-check_move_unevictable_folios	Pages, mappings and user memory	L1b
+cachemode2protval	Pages, mappings and user memory	L1c
 component_add	I2C, HDMI, component and audio links	cut: sound over HDMI (ADR 0046)
 component_del	I2C, HDMI, component and audio links	cut: sound over HDMI (ADR 0046)
 d_path	Tracing, debugfs and debugging aids	cut: debugfs and proc files (ADR 0046)
 dentry_open	Files, user access and ioctl plumbing	L1c
-dma_map_resource	DMA mapping	L1b
-dma_map_sgtable	DMA mapping	L1b
-dma_max_mapping_size	DMA mapping	L1b
-dma_unmap_resource	DMA mapping	L1b
-dma_unmap_sg_attrs	DMA mapping	L1b
 dynamic_dname	Files, user access and ioctl plumbing	L1c
 eventfd_ctx_fdget	Files, user access and ioctl plumbing	L1c
 eventfd_ctx_put	Files, user access and ioctl plumbing	L1c
@@ -29,60 +18,28 @@ eventfd_signal_mask	Files, user access and ioctl plumbing	L1c
 fd_install	Files, user access and ioctl plumbing	L1c
 fdget	Files, user access and ioctl plumbing	L1c
 fget	Files, user access and ioctl plumbing	L1c
-folio_mark_accessed	Pages, mappings and user memory	L1b
-folio_mark_dirty	Pages, mappings and user memory	L1b
-fput	Files, user access and ioctl plumbing	L1c
 get_unused_fd_flags	Files, user access and ioctl plumbing	L1c
 hdmi_avi_infoframe_init	I2C, HDMI, component and audio links	L2
 hdmi_vendor_infoframe_init	I2C, HDMI, component and audio links	L2
 i2c_transfer	I2C, HDMI, component and audio links	L2
 init_pseudo	Files, user access and ioctl plumbing	L1c
 inode_set_bytes	Files, user access and ioctl plumbing	L1c
-invalidate_mapping_pages	Pages, mappings and user memory	L1b
 iov_iter_advance	Pages, mappings and user memory	cut: user pointers (ADR 0046)
 iov_iter_extract_pages	Pages, mappings and user memory	cut: user pointers (ADR 0046)
-iput	Files, user access and ioctl plumbing	L1c
-is_virtio_device	The virtio transport	L1b
-kern_mount	Files, user access and ioctl plumbing	L1c
-kern_unmount	Files, user access and ioctl plumbing	L1c
 kill_anon_super	Files, user access and ioctl plumbing	L1c
-kobject_uevent_env	Device model, modules and sysfs	L1b
 mangle_path	Tracing, debugfs and debugging aids	cut: debugfs and proc files (ADR 0046)
-pci_dev_put	PCI and device registers	L1b
-pci_get_device	PCI and device registers	L1b
-pgprot_writecombine	Pages, mappings and user memory	L1b
+pgprot_writecombine	Pages, mappings and user memory	L1c
 platform_device_unregister	Device model, modules and sysfs	cut: no platform devices
 put_unused_fd	Files, user access and ioctl plumbing	L1c
-remap_pfn_range	Pages, mappings and user memory	L1b
+remap_pfn_range	Pages, mappings and user memory	L1c
 seq_printf	Tracing, debugfs and debugging aids	cut: debugfs and proc files (ADR 0046)
 seq_write	Tracing, debugfs and debugging aids	cut: debugfs and proc files (ADR 0046)
-set_pages_array_wb	Pages, mappings and user memory	L1b
-set_pages_array_wc	Pages, mappings and user memory	L1b
-shmem_file_setup	Pages, mappings and user memory	L1b
-shmem_file_setup_with_mnt	Pages, mappings and user memory	L1b
-shmem_read_folio_gfp	Pages, mappings and user memory	L1b
-shmem_truncate_range	Pages, mappings and user memory	L1b
+set_pages_array_wb	Pages, mappings and user memory	L2
+set_pages_array_wc	Pages, mappings and user memory	L2
 show_class_attr_string	Device model, modules and sysfs	cut: nothing reads sysfs (ADR 0046)
-simple_pin_fs	Files, user access and ioctl plumbing	L1c
-simple_release_fs	Files, user access and ioctl plumbing	L1c
 srcu_drive_gp	Locks, atomics and RCU	never: the shim's SRCU waits for its readers itself
 srcu_tiny_irq_work	Locks, atomics and RCU	never: the shim's SRCU waits for its readers itself
-unmap_mapping_range	Pages, mappings and user memory	L1b
 unpin_user_page	Pages, mappings and user memory	cut: user pointers (ADR 0046)
-virtio_check_driver_offered_feature	The virtio transport	L1b
-virtio_dma_buf_attach	The virtio transport	L1b
-virtio_dma_buf_export	The virtio transport	L1b
-virtio_reset_device	The virtio transport	L1b
-virtqueue_add_sgs	The virtio transport	L1b
-virtqueue_detach_unused_buf	The virtio transport	L1b
-virtqueue_disable_cb	The virtio transport	L1b
-virtqueue_enable_cb	The virtio transport	L1b
-virtqueue_get_buf	The virtio transport	L1b
-virtqueue_kick_prepare	The virtio transport	L1b
-virtqueue_notify	The virtio transport	L1b
-vm_get_page_prot	Pages, mappings and user memory	L1b
-vma_set_file	Pages, mappings and user memory	L1b
-vmalloc_to_page	Pages, mappings and user memory	L1b
-vmap	Pages, mappings and user memory	L1b
-vmf_insert_pfn	Pages, mappings and user memory	L1b
-vunmap	Pages, mappings and user memory	L1b
+vm_get_page_prot	Pages, mappings and user memory	L1c
+vma_set_file	Pages, mappings and user memory	L1c
+vmf_insert_pfn	Pages, mappings and user memory	L1c

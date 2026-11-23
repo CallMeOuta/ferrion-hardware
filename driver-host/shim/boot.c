@@ -10,13 +10,15 @@
 #include <asm/pgtable_types.h>
 #include <asm/processor.h>
 #include <ferrion/linux.h>
+#include <ferrion/pool.h>
 
 struct cpuinfo_x86 boot_cpu_data;
-unsigned long page_offset_base;
-unsigned long vmemmap_base;
+unsigned long page_offset_base = FERRION_PAGE_OFFSET;
+unsigned long vmemmap_base = FERRION_VMEMMAP_BASE;
 unsigned long phys_base;
 pteval_t __default_kernel_pte_mask = ~0;
 bool static_key_initialized = true;
+struct cpumask __cpu_possible_mask = { CPU_BITS_CPU0 };
 
 extern initcall_entry_t __ferrion_initcall_start[];
 extern initcall_entry_t __ferrion_initcall_end[];
@@ -78,7 +80,7 @@ static void run_initcalls(void)
 	}
 }
 
-int ferrion_linux_main(void)
+int ferrion_linux_start(void)
 {
 	ferrion_enter();
 	boot_cpu_init();
@@ -88,5 +90,5 @@ int ferrion_linux_main(void)
 	run_initcalls();
 	pr_info("ferrion: initcalls done\n");
 	ferrion_leave();
-	ferrion_refuse("pcid_attach");
+	return 0;
 }

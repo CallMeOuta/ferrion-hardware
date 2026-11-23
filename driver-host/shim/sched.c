@@ -189,6 +189,12 @@ signed long schedule_timeout(signed long timeout)
 	return left < 0 ? 0 : left;
 }
 
+signed long schedule_timeout_uninterruptible(signed long timeout)
+{
+	__set_current_state(TASK_UNINTERRUPTIBLE);
+	return schedule_timeout(timeout);
+}
+
 int __cond_resched(void)
 {
 	struct ferrion_task *t;
@@ -338,6 +344,24 @@ void complete_all(struct completion *x)
 {
 	x->done = UINT_MAX;
 	swake_all(&x->wait);
+}
+
+void complete(struct completion *x)
+{
+	struct swait_queue *first;
+
+	if (x->done != UINT_MAX)
+		x->done++;
+	first = list_first_entry_or_null(&x->wait.task_list, struct swait_queue, task_list);
+	if (first) {
+		wake_up_process(first->task);
+		list_del_init(&first->task_list);
+	}
+}
+
+void wait_for_completion(struct completion *x)
+{
+	wait_completion(x, MAX_SCHEDULE_TIMEOUT, TASK_UNINTERRUPTIBLE);
 }
 
 bool try_wait_for_completion(struct completion *x)

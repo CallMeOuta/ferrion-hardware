@@ -163,6 +163,22 @@ LINUX_SOURCES += drivers/gpu/drm/virtio/virtgpu_vq
 drivers/gpu/drm/virtio/virtgpu_vq_FLAGS := -I$(LINUX)/drivers/gpu/drm/virtio '-DKBUILD_MODFILE="drivers/gpu/drm/virtio/virtio-gpu"' '-DKBUILD_BASENAME="virtgpu_vq"' '-DKBUILD_MODNAME="virtio_gpu"' -D__KBUILD_MODNAME=kmod_virtio_gpu -Wrestrict -Wmissing-format-attribute -Wold-style-definition -Wmissing-include-dirs -Wunused-but-set-variable -Wunused-const-variable -Wpacked-not-aligned -Wformat-overflow -Wstringop-truncation
 LINUX_SOURCES += drivers/gpu/drm/virtio/virtgpu_vram
 drivers/gpu/drm/virtio/virtgpu_vram_FLAGS := -I$(LINUX)/drivers/gpu/drm/virtio '-DKBUILD_MODFILE="drivers/gpu/drm/virtio/virtio-gpu"' '-DKBUILD_BASENAME="virtgpu_vram"' '-DKBUILD_MODNAME="virtio_gpu"' -D__KBUILD_MODNAME=kmod_virtio_gpu -Wrestrict -Wmissing-format-attribute -Wold-style-definition -Wmissing-include-dirs -Wunused-but-set-variable -Wunused-const-variable -Wpacked-not-aligned -Wformat-overflow -Wstringop-truncation
+LINUX_SOURCES += drivers/virtio/virtio
+drivers/virtio/virtio_FLAGS := -I$(LINUX)/drivers/virtio '-DKBUILD_MODFILE="drivers/virtio/virtio"' '-DKBUILD_BASENAME="virtio"' '-DKBUILD_MODNAME="virtio"' -D__KBUILD_MODNAME=kmod_virtio
+LINUX_SOURCES += drivers/virtio/virtio_anchor
+drivers/virtio/virtio_anchor_FLAGS := -I$(LINUX)/drivers/virtio '-DKBUILD_MODFILE="drivers/virtio/virtio_anchor"' '-DKBUILD_BASENAME="virtio_anchor"' '-DKBUILD_MODNAME="virtio_anchor"' -D__KBUILD_MODNAME=kmod_virtio_anchor
+LINUX_SOURCES += drivers/virtio/virtio_dma_buf
+drivers/virtio/virtio_dma_buf_FLAGS := -I$(LINUX)/drivers/virtio '-DKBUILD_MODFILE="drivers/virtio/virtio_dma_buf"' '-DKBUILD_BASENAME="virtio_dma_buf"' '-DKBUILD_MODNAME="virtio_dma_buf"' -D__KBUILD_MODNAME=kmod_virtio_dma_buf
+LINUX_SOURCES += drivers/virtio/virtio_pci_admin_legacy_io
+drivers/virtio/virtio_pci_admin_legacy_io_FLAGS := -I$(LINUX)/drivers/virtio '-DKBUILD_MODFILE="drivers/virtio/virtio_pci"' '-DKBUILD_BASENAME="virtio_pci_admin_legacy_io"' '-DKBUILD_MODNAME="virtio_pci"' -D__KBUILD_MODNAME=kmod_virtio_pci
+LINUX_SOURCES += drivers/virtio/virtio_pci_common
+drivers/virtio/virtio_pci_common_FLAGS := -I$(LINUX)/drivers/virtio '-DKBUILD_MODFILE="drivers/virtio/virtio_pci"' '-DKBUILD_BASENAME="virtio_pci_common"' '-DKBUILD_MODNAME="virtio_pci"' -D__KBUILD_MODNAME=kmod_virtio_pci
+LINUX_SOURCES += drivers/virtio/virtio_pci_modern
+drivers/virtio/virtio_pci_modern_FLAGS := -I$(LINUX)/drivers/virtio '-DKBUILD_MODFILE="drivers/virtio/virtio_pci"' '-DKBUILD_BASENAME="virtio_pci_modern"' '-DKBUILD_MODNAME="virtio_pci"' -D__KBUILD_MODNAME=kmod_virtio_pci
+LINUX_SOURCES += drivers/virtio/virtio_pci_modern_dev
+drivers/virtio/virtio_pci_modern_dev_FLAGS := -I$(LINUX)/drivers/virtio '-DKBUILD_MODFILE="drivers/virtio/virtio_pci_modern_dev"' '-DKBUILD_BASENAME="virtio_pci_modern_dev"' '-DKBUILD_MODNAME="virtio_pci_modern_dev"' -D__KBUILD_MODNAME=kmod_virtio_pci_modern_dev
+LINUX_SOURCES += drivers/virtio/virtio_ring
+drivers/virtio/virtio_ring_FLAGS := -I$(LINUX)/drivers/virtio '-DKBUILD_MODFILE="drivers/virtio/virtio_ring"' '-DKBUILD_BASENAME="virtio_ring"' '-DKBUILD_MODNAME="virtio_ring"' -D__KBUILD_MODNAME=kmod_virtio_ring
 LINUX_SOURCES += lib/bitmap
 lib/bitmap_FLAGS := -I$(LINUX)/lib '-DKBUILD_MODFILE="lib/bitmap"' '-DKBUILD_BASENAME="bitmap"' '-DKBUILD_MODNAME="bitmap"' -D__KBUILD_MODNAME=kmod_bitmap
 LINUX_SOURCES += lib/ctype

@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: GPL-2.0-only
+[package]
+name = "ferrion-frontend"
+version = "0.1.0"
+edition = "2024"
+license = "GPL-2.0-only"
+publish = false
+
+[lib]
+crate-type = ["staticlib"]
+path = "src/lib.rs"
+
+[dependencies]
+common = { path = "../base/drivers/common" }
+daemon = { path = "../base/daemon" }
+driver-graphics = { path = "../base/drivers/graphics/driver-graphics" }
+pcid = { path = "../base/drivers/pcid" }
+drm-sys = "0.8.1"
+libc = "0.2.181"
+libredox = "0.2.0"
+log = "0.4"
+redox_event = "0.5.0"
+redox_syscall = { version = "0.9.5", features = ["std"] }
+
+[patch."https://gitlab.redox-os.org/redox-os/relibc.git"]
+redox-ioctl = { path = "../relibc/redox-ioctl" }
+
+[profile.release]
+panic = "abort"

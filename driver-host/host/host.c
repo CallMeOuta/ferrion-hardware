@@ -33,26 +33,6 @@ static atomic_ulong allocated;
 static atomic_int threads;
 static __thread struct ferrion_thread *self;
 
-static const char *const level_names[8] = {
-	"emerg", "alert", "crit", "err", "warning", "notice", "info", "debug",
-};
-
-void ferrion_log(int level, const char *text, unsigned long len)
-{
-	char line[FERRION_LOG_LINE_MAX];
-	const char *name = level >= 0 && level < 8 ? level_names[level] : "info";
-	int head = snprintf(line, sizeof(line), "ferrion-driver-host %s: ", name);
-	unsigned long room = sizeof(line) - (unsigned long)head - 1;
-
-	if (len > room)
-		len = room;
-	memcpy(line + head, text, len);
-	len += (unsigned long)head;
-	if (len == 0 || line[len - 1] != '\n')
-		line[len++] = '\n';
-	(void)!write(STDERR_FILENO, line, len);
-}
-
 void ferrion_refuse(const char *name)
 {
 	char line[FERRION_LOG_LINE_MAX];
@@ -245,7 +225,42 @@ int ferrion_thread_spawn(void (*entry)(void *), void *arg)
 	return 0;
 }
 
+struct tick {
+	void (*fn)(void);
+	struct timespec period;
+};
+
+static void *tick_main(void *arg)
+{
+	struct tick *tick = arg;
+
+	for (;;) {
+		nanosleep(&tick->period, NULL);
+		tick->fn();
+	}
+	return NULL;
+}
+
+int ferrion_tick_start(void (*fn)(void), unsigned long long period_ns)
+{
+	static struct tick tick;
+	pthread_attr_t attr;
+	pthread_t id;
+	int err;
+
+	if (tick.fn)
+		return -EBUSY;
+	tick.fn = fn;
+	tick.period.tv_sec = (time_t)(period_ns / 1000000000ULL);
+	tick.period.tv_nsec = (long)(period_ns % 1000000000ULL);
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+	err = pthread_create(&id, &attr, tick_main, &tick);
+	pthread_attr_destroy(&attr);
+	return -err;
+}
+
 int main(void)
 {
-	return ferrion_linux_main();
+	ferrion_driver_host_main();
 }

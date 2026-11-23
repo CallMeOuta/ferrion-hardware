@@ -12,14 +12,15 @@
 #include <linux/slab.h>
 #include <linux/sysfs.h>
 #include <linux/vgaarb.h>
-#include <linux/virtio.h>
 #include <video/cmdline.h>
 #include <video/nomodeset.h>
 #include <asm/video.h>
 #include <ferrion/linux.h>
 
 #define FERRION_CHRDEVS_MAX 8
-#define FERRION_VIRTIO_DRIVERS_MAX 4
+#define FERRION_BUSES_MAX 4
+#define FERRION_DRIVERS_MAX 16
+#define FERRION_BUS_DEVICES_MAX 32
 
 struct devres {
 	struct list_head node;
@@ -40,7 +41,6 @@ struct chrdev {
 };
 
 static struct chrdev chrdevs[FERRION_CHRDEVS_MAX];
-static struct virtio_driver *virtio_drivers[FERRION_VIRTIO_DRIVERS_MAX];
 
 int overflowuid = DEFAULT_OVERFLOWUID;
 
@@ -87,6 +87,19 @@ void devres_free(void *res)
 void devres_add(struct device *dev, void *res)
 {
 	list_add_tail(&devres_of(res)->node, &dev->devres_head);
+}
+
+static void devm_kmalloc_release(struct device *dev, void *res)
+{
+}
+
+void *devm_kmalloc(struct device *dev, size_t size, gfp_t gfp)
+{
+	void *res = __devres_alloc_node(devm_kmalloc_release, size, gfp | __GFP_ZERO, NUMA_NO_NODE, "devm_kmalloc");
+
+	if (res)
+		devres_add(dev, res);
+	return res;
 }
 
 static void devres_release_all(struct device *dev)
@@ -167,8 +180,97 @@ int dev_set_name(struct device *dev, const char *fmt, ...)
 	return 0;
 }
 
+static const struct bus_type *buses[FERRION_BUSES_MAX];
+static struct device_driver *drivers[FERRION_DRIVERS_MAX];
+static struct device *bus_devices[FERRION_BUS_DEVICES_MAX];
+
+int bus_register(const struct bus_type *bus)
+{
+	unsigned int i;
+
+	for (i = 0; i < FERRION_BUSES_MAX; i++) {
+		if (!buses[i]) {
+			buses[i] = bus;
+			return 0;
+		}
+	}
+	return -ENOSPC;
+}
+
+void bus_unregister(const struct bus_type *bus)
+{
+	unsigned int i;
+
+	for (i = 0; i < FERRION_BUSES_MAX; i++)
+		if (buses[i] == bus)
+			buses[i] = NULL;
+}
+
+static int bind(struct device *dev, struct device_driver *drv)
+{
+	int ret;
+
+	if (dev->driver || drv->bus != dev->bus)
+		return -ENODEV;
+	if (dev->bus->match && !dev->bus->match(dev, drv))
+		return -ENODEV;
+	dev->driver = drv;
+	if (dev->bus->probe)
+		ret = dev->bus->probe(dev);
+	else
+		ret = drv->probe ? drv->probe(dev) : 0;
+	if (ret) {
+		dev->driver = NULL;
+		dev_err(dev, "probe by %s failed: %d\n", drv->name, ret);
+	}
+	return ret;
+}
+
+static void unbind(struct device *dev)
+{
+	struct device_driver *drv = dev->driver;
+
+	if (!drv)
+		return;
+	if (dev->bus->remove)
+		dev->bus->remove(dev);
+	else if (drv->remove)
+		drv->remove(dev);
+	devres_release_all(dev);
+	dev->driver = NULL;
+}
+
+int driver_register(struct device_driver *drv)
+{
+	unsigned int i;
+
+	for (i = 0; i < FERRION_DRIVERS_MAX && drivers[i]; i++)
+		;
+	if (i == FERRION_DRIVERS_MAX)
+		return -ENOSPC;
+	drivers[i] = drv;
+	for (i = 0; i < FERRION_BUS_DEVICES_MAX; i++)
+		if (bus_devices[i])
+			bind(bus_devices[i], drv);
+	return 0;
+}
+
+void driver_unregister(struct device_driver *drv)
+{
+	unsigned int i;
+
+	for (i = 0; i < FERRION_BUS_DEVICES_MAX; i++)
+		if (bus_devices[i] && bus_devices[i]->driver == drv)
+			unbind(bus_devices[i]);
+	for (i = 0; i < FERRION_DRIVERS_MAX; i++)
+		if (drivers[i] == drv)
+			drivers[i] = NULL;
+}
+
 int device_add(struct device *dev)
 {
+	unsigned int i;
+
 	if (dev->init_name) {
 		int ret = dev_set_name(dev, "%s", dev->init_name);
 
@@ -180,11 +282,31 @@ int device_add(struct device *dev)
 		return -EINVAL;
 	get_device(dev->parent);
 	dev->kobj.state_in_sysfs = 1;
+	if (!dev->bus)
+		return 0;
+	for (i = 0; i < FERRION_BUS_DEVICES_MAX && bus_devices[i]; i++)
+		;
+	if (i == FERRION_BUS_DEVICES_MAX) {
+		put_device(dev->parent);
+		return -ENOSPC;
+	}
+	bus_devices[i] = dev;
+	for (i = 0; i < FERRION_DRIVERS_MAX && !dev->driver; i++)
+		if (drivers[i])
+			bind(dev, drivers[i]);
 	return 0;
 }
 
 void device_del(struct device *dev)
 {
+	unsigned int i;
+
+	if (dev->bus) {
+		unbind(dev);
+		for (i = 0; i < FERRION_BUS_DEVICES_MAX; i++)
+			if (bus_devices[i] == dev)
+				bus_devices[i] = NULL;
+	}
 	dev->kobj.state_in_sysfs = 0;
 	put_device(dev->parent);
 }
@@ -367,29 +489,6 @@ void vga_put(struct pci_dev *pdev, unsigned int rsrc)
 {
 }
 
-int __register_virtio_driver(struct virtio_driver *drv, struct module *owner)
-{
-	unsigned int i;
-
-	for (i = 0; i < FERRION_VIRTIO_DRIVERS_MAX; i++) {
-		if (!virtio_drivers[i]) {
-			virtio_drivers[i] = drv;
-			pr_info("ferrion: virtio driver %s registered\n", drv->driver.name);
-			return 0;
-		}
-	}
-	return -ENOSPC;
-}
-
-void unregister_virtio_driver(struct virtio_driver *drv)
-{
-	unsigned int i;
-
-	for (i = 0; i < FERRION_VIRTIO_DRIVERS_MAX; i++)
-		if (virtio_drivers[i] == drv)
-			virtio_drivers[i] = NULL;
-}
-
 static int param_set_bool_value(const char *val, const struct kernel_param *kp)
 {
 	bool *arg = kp->arg;
@@ -463,3 +562,39 @@ const struct kernel_param_ops param_ops_ulong = {
 	.set = param_set_ulong_value,
 	.get = param_get_ulong_value,
 };
+
+int kobject_uevent_env(struct kobject *kobj, enum kobject_action action, char *envp_ext[])
+{
+	ferrion_uevent(kobject_name(kobj), action);
+	return 0;
+}
+
+int add_uevent_var(struct kobj_uevent_env *env, const char *format, ...)
+{
+	va_list args;
+	int len;
+
+	if (env->envp_idx >= ARRAY_SIZE(env->envp))
+		return -ENOMEM;
+	va_start(args, format);
+	len = ferrion_vformat(&env->buf[env->buflen], sizeof(env->buf) - env->buflen, format, args);
+	va_end(args);
+	if (len >= (int)sizeof(env->buf) - env->buflen)
+		return -ENOMEM;
+	env->envp[env->envp_idx++] = &env->buf[env->buflen];
+	env->buflen += len + 1;
+	return 0;
+}
+
+int sysfs_emit_at(char *buf, int at, const char *fmt, ...)
+{
+	va_list args;
+	int len;
+
+	if (at < 0 || at >= PAGE_SIZE)
+		return 0;
+	va_start(args, fmt);
+	len = ferrion_vformat(buf + at, PAGE_SIZE - at, fmt, args);
+	va_end(args);
+	return min_t(int, len, PAGE_SIZE - at - 1);
+}

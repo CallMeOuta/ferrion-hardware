@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0-only
 #include <linux/hrtimer.h>
+#include <linux/delay.h>
 #include <linux/irq_work.h>
 #include <linux/jiffies.h>
 #include <linux/sched.h>
@@ -360,9 +361,19 @@ static void timer_main(void *arg)
 	}
 }
 
+void msleep(unsigned int msecs)
+{
+	unsigned long timeout = msecs_to_jiffies(msecs) + 1;
+
+	while (timeout)
+		timeout = schedule_timeout_uninterruptible(timeout);
+}
+
 void ferrion_time_init(void)
 {
 	ferrion_tick();
+	if (ferrion_tick_start(ferrion_tick, FERRION_NS_PER_JIFFY))
+		ferrion_abort("ferrion_time_init: no thread for the tick");
 	timer_task = ferrion_task_new("ferrion-timers", timer_main, NULL);
 	if (ferrion_task_start(timer_task))
 		ferrion_abort("ferrion_time_init: no thread for timers");

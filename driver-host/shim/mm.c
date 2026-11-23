@@ -10,6 +10,7 @@
 #include <linux/string.h>
 #include <linux/uaccess.h>
 #include <ferrion/linux.h>
+#include <ferrion/pool.h>
 
 #define FERRION_KMALLOC_MINALIGN 16
 #define FERRION_STRNDUP_USER_MAX (PAGE_SIZE * 32)
@@ -25,19 +26,7 @@ kmem_buckets kmalloc_caches[NR_KMALLOC_TYPES];
 
 static void *kmalloc_any(size_t size, gfp_t flags)
 {
-	unsigned long align = FERRION_KMALLOC_MINALIGN;
-	void *ptr;
-
-	if (!size)
-		return ZERO_SIZE_PTR;
-	if (size > KMALLOC_MAX_SIZE)
-		return NULL;
-	if (is_power_of_2(size))
-		align = min_t(unsigned long, max_t(unsigned long, size, align), PAGE_SIZE);
-	ptr = ferrion_alloc(size, align);
-	if (ptr && (flags & __GFP_ZERO))
-		memset(ptr, 0, size);
-	return ptr;
+	return ferrion_kmalloc(size, FERRION_KMALLOC_MINALIGN, flags);
 }
 
 void *__kmalloc_noprof(size_t size, gfp_t flags)
@@ -62,33 +51,12 @@ void *__kmalloc_node_track_caller_noprof(size_t size, gfp_t flags, int node, uns
 
 void *__kvmalloc_node_noprof(size_t size, unsigned long align, gfp_t flags, int node)
 {
-	void *ptr;
-
-	if (align <= FERRION_KMALLOC_MINALIGN)
-		return kmalloc_any(size, flags);
-	ptr = ferrion_alloc(size, align);
-	if (ptr && (flags & __GFP_ZERO))
-		memset(ptr, 0, size);
-	return ptr;
-}
-
-void kfree(const void *objp)
-{
-	if (ZERO_OR_NULL_PTR(objp))
-		return;
-	ferrion_free((void *)objp);
+	return ferrion_kmalloc(size, max_t(unsigned long, align, FERRION_KMALLOC_MINALIGN), flags);
 }
 
 void kvfree(const void *addr)
 {
 	kfree(addr);
-}
-
-size_t ksize(const void *objp)
-{
-	if (ZERO_OR_NULL_PTR(objp))
-		return 0;
-	return ferrion_alloc_usable(objp);
 }
 
 size_t kmalloc_size_roundup(size_t size)
@@ -167,14 +135,10 @@ void kmem_cache_destroy(struct kmem_cache *s)
 
 void *kmem_cache_alloc_noprof(struct kmem_cache *s, gfp_t flags)
 {
-	void *ptr = ferrion_alloc(s->size, s->align);
+	void *ptr = ferrion_kmalloc(s->size, s->align, s->ctor ? 0 : flags);
 
-	if (!ptr)
-		return NULL;
-	if (s->ctor)
+	if (ptr && s->ctor)
 		s->ctor(ptr);
-	else if (flags & __GFP_ZERO)
-		memset(ptr, 0, s->size);
 	return ptr;
 }
 
@@ -188,29 +152,14 @@ void kmem_cache_free(struct kmem_cache *s, void *objp)
 	kfree(objp);
 }
 
-unsigned long get_free_pages_noprof(gfp_t gfp_mask, unsigned int order)
-{
-	void *ptr = ferrion_alloc(PAGE_SIZE << order, PAGE_SIZE);
-
-	if (ptr && (gfp_mask & __GFP_ZERO))
-		memset(ptr, 0, PAGE_SIZE << order);
-	return (unsigned long)ptr;
-}
-
-void free_pages(unsigned long addr, unsigned int order)
-{
-	if (addr)
-		ferrion_free((void *)addr);
-}
-
 bool is_vmalloc_addr(const void *x)
 {
-	return false;
+	return x && !ferrion_linear(x);
 }
 
 int is_vmalloc_or_module_addr(const void *x)
 {
-	return 0;
+	return is_vmalloc_addr(x);
 }
 
 void ferrion_user_window(const void *base, unsigned long len)

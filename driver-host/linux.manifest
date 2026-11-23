@@ -15,11 +15,11 @@ generated/arch/x86/include/generated/uapi/asm/poll.h	0b6ca981303acc0421950612250
 generated/arch/x86/include/generated/uapi/asm/resource.h	6d9c7f1ca98f275aafe3c5533d274aec702ea6029f8036bdb577b0c53e08f7d9	-
 generated/arch/x86/include/generated/uapi/asm/types.h	b6bdcd528bce555b2ecb58e8a1624e3e13e09312c31318023c4e86b957e2b01f	-
 generated/arch/x86/include/generated/uapi/asm/unistd_64.h	d8cfef637d18fc25203be337a3bbc883cc39814a88a48e9d5747d233d75dee56	-
-generated/include/generated/autoconf.h	57b45d6ad5e1b2a2ddf26c78da91d1ad79024d2a15ec13010b9988acafb3ceef	-
+generated/include/generated/autoconf.h	5acdc0db175787a713d35145b6cebdcc1de1aa4a53aeda802a8ae48401107f2a	-
 generated/include/generated/bounds.h	731b1afaa7138fbefa921a1529c08ece294f439be4316b24629668aa39778aec	-
 generated/include/generated/rq-offsets.h	bea5f4d14ec1457173b5f5b35c6054ddf0453d82ce5594a311ae90c9c94c71e7	-
 generated/include/generated/timeconst.h	0db01d74b846e39dca3612d96dee8b8f6addfaeb738cc4f5574086828487c2b9	-
-generated/linux.config	d612eaaeb56a45eccc0a253340aa223703f322800057ceb3f1bb73a750a255f5	-
+generated/linux.config	8795dd27b32686f6652df903d3ac041cf63065d26d9c632e9e8abd8dba2334e8	-
 linux/arch/x86/include/asm/alternative.h	dd884b59292f8f45c9a61fc40de7afd21cd9519e6dd3ffe0c3223b3fbc2048af	GPL-2.0
 linux/arch/x86/include/asm/apicdef.h	c6990570dac1469f812b9b547a4e64462a36c957f9ee131af251c2e6b997ce1e	GPL-2.0
 linux/arch/x86/include/asm/arch_hweight.h	8857cf7d5c782c3fba1ab5dadc55949eadd19ac454078d03c58aaf484366c5f2	GPL-2.0
@@ -41,6 +41,7 @@ linux/arch/x86/include/asm/cpuid/api.h	a9f981c7a2823eccac1b8ff02770e42d61850265b
 linux/arch/x86/include/asm/cpuid/types.h	47834143866a6fed0d9d40dbba795a8501b2a1207294451e34de1e7802fd395c	GPL-2.0
 linux/arch/x86/include/asm/cpumask.h	04059c39fe529c3460676cdd213456051b36671956e232d806ecb7fc414eb916	GPL-2.0
 linux/arch/x86/include/asm/current.h	6b2d348fb95a5bc25d2e1d4ed3b29f7604601f74f30b9b9f7b35dfd87aa37c95	GPL-2.0
+linux/arch/x86/include/asm/delay.h	9f331d057a892a5196087efe850adf84d978a79c1f5d320e48384440d1a5b946	GPL-2.0
 linux/arch/x86/include/asm/desc_defs.h	7e0077a9c039961ac0c82bbbc47a580cfe2af42b5b3830f4271c29d89ef26e0e	GPL-2.0
 linux/arch/x86/include/asm/device.h	2e7faa86b72d1914dd4e2f16f7dfe04eb997ad60bd9ada11eb8af790713bce43	GPL-2.0
 linux/arch/x86/include/asm/div64.h	849252cc62c629a133c1074578bee1387c9c393ab1d1564920c3b069d9d6bef0	GPL-2.0
@@ -246,6 +247,15 @@ linux/drivers/gpu/drm/virtio/virtgpu_trace.h	0f3c8851f7e42743315014d3f9ddfea56b4
 linux/drivers/gpu/drm/virtio/virtgpu_trace_points.c	f076a7c647b7f6a2e36315ba5a56cd7f6e1be98179b98eaf623a9ce72c48443a	GPL-2.0
 linux/drivers/gpu/drm/virtio/virtgpu_vq.c	51751a196b043410921284175fe017df35761d05abe6bfa8528660840e263973	Permission is hereby granted, free of charge, to any person obtaining a
 linux/drivers/gpu/drm/virtio/virtgpu_vram.c	88de1cf1f4d87932ad2be51cde3a8266ede72c862cb191096d6478e07e5f85e1	GPL-2.0
+linux/drivers/virtio/virtio.c	8f8ae249f00194584cd026b5ad706db07998a3cd6b2300757e6104e2057f5a92	GPL-2.0-only
+linux/drivers/virtio/virtio_anchor.c	9d6077f11ea8687127315f27bee8d1837cf4fe0633b667a8192f74da50bc92b5	GPL-2.0-only
+linux/drivers/virtio/virtio_dma_buf.c	9ec237e934df0ec7a272a91f7c7528b320f4a0abecf1c3aa36cb0f5596e2afa2	GPL-2.0-or-later
+linux/drivers/virtio/virtio_pci_admin_legacy_io.c	6e06eecbdef23e1cf8356d59adaaf6fb0a31c97140a2d749a81cee2e1ba614d8	GPL-2.0-only
+linux/drivers/virtio/virtio_pci_common.c	9161ff566cd8401d67da5483e8a73ff7e6e8760654f0b1be58b527a07af5da72	GPL-2.0-or-later
+linux/drivers/virtio/virtio_pci_common.h	bb54d2c0bdfa9fbd4326b8b12eeb6170894dd687bdb692f811284c21b08590da	GPL-2.0-or-later
+linux/drivers/virtio/virtio_pci_modern.c	6f14be5f55d2638a6c54848b7aed0dfa5bae4cfb83e4e3186804095aaa83f763	GPL-2.0-or-later
+linux/drivers/virtio/virtio_pci_modern_dev.c	3382268afb5b1b6a3f1368dcb70cc17e99c178cf39a9de148f428e582c5a75d7	GPL-2.0-or-later
+linux/drivers/virtio/virtio_ring.c	77fbca1087f6c34c31a58c0d02e81d4a5ea5cc788e0dfffc0c596ff27301a67f	GPL-2.0-or-later
 linux/include/acpi/acbuffer.h	35ba604ea76c3efb445c815d14047e3d8fefa549145516ab50559a0ec5d90a60	BSD-3-Clause OR GPL-2.0
 linux/include/acpi/acconfig.h	52f9d2ba3e82b6ea809171e47beffcaed79418ea45bf23fdb5060ae43b1460f6	BSD-3-Clause OR GPL-2.0
 linux/include/acpi/acexcep.h	e5d3462825191d92a078d6af1c08be7a501d19498ceb22a24efef4f0dae0785b	BSD-3-Clause OR GPL-2.0
@@ -280,6 +290,7 @@ linux/include/asm-generic/bitops/sched.h	9ca18afe9cb77896c5a7ab7905cef16e224c12a
 linux/include/asm-generic/bitsperlong.h	09c1354e4daa869af60b1b9ae76a0f7a5362bb0fc0be62d64c8ad51e3d19aa87	GPL-2.0
 linux/include/asm-generic/bug.h	cad38e6a000499155b2b4c6b1001a58ce350a3d21686c31cd97f7edbfbcfff1f	GPL-2.0
 linux/include/asm-generic/cacheflush.h	e582b6947296f9eb48fc683cb09a6a04618fd7d6c52a43f2537491c886f6df0a	GPL-2.0
+linux/include/asm-generic/delay.h	a422b5c0cf937f7e7be9958b7c302da954f98a07dffdb5f4dbba43bc65118f78	GPL-2.0
 linux/include/asm-generic/div64.h	288acb881f07893b78dde25bd9df2185db53442a38dc42de4ece20e34a7ccdb9	GPL-2.0
 linux/include/asm-generic/early_ioremap.h	af02936336191c0c2bb82a6f566edd43b2eb67cf46ebd05114589533ac18994a	GPL-2.0
 linux/include/asm-generic/error-injection.h	b3d2bae80238c63df91d95300477ca7c4c22f928cf42b7e716821779dab13e5b	GPL-2.0
@@ -453,6 +464,7 @@ linux/include/linux/dcache.h	35911060959f449dbd1a15d10c06bce478f26c4c4c423cca468
 linux/include/linux/debug_locks.h	35cde540de6c6b48044c9ea142508444a19c991b2dcd016f9358cccb936a84e7	GPL-2.0
 linux/include/linux/debugfs.h	cc612bdc46f428ac661da0eb4b3425defefcb35654139bdda7223ebbad3ca8f5	GPL-2.0
 linux/include/linux/debugobjects.h	6e69f0f903311b6e53f97218e1550f96a9875aace57bcca93188b056ad08ebf2	GPL-2.0
+linux/include/linux/delay.h	f9149a9b8e6b48317e5cfb2b9100285a25828d8a69e5417fa49cbea7d654ed34	GPL-2.0
 linux/include/linux/delayed_call.h	c139dd95fcefa1d9ff38ab3c8ab232da992295e98d7d7404842003b2f1df18fc	GPL-2.0
 linux/include/linux/dev_printk.h	ba476a7261040b824eedb7d55a97c3f65be10870deb73baf8700c4310c56c769	GPL-2.0
 linux/include/linux/device.h	27088ee29e052d2d4032b8ed0edf23a5b4055da5f7ce8e5fa7a5219a634aa3b3	GPL-2.0
@@ -811,10 +823,14 @@ linux/include/linux/vfsdebug.h	d63161137a5ceb0c5ffa78a36a54c37b8b603be6a6d07f290
 linux/include/linux/vga_switcheroo.h	51f6d3b8df055e7c2afdba1a4c264a9f66cd25f770f56c5a9ce9eccaf86a4400	Permission is hereby granted, free of charge, to any person obtaining a
 linux/include/linux/vgaarb.h	7d820c1ea71ad35c200f3e84ce69c865302913ba52dd932cdbedb589e639fc60	MIT
 linux/include/linux/virtio.h	b755225845717db632e06cdd9a0d7f5c9ac7042f18e66a7c814d78504364d8e7	GPL-2.0
+linux/include/linux/virtio_anchor.h	7985f1b780e6eadd8d6ef7a89bd969c44aba5ee53f956f64573031458c211d53	GPL-2.0
 linux/include/linux/virtio_byteorder.h	985eb2e72ce24ea172ec57614d0548712d508c96b9a180c346c927749e98349c	GPL-2.0
 linux/include/linux/virtio_config.h	16cf61ad032dd5a50b5238e2742c554ae8451cafefe9d567db86710b2e9030bc	GPL-2.0
 linux/include/linux/virtio_dma_buf.h	9aa83f0da07d9cf7e5253c51add35eacac85dec814e0c0404d2e440c2147f846	GPL-2.0
 linux/include/linux/virtio_features.h	2e564e6e24e21d79e82d93d14cf50114f0cc0f7f8f9ffbbe98d8c88e84391ca3	GPL-2.0
+linux/include/linux/virtio_pci_admin.h	9b7898dd1fa7d197decc35a0b847bc639605a2e989019a115b017ce0d8d02399	GPL-2.0
+linux/include/linux/virtio_pci_legacy.h	a5fd7fc1085f2e9d3e90aa93aad4147732f6042465066bdae23e4ac7f6cf1cb3	GPL-2.0
+linux/include/linux/virtio_pci_modern.h	b187dd0991499dfd0cd9376283873ae6d9224e9a69889ed47b3f7316de2b4883	GPL-2.0
 linux/include/linux/virtio_ring.h	f8414b3b9ce56e19e7eeacbead9e5a2464f4ba65f67e0aab37980a966c2803f7	GPL-2.0
 linux/include/linux/vm_event_item.h	77a72ded28f757b54011220d01df9dc77edb84a94523ee87ea5be22221f8e2e5	GPL-2.0
 linux/include/linux/vmalloc.h	f67e60caae71ebbd199c38c4935530fd730eb734bb0542be01d46afa42eb026d	GPL-2.0
@@ -923,6 +939,7 @@ linux/include/uapi/linux/vesa.h	3f7e96dafaf2c5eebf5b63f2e0e00157ae6817213983056c
 linux/include/uapi/linux/virtio_config.h	00291a2835f3011b420077c8bddb5bfacfc65b982a8c85e29d5574dee8913ebd	This header, excluding the #ifdef __KERNEL__ part, is BSD licensed so
 linux/include/uapi/linux/virtio_gpu.h	1665b49e5a886e54df1af97266763eef90f37ed2d24dfdc1274ed5a015df1a3f	This header is BSD licensed so anyone can use the definitions
 linux/include/uapi/linux/virtio_ids.h	e9957fd3ce022c978b4d06e6e222e74d9cb4697d17cda4001608b635c9516c0f	This header is BSD licensed so anyone can use the definitions to implement
+linux/include/uapi/linux/virtio_pci.h	da0a0393323c95b3e4e0404f113944c392fc644031b177fae283ddc752e34545	This header is BSD licensed so anyone can use the definitions to implement
 linux/include/uapi/linux/virtio_ring.h	57fd059ebd45422fce646bc81d9c6a148f6d9dc15354573f389d53264dec193c	This header is BSD licensed so anyone can use the definitions to implement
 linux/include/uapi/linux/virtio_types.h	3a6bf6debdb7873b234ca57693a61a77b6b43c68b90d60bfc14ae5fcce5d6d09	This header is BSD licensed so anyone can use the definitions to implement
 linux/include/uapi/linux/xattr.h	d32560f914b4b70448b980cb774181e03af9824a0c65acbfe628a51af0813b89	GPL-2.0 WITH Linux-syscall-note

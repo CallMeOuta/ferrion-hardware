@@ -30,10 +30,13 @@ SHIM_OBJS := $(SHIM_SOURCES:%.c=$(O)/%.o)
 HOST_SOURCES := $(sort $(wildcard host/*.c))
 HOST_OBJS := $(HOST_SOURCES:%.c=$(O)/%.o)
 REFUSAL_OBJ := $(O)/shim/refusals.o
-LIBS := $(shell $(CC) -print-file-name=libc.a) $(shell $(CC) -print-libgcc-file-name)
+TARGET ?= x86_64-unknown-redox
+CARGO_BUILD ?= cargo build --target $(TARGET)
+FRONTEND_LIB := $(O)/cargo/$(TARGET)/release/libferrion_frontend.a
+LIBS := $(shell $(CC) -print-file-name=libc.a) $(shell $(CC) -print-libgcc-file-name) $(FRONTEND_LIB)
 HOST := $(O)/ferrion-driver-host
 
-.PHONY: all census check-link clean
+.PHONY: all census check-link clean links
 all: check-link $(HOST)
 
 $(O)/linux/%.o: $(LINUX)/%.c
@@ -66,16 +69,24 @@ $(O)/census/host.o: $(LINUX_OBJS) $(SHIM_OBJS) $(REFUSAL_OBJ) $(HOST_OBJS)
 	@mkdir -p $(@D)
 	$(LD) -r -o $@ $^
 
+links:
+	$(if $(BASE_SRC),,$(error BASE_SRC names base's fetched source, RELIBC_SRC relibc's))
+	ln -sfn $(abspath $(BASE_SRC)) base
+	ln -sfn $(abspath $(RELIBC_SRC)) relibc
+
+$(FRONTEND_LIB): frontend/Cargo.toml frontend/Cargo.lock $(wildcard frontend/src/*.rs) | links
+	CARGO_TARGET_DIR=$(abspath $(O)/cargo) $(CARGO_BUILD) --release --locked --manifest-path frontend/Cargo.toml
+
 CENSUS = sh tools/census.sh $(O)/census "$(NM)" shim/refusals.tsv initcalls.ld "$(SHIM_OBJS)" "$(LIBS)"
 
-census: $(O)/census/linux.o $(O)/census/host.o
+census: $(O)/census/linux.o $(O)/census/host.o $(FRONTEND_LIB)
 	$(CENSUS)
 
-check-link: $(O)/census/linux.o $(O)/census/host.o
+check-link: $(O)/census/linux.o $(O)/census/host.o $(FRONTEND_LIB)
 	$(CENSUS) check
 
 $(HOST): check-link initcalls.ld
-	$(CC) -static -o $@ -Wl,-T,initcalls.ld $(LINUX_OBJS) $(SHIM_OBJS) $(REFUSAL_OBJ) $(HOST_OBJS)
+	$(CC) -static -o $@ -Wl,-T,initcalls.ld $(LINUX_OBJS) $(SHIM_OBJS) $(REFUSAL_OBJ) $(HOST_OBJS) $(FRONTEND_LIB)
 
 clean:
 	rm -rf $(O)
