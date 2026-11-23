@@ -18,7 +18,7 @@ Requires: KVM; OVMF.
 | HDA sound | pci 8086:293e | native | ihdad rootfs |
 | qemu-xhci (no USB device attached) | pci 1b36:000d | native | xhcid rootfs |
 | Optional TPM CRB with swtpm | platform  | native | tpmd rootfs |
-| virtio-gpu | pci 1af4:1050 | native | virtio-gpud initfs |
+| virtio-gpu | pci 1af4:1050 | native | virtio-gpud rootfs |
 | virtio-blk disk | pci 1af4:1001, 1af4:1042 | native | virtio-blkd initfs |
 | virtio-net network | pci 1af4:1000, 1af4:1041 | native | virtio-netd rootfs |
 

@@ -18,7 +18,7 @@ Requires: KVM; OVMF; Linux 6.13 or later; QEMU with egl-headless; virtio-vga-gl 
 | HDA sound | pci 8086:293e | native | ihdad rootfs |
 | qemu-xhci (no USB device attached) | pci 1b36:000d | native | xhcid rootfs |
 | Optional TPM CRB with swtpm | platform  | native | tpmd rootfs |
-| virtio-gpu | pci 1af4:1050 | native | virtio-gpud initfs |
+| virtio-gpu | pci 1af4:1050 | native | virtio-gpud rootfs |
 | NVMe disk | pci 1b36:0010 | native | nvmed initfs |
 | e1000 network | pci 8086:100e | native | e1000d rootfs |
 
