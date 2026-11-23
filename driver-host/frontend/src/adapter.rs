@@ -317,6 +317,7 @@ impl GraphicsAdapter for LinuxAdapter {
                 ..Default::default()
             };
             self.file.ioctl(MODE_GETCONNECTOR, &mut all)?;
+            modes.truncate(all.count_modes as usize);
         }
         let mut edid = vec![0u8; EDID_MAX];
         let len = unsafe { ferrion_drm_edid(self.file.0, linux_id, edid.as_mut_ptr() as *mut c_void, edid.len()) };
@@ -324,18 +325,18 @@ impl GraphicsAdapter for LinuxAdapter {
             return Err(Error::new(-len as i32));
         }
         edid.truncate((len as usize).min(EDID_MAX));
+        if !edid.is_empty() {
+            objects.set_connector_edid(id, edid);
+        }
         let mut connector = objects.get_connector(id)?.lock().unwrap();
         connector.connection = if probe.connection == CONNECTED {
             KmsConnectorStatus::Connected
         } else {
             KmsConnectorStatus::Disconnected
         };
-        if !edid.is_empty() {
-            drop(connector);
-            objects.set_connector_edid(id, edid);
-        } else if let Some(mode) = modes.first() {
-            connector.update_from_size(u32::from(mode.hdisplay), u32::from(mode.vdisplay));
-        }
+        connector.mm_width = probe.mm_width;
+        connector.mm_height = probe.mm_height;
+        connector.modes = modes;
         Ok(())
     }
 
