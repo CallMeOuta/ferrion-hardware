@@ -9,6 +9,15 @@ opt_in = false
 match = [{ "hypervisor" = ["KVMKVMKVM", "Linux KVM Hv"], "pci_all" = ["8086:29c0", "1234:1111"] }]
 
 [[profile]]
+name = "qemu/q35-driver-host"
+title = "QEMU q35 with virtio-gpu on Linux's driver in the driver host"
+kind = "vm"
+arch = ["x86_64"]
+opt_in = true
+widens_access = ["Linux 6.18.64's virtio-gpu driver, DRM core and dma-buf code (104 files, 87,219 lines of C) and the host's shim drive the virtio-gpu PCI function in place of virtio-gpud", "The driver host takes the device's legacy INTx interrupt line, which q35 can share with other devices, where virtio-gpud uses MSI-X", "The driver host holds up to 1 GiB of physically contiguous memory with its physical addresses, which it hands to the device; this machine has no IOMMU", "/etc/pcid.d/virtio-gpud.toml replaces the stock entry, so the root file system's pcid-spawner starts the driver host on 1af4:1050"]
+match = [{ "hypervisor" = ["KVMKVMKVM", "Linux KVM Hv"], "pci_all" = ["8086:29c0", "1af4:1050"] }]
+
+[[profile]]
 name = "qemu/q35-venus"
 title = "QEMU q35 with virtio-gpu and Venus"
 kind = "vm"

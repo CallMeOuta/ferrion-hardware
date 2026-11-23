@@ -1,0 +1,74 @@
+# SPDX-License-Identifier: GPL-2.0-only
+include = ["../q35/profile.toml", "../../../common/gpu/virtio.toml"]
+
+[profile]
+format = 1
+name = "qemu/q35-driver-host"
+title = "QEMU q35 with virtio-gpu on Linux's driver in the driver host"
+kind = "vm"
+arch = ["x86_64"]
+boot = "uefi"
+opt_in = true
+widens_access = [
+    "Linux 6.18.64's virtio-gpu driver, DRM core and dma-buf code (104 files, 87,219 lines of C) and the host's shim drive the virtio-gpu PCI function in place of virtio-gpud",
+    "The driver host takes the device's legacy INTx interrupt line, which q35 can share with other devices, where virtio-gpud uses MSI-X",
+    "The driver host holds up to 1 GiB of physically contiguous memory with its physical addresses, which it hands to the device; this machine has no IOMMU",
+    "/etc/pcid.d/virtio-gpud.toml replaces the stock entry, so the root file system's pcid-spawner starts the driver host on 1af4:1050",
+]
+
+[[match]]
+hypervisor = ["KVMKVMKVM", "Linux KVM Hv"]
+pci_all = ["8086:29c0", "1af4:1050"]
+
+[vm]
+tool = "qemu"
+make = ["gpu=virtio"]
+host_needs = ["KVM", "OVMF"]
+
+[iommu]
+unit = "none"
+
+[packages]
+ferrion-hardware = {}
+
+[[files]]
+path = "/etc/pcid.d/virtio-gpud.toml"
+data = """
+[[drivers]]
+name = "virtio-gpu"
+class = 3
+vendor = 0x1AF4
+device = 0x1050
+command = ["ferrion-driver-host", "video=Virtual-2:640x480e"]
+"""
+
+[[device]]
+id = "display"
+name = "virtio-gpu"
+bus = "pci"
+ids = ["1af4:1050"]
+class = "030000"
+route = "host"
+driver = "ferrion-driver-host"
+linux_driver = "virtio_gpu"
+stage = "rootfs"
+
+[[feature]]
+id = "boot"
+name = "Graphical boot"
+checks = ["boot"]
+conditions = ["gpu=virtio"]
+
+[[feature]]
+id = "display"
+name = "Display, 2D"
+checks = ["graphics-bounds"]
+device = "display"
+conditions = ["gpu=virtio; graphics-bounds with --display display.virtio-gpu"]
+
+[[feature]]
+id = "second-display"
+name = "Second display"
+checks = ["gpu-heads"]
+device = "display"
+conditions = ["gpu=multi, not this profile default; Virtual-2 forced on by video=Virtual-2:640x480e"]

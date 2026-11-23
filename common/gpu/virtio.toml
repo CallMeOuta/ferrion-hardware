@@ -8,4 +8,4 @@ ids = ["1af4:1050"]
 class = "030000"
 route = "native"
 driver = "virtio-gpud"
-stage = "initfs"
+stage = "rootfs"

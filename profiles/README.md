@@ -9,5 +9,6 @@ Generated catalog: [index.toml](index.toml). Regenerate with `python3 scripts/pr
 | Profile | Kind | Architectures | Selection |
 |---|---|---|---|
 | [QEMU q35](qemu/q35/README.md) | vm | x86_64 | hardware matching |
+| [QEMU q35 with virtio-gpu on Linux's driver in the driver host](qemu/q35-driver-host/README.md) | vm | x86_64 | opt-in by name |
 | [QEMU q35 with virtio-gpu and Venus](qemu/q35-venus/README.md) | vm | x86_64 | hardware matching |
 | [QEMU q35 with virtio devices](qemu/q35-virtio/README.md) | vm | x86_64 | hardware matching |
