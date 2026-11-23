@@ -38,18 +38,14 @@ bool ferrion_linear(const void *addr)
 	return a >= page_offset_base && a - page_offset_base < FERRION_PHYS_LIMIT;
 }
 
-static void populate_pages(unsigned long pfn, unsigned long count)
+void ferrion_pool_init(void)
 {
-	unsigned long start = (unsigned long)pfn_to_page(pfn) & PAGE_MASK;
-	unsigned long end = PAGE_ALIGN((unsigned long)pfn_to_page(pfn + count));
-	unsigned long addr;
+	unsigned long pages = FERRION_PHYS_LIMIT >> PAGE_SHIFT;
 
-	for (addr = start; addr < end; addr += PAGE_SIZE) {
-		int ret = ferrion_anon_map((void *)addr, PAGE_SIZE);
-
-		if (ret && ret != -EEXIST)
-			ferrion_abort("struct page memory could not be mapped");
-	}
+	if (ferrion_reserve((void *)page_offset_base, FERRION_PHYS_LIMIT, 0))
+		ferrion_abort("the linear map's address range is taken");
+	if (ferrion_reserve((void *)vmemmap_base, PAGE_ALIGN(pages * sizeof(struct page)), 1))
+		ferrion_abort("the page array's address range is taken");
 }
 
 void *ferrion_region_alloc(unsigned long size)
@@ -63,7 +59,6 @@ void *ferrion_region_alloc(unsigned long size)
 		return NULL;
 	if ((unsigned long)va != page_offset_base + phys)
 		ferrion_abort("physical memory is not in the linear map");
-	populate_pages(phys >> PAGE_SHIFT, size >> PAGE_SHIFT);
 	return va;
 }
 

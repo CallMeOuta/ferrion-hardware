@@ -82,6 +82,7 @@ static void run_initcalls(void)
 
 int ferrion_linux_start(void)
 {
+	ferrion_pool_init();
 	ferrion_enter();
 	boot_cpu_init();
 	radix_tree_init();

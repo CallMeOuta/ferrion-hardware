@@ -8,6 +8,7 @@
 #define FERRION_VMEMMAP_BASE 0x200000000000UL
 #define FERRION_PHYS_LIMIT (1UL << 40)
 
+void ferrion_pool_init(void);
 bool ferrion_linear(const void *addr);
 void *ferrion_region_alloc(unsigned long size);
 void ferrion_region_free(void *va, unsigned long size);

@@ -37,7 +37,7 @@ unsigned long ferrion_alloc_usable(const void *ptr);
 
 void *ferrion_phys_alloc(unsigned long size, unsigned long *phys);
 void ferrion_phys_free(void *va, unsigned long size);
-int ferrion_anon_map(void *addr, unsigned long size);
+int ferrion_reserve(void *addr, unsigned long size, int writable);
 
 int ferrion_pci_info(struct ferrion_pci_info *info);
 unsigned int ferrion_pci_read_config(unsigned int offset);

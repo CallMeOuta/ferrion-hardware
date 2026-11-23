@@ -148,7 +148,7 @@ fn phys_alloc(size: usize) -> Result<(usize, usize), String> {
         .translate(virt)
         .map_err(|e| format!("translate: {e}"))?;
     let target = unsafe { page_offset_base } + phys;
-    let flags = MremapFlags::FIXED.bits() | (MapFlags::PROT_READ | MapFlags::PROT_WRITE).bits();
+    let flags = MremapFlags::FIXED_REPLACE.bits() | (MapFlags::PROT_READ | MapFlags::PROT_WRITE).bits();
     let moved = unsafe { syscall::syscall5(syscall::number::SYS_MREMAP, virt, size, target, size, flags) };
     match moved {
         Ok(addr) if addr == target => Ok((target, phys)),
@@ -162,32 +162,42 @@ fn phys_alloc(size: usize) -> Result<(usize, usize), String> {
 
 #[unsafe(no_mangle)]
 pub extern "C" fn ferrion_phys_free(va: *mut c_void, size: usize) {
-    if unsafe { libredox::call::munmap(va as *mut (), size) }.is_ok() {
-        DMA_USED.fetch_sub(size, Ordering::Relaxed);
+    match map_zeroed(va as usize, size, MapFlags::MAP_FIXED, flag::PROT_NONE) {
+        Ok(()) => {
+            DMA_USED.fetch_sub(size, Ordering::Relaxed);
+        }
+        Err(error) => log::warn!("ferrion-driver-host: freeing {size} bytes of DMA memory: {error}"),
     }
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn ferrion_anon_map(addr: *mut c_void, size: usize) -> i32 {
-    let fd = match memory_root_fd().openat("zeroed", flag::O_CLOEXEC, 0) {
-        Ok(fd) => fd,
-        Err(error) => return -(error.errno() as i32),
-    };
+pub extern "C" fn ferrion_reserve(addr: *mut c_void, size: usize, writable: i32) -> i32 {
+    let prot = if writable != 0 { flag::PROT_READ | flag::PROT_WRITE } else { flag::PROT_NONE };
+    match map_zeroed(addr as usize, size, MapFlags::MAP_FIXED_NOREPLACE, prot) {
+        Ok(()) => 0,
+        Err(error) => {
+            log::error!("ferrion-driver-host: reserving {size:#x} bytes at {addr:p}: {error}");
+            -22
+        }
+    }
+}
+
+fn map_zeroed(addr: usize, size: usize, fixed: MapFlags, prot: u32) -> Result<(), String> {
+    let fd = memory_root_fd()
+        .openat("zeroed", flag::O_CLOEXEC, 0)
+        .map_err(|e| format!("open: {e}"))?;
     let mapped = unsafe {
         libredox::call::mmap(MmapArgs {
             fd: fd.raw(),
             offset: 0,
             addr: addr as *mut (),
             length: size,
-            flags: flag::MAP_PRIVATE | MapFlags::MAP_FIXED_NOREPLACE.bits() as u32,
-            prot: flag::PROT_READ | flag::PROT_WRITE,
+            flags: flag::MAP_PRIVATE | fixed.bits() as u32,
+            prot,
         })
-    };
-    match mapped {
-        Ok(at) if at as usize == addr as usize => 0,
-        Ok(_) => -22,
-        Err(error) => -(error.errno() as i32),
     }
+    .map_err(|e| format!("mmap: {e}"))?;
+    if mapped as usize == addr { Ok(()) } else { Err(format!("mapped at {mapped:p}")) }
 }
 
 #[unsafe(no_mangle)]
