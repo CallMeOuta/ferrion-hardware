@@ -831,8 +831,6 @@ linux/include/linux/ww_mutex.h	a4216cd4c28faab0ca2e8dd1a421565b98241ad4a63902019
 linux/include/linux/xarray.h	be3707d0f78bbf6ddf64ac16885f0ed4c6ccd083cc3d8197e92f3a9ad2c03dd4	GPL-2.0+
 linux/include/linux/xattr.h	e1f3fe0b41b24b1669488156727ae147cbad96b58d473bd08ea7612f9e6e868c	GPL-2.0
 linux/include/linux/zswap.h	fbf32ca20363162641949cdbec87b5258d30b219687b4d6ba4ae703e94da2b9a	GPL-2.0
-linux/include/trace/../../drivers/gpu/drm/drm_trace.h	0b4779e5ccc62e11e2854a89797cb39f97ef21030c114d05e0a2782e670b54f6	GPL-2.0
-linux/include/trace/../../drivers/gpu/drm/virtio/virtgpu_trace.h	0f3c8851f7e42743315014d3f9ddfea56b4abfc053305d5f46fd935da45e2ca0	GPL-2.0
 linux/include/trace/define_trace.h	40e1178cf2e1e53952358928814e5960207c5fe6346107ea701a0e1e48630990	GPL-2.0
 linux/include/trace/events/dma_fence.h	52efa22e8d8171f29bc324780d9431a119a15cf08011468c55b15ad1b3991fb5	GPL-2.0
 linux/include/uapi/asm-generic/bitsperlong.h	fa25db88dc972820b72f8baf9cea6f39ca7f5bd0cf39182089409f6676fa90b6	GPL-2.0 WITH Linux-syscall-note

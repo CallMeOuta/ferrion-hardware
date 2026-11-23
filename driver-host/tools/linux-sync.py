@@ -168,7 +168,7 @@ def main():
         for dep in deps:
             path = Path(dep)
             if path.is_absolute():
-                copies[str(path.relative_to(src))] = ("linux", path)
+                copies[os.path.normpath(path.relative_to(src))] = ("linux", path)
             else:
                 copies[dep] = ("generated", out / dep)
     copies["include/generated/autoconf.h"] = ("generated", out / "include/generated/autoconf.h")
