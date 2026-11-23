@@ -482,7 +482,20 @@ bool video_firmware_drivers_only(void)
 
 const char *video_get_options(const char *name)
 {
-	return NULL;
+	const char *named = NULL, *global = NULL, *arg;
+	size_t len = name ? strlen(name) : 0;
+	unsigned int i;
+
+	for (i = 0; (arg = ferrion_arg(i)); i++) {
+		if (strncmp(arg, "video=", 6) || !arg[6])
+			continue;
+		arg += 6;
+		if (!strchr(arg, ':'))
+			global = arg;
+		else if (len && !strncmp(arg, name, len) && arg[len] == ':')
+			named = arg + len + 1;
+	}
+	return named ? named : global;
 }
 
 bool video_is_primary_device(struct device *dev)

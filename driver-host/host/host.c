@@ -260,7 +260,17 @@ int ferrion_tick_start(void (*fn)(void), unsigned long long period_ns)
 	return -err;
 }
 
-int main(void)
+static int arg_count;
+static char **args;
+
+const char *ferrion_arg(unsigned int index)
 {
+	return index + 1 < (unsigned int)arg_count ? args[index + 1] : NULL;
+}
+
+int main(int argc, char **argv)
+{
+	arg_count = argc;
+	args = argv;
 	ferrion_driver_host_main();
 }

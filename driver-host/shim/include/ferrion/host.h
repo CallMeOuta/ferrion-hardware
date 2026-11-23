@@ -63,6 +63,7 @@ void ferrion_thread_wake(struct ferrion_thread *thread);
 int ferrion_thread_spawn(void (*entry)(void *), void *arg);
 int ferrion_tick_start(void (*tick)(void), unsigned long long period_ns);
 
+const char *ferrion_arg(unsigned int index);
 __attribute__((noreturn)) void ferrion_driver_host_main(void);
 int ferrion_linux_start(void);
 int ferrion_pci_attach(void);

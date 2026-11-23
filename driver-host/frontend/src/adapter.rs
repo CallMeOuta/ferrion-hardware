@@ -11,9 +11,9 @@ use driver_graphics::kms::plane::{KmsPlane, KmsPlaneDriver, KmsPlaneState};
 use driver_graphics::kms::rc_object::KmsRcObjectRef;
 use driver_graphics::{Buffer, Damage, DumbBufferConfig, Framebuffer, GraphicsAdapter, PendingFrame};
 use drm_sys::{
-    drm_clip_rect, drm_mode_card_res, drm_mode_create_dumb, drm_mode_crtc, drm_mode_cursor2,
-    drm_mode_destroy_dumb, drm_mode_fb_cmd2, drm_mode_fb_dirty_cmd, drm_mode_get_connector,
-    drm_mode_modeinfo,
+    DRM_MODE_TYPE_USERDEF, drm_clip_rect, drm_mode_card_res, drm_mode_create_dumb, drm_mode_crtc,
+    drm_mode_cursor2, drm_mode_destroy_dumb, drm_mode_fb_cmd2, drm_mode_fb_dirty_cmd,
+    drm_mode_get_connector, drm_mode_modeinfo,
 };
 use syscall::{EINVAL, Error, Result};
 
@@ -319,6 +319,7 @@ impl GraphicsAdapter for LinuxAdapter {
             self.file.ioctl(MODE_GETCONNECTOR, &mut all)?;
             modes.truncate(all.count_modes as usize);
         }
+        modes.sort_by_key(|mode| mode.type_ & DRM_MODE_TYPE_USERDEF == 0);
         let mut edid = vec![0u8; EDID_MAX];
         let len = unsafe { ferrion_drm_edid(self.file.0, linux_id, edid.as_mut_ptr() as *mut c_void, edid.len()) };
         if len < 0 {
