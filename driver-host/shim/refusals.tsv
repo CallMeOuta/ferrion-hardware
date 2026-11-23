@@ -1,8 +1,5 @@
 symbol	group	filled by
-__get_user_4	Files, user access and ioctl plumbing	L1c
 __modver_version_show	Device model, modules and sysfs	cut: nothing reads sysfs (ADR 0046)
-__put_user_4	Files, user access and ioctl plumbing	L1c
-__put_user_8	Files, user access and ioctl plumbing	L1c
 __seq_puts	Tracing, debugfs and debugging aids	cut: debugfs and proc files (ADR 0046)
 alloc_file_pseudo	Files, user access and ioctl plumbing	L1c
 anon_inode_getfile	Files, user access and ioctl plumbing	L1c

@@ -179,6 +179,12 @@ static bool user_range(const void __user *ptr, unsigned long n)
 	return t->user_len && addr >= start && n <= t->user_len && addr - start <= t->user_len - n;
 }
 
+int ferrion_user_ok(const void __user *ptr, unsigned long n);
+int ferrion_user_ok(const void __user *ptr, unsigned long n)
+{
+	return user_range(ptr, n);
+}
+
 unsigned long _copy_from_user(void *to, const void __user *from, unsigned long n)
 {
 	if (!user_range(from, n)) {
