@@ -1,0 +1,320 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+[[run]]
+check = "shells"
+verdict = "pass"
+passes = 1
+runs = 1
+date = "2026-11-21"
+ferrion = "c454434a3"
+hardware = "unknown"
+config = "x86_64/desktop"
+make = []
+conditions = ["inherited q35 evidence; not rerun with Venus"]
+qemu = "11.1.3"
+record = "none"
+imported_from = "FerrionOS docs/vm-baseline.md: AU2"
+
+[[run]]
+check = "file-locks"
+verdict = "pass"
+passes = 3
+runs = 3
+date = "2026-11-21"
+ferrion = "6ceab074e"
+hardware = "unknown"
+config = "x86_64/desktop"
+make = []
+conditions = ["inherited q35 evidence; not rerun with Venus"]
+qemu = "unknown"
+record = "none"
+imported_from = "FerrionOS build/LANES.md: FileLocks"
+
+[[run]]
+check = "net-hardening"
+verdict = "pass"
+passes = 1
+runs = 1
+date = "2026-11-21"
+ferrion = "unknown"
+hardware = "unknown"
+config = "x86_64/desktop"
+make = []
+conditions = ["inherited q35 evidence; not rerun with Venus"]
+qemu = "11.1.3"
+record = "none"
+imported_from = "FerrionOS retained desktop net-hardening-1 result of 2026-11-21"
+
+[[run]]
+check = "resolver"
+verdict = "pass"
+passes = 1
+runs = 1
+date = "2026-11-21"
+ferrion = "unknown"
+hardware = "unknown"
+config = "x86_64/desktop"
+make = []
+conditions = ["inherited q35 evidence; not rerun with Venus"]
+qemu = "11.1.3"
+record = "none"
+imported_from = "FerrionOS retained desktop resolver-1 result of 2026-11-21"
+
+[[run]]
+check = "audio-ring"
+verdict = "pass"
+passes = 1
+runs = 1
+date = "2026-11-21"
+ferrion = "c454434a3"
+hardware = "unknown"
+config = "x86_64/desktop"
+make = []
+conditions = ["20 rounds; 264600 frames exact in one piece", "inherited q35 evidence; not rerun with Venus"]
+qemu = "11.1.3"
+record = "none"
+imported_from = "FerrionOS docs/vm-baseline.md: AU2"
+
+[[run]]
+check = "audio-snoop"
+verdict = "pass"
+passes = 1
+runs = 1
+date = "2026-11-21"
+ferrion = "52e61fc78"
+hardware = "unknown"
+config = "x86_64/desktop"
+make = []
+conditions = ["reported check pass; loopback only", "inherited q35 evidence; not rerun with Venus"]
+qemu = "unknown"
+record = "none"
+imported_from = "FerrionOS build/LANES.md: AudioAU3"
+
+[[run]]
+check = "lockdown"
+verdict = "pass"
+passes = 1
+runs = 1
+date = "2026-11-21"
+ferrion = "c454434a3"
+hardware = "unknown"
+config = "x86_64/desktop"
+make = []
+conditions = ["inherited q35 evidence; not rerun with Venus"]
+qemu = "11.1.3"
+record = "none"
+imported_from = "FerrionOS docs/vm-baseline.md: AU2"
+
+[[run]]
+check = "driver-namespaces"
+verdict = "pass"
+passes = 1
+runs = 1
+date = "2026-11-21"
+ferrion = "c454434a3"
+hardware = "unknown"
+config = "x86_64/desktop"
+make = []
+conditions = ["inherited q35 evidence; not rerun with Venus"]
+qemu = "11.1.3"
+record = "none"
+imported_from = "FerrionOS docs/vm-baseline.md: AU2"
+
+[[run]]
+check = "iommu"
+verdict = "pass"
+passes = 1
+runs = 1
+date = "2026-11-22"
+ferrion = "25c3855ce"
+hardware = "unknown"
+config = "x86_64/desktop"
+make = ["iommu=yes"]
+conditions = ["reported check pass; one-to-one translations; not strict", "inherited q35 evidence; not rerun with Venus"]
+qemu = "unknown"
+record = "none"
+imported_from = "FerrionOS build/LANES.md: sec-iommu"
+
+[[run]]
+check = "dma-outside-grant"
+verdict = "pass"
+passes = 4
+runs = 4
+date = "2026-11-22"
+ferrion = "25c3855ce"
+hardware = "unknown"
+config = "x86_64/desktop"
+make = ["iommu=yes"]
+conditions = ["test device grant only; boot disk still one-to-one", "inherited q35 evidence; not rerun with Venus"]
+qemu = "unknown"
+record = "none"
+imported_from = "FerrionOS build/LANES.md: sec-iommu"
+
+[[run]]
+check = "disk-install"
+verdict = "flaky"
+passes = 1
+runs = 2
+date = "2026-11-21"
+ferrion = "unknown"
+hardware = "unknown"
+config = "x86_64/desktop"
+make = []
+conditions = ["fast variant 1/1; baseline 0/1; not one reproducible configuration", "inherited q35 evidence; not rerun with Venus"]
+qemu = "unknown"
+record = "none"
+imported_from = "FerrionOS build/LANES.md: FastInstall paused results"
+
+[[run]]
+check = "boot"
+verdict = "pass"
+passes = 1
+runs = 1
+date = "2026-11-21"
+ferrion = "7accbab22"
+hardware = "unknown"
+config = "x86_64/desktop"
+make = ["gpu=venus"]
+conditions = ["reported check pass"]
+qemu = "unknown"
+record = "none"
+imported_from = "FerrionOS build/LANES.md: gp4-blob"
+
+[[run]]
+check = "gpu-flip"
+verdict = "pass"
+passes = 1
+runs = 1
+date = "2026-11-21"
+ferrion = "053315daf"
+hardware = "unknown"
+config = "x86_64/desktop"
+make = ["gpu=venus"]
+conditions = ["600/600 flips in reported check"]
+qemu = "unknown"
+record = "none"
+imported_from = "FerrionOS build/LANES.md: gp6-flip"
+
+[[run]]
+check = "gpu-context"
+verdict = "pass"
+passes = 10
+runs = 10
+date = "2026-11-21"
+ferrion = "62bc2ff81"
+hardware = "unknown"
+config = "x86_64/desktop"
+make = ["gpu=venus"]
+conditions = []
+qemu = "unknown"
+record = "none"
+imported_from = "FerrionOS build/LANES.md: gp3 comparison"
+
+[[run]]
+check = "gpu-blob"
+verdict = "pass"
+passes = 1
+runs = 1
+date = "2026-11-21"
+ferrion = "639973153"
+hardware = "unknown"
+config = "x86_64/desktop"
+make = ["gpu=venus"]
+conditions = ["reported check pass"]
+qemu = "unknown"
+record = "none"
+imported_from = "FerrionOS plans/hardware-profiles.md: GpuTestSweep results"
+
+[[run]]
+check = "gpu-submit"
+verdict = "pass"
+passes = 1
+runs = 1
+date = "2026-11-21"
+ferrion = "639973153"
+hardware = "unknown"
+config = "x86_64/desktop"
+make = ["gpu=venus"]
+conditions = ["reported check pass"]
+qemu = "unknown"
+record = "none"
+imported_from = "FerrionOS plans/hardware-profiles.md: GpuTestSweep results"
+
+[[run]]
+check = "gpu-syncobj"
+verdict = "pass"
+passes = 1
+runs = 1
+date = "2026-11-21"
+ferrion = "639973153"
+hardware = "unknown"
+config = "x86_64/desktop"
+make = ["gpu=venus"]
+conditions = ["reported check pass"]
+qemu = "unknown"
+record = "none"
+imported_from = "FerrionOS plans/hardware-profiles.md: GpuTestSweep results"
+
+[[run]]
+check = "vk-exact"
+verdict = "pass"
+passes = 3
+runs = 3
+date = "2026-11-21"
+ferrion = "325e113ec"
+hardware = "unknown"
+config = "x86_64/desktop"
+make = ["gpu=venus"]
+conditions = []
+qemu = "unknown"
+record = "none"
+imported_from = "FerrionOS plans/hardware-profiles.md: gp47int results"
+renderer = "host GPU"
+
+[[run]]
+check = "gl-exact"
+verdict = "pass"
+passes = 3
+runs = 3
+date = "2026-11-21"
+ferrion = "325e113ec"
+hardware = "unknown"
+config = "x86_64/desktop"
+make = ["gpu=venus"]
+conditions = []
+qemu = "unknown"
+record = "none"
+imported_from = "FerrionOS plans/hardware-profiles.md: gp47int results"
+renderer = "host GPU"
+
+[[run]]
+check = "vk-exact"
+verdict = "pass"
+passes = 3
+runs = 3
+date = "2026-11-22"
+ferrion = "unknown"
+hardware = "unknown"
+config = "x86_64/desktop"
+make = ["gpu=venus"]
+conditions = []
+qemu = "unknown"
+record = "none"
+imported_from = "FerrionOS build/LANES.md: second host GPU Venus results on 2026-11-22"
+renderer = "host GPU"
+
+[[run]]
+check = "gl-exact"
+verdict = "pass"
+passes = 3
+runs = 3
+date = "2026-11-22"
+ferrion = "unknown"
+hardware = "unknown"
+config = "x86_64/desktop"
+make = ["gpu=venus"]
+conditions = []
+qemu = "unknown"
+record = "none"
+imported_from = "FerrionOS build/LANES.md: second host GPU Venus results on 2026-11-22"
+renderer = "host GPU"

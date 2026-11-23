@@ -1,0 +1,119 @@
+# SPDX-License-Identifier: GPL-2.0-only
+include = ["../../../common/platform/qemu-q35.toml"]
+
+[profile]
+format = 1
+name = "qemu/q35"
+title = "QEMU q35"
+kind = "vm"
+arch = ["x86_64"]
+boot = "uefi"
+
+[[match]]
+hypervisor = ["KVMKVMKVM", "Linux KVM Hv"]
+pci_all = ["8086:29c0", "1234:1111"]
+
+[vm]
+tool = "qemu"
+make = []
+host_needs = ["KVM", "OVMF"]
+
+[iommu]
+unit = "none"
+
+[[device]]
+id = "display"
+name = "Firmware VGA framebuffer"
+bus = "pci"
+ids = ["1234:1111"]
+class = "030000"
+route = "firmware"
+
+[[device]]
+id = "disk"
+name = "NVMe disk"
+bus = "pci"
+ids = ["1b36:0010"]
+class = "010802"
+route = "native"
+driver = "nvmed"
+stage = "initfs"
+
+[[device]]
+id = "network"
+name = "e1000 network"
+bus = "pci"
+ids = ["8086:100e"]
+class = "020000"
+route = "native"
+driver = "e1000d"
+stage = "rootfs"
+
+[[feature]]
+id = "boot"
+name = "Graphical boot"
+checks = ["boot"]
+
+[[feature]]
+id = "serial-console"
+name = "Serial console and shells"
+checks = ["shells"]
+device = "serial"
+
+[[feature]]
+id = "display"
+name = "Display, 2D"
+checks = ["graphics-bounds"]
+device = "display"
+conditions = ["desktop-regions still fails in 5 of 6 regions"]
+
+[[feature]]
+id = "disk"
+name = "Disk"
+checks = ["file-locks"]
+device = "disk"
+
+[[feature]]
+id = "network"
+name = "Network"
+checks = ["net-hardening", "resolver"]
+device = "network"
+
+[[feature]]
+id = "sound"
+name = "Sound playback"
+checks = ["audio-ring"]
+device = "sound"
+conditions = ["not glitch-free under load"]
+
+[[feature]]
+id = "microphone"
+name = "Microphone"
+checks = ["audio-snoop"]
+device = "sound"
+conditions = ["loopback input only; no physical capture device"]
+
+[[feature]]
+id = "keyboard"
+name = "Keyboard"
+checks = ["lockdown", "driver-namespaces"]
+device = "ps2"
+
+[[feature]]
+id = "pointer"
+name = "Pointer"
+checks = []
+device = "ps2"
+conditions = ["pointer-latency maximum fails in 6 of 10 boots"]
+
+[[feature]]
+id = "iommu"
+name = "IOMMU translation (strict mode not shown)"
+checks = ["iommu", "dma-outside-grant"]
+conditions = ["iommu=yes; translation only; strict mode not shown"]
+
+[[feature]]
+id = "installer"
+name = "Installer"
+checks = ["disk-install"]
+conditions = ["fast and baseline variants differ; not green"]

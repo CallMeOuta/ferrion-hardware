@@ -1,0 +1,150 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+[[device]]
+id = "chipset"
+name = "q35 host bridge"
+bus = "pci"
+ids = ["8086:29c0"]
+class = "060000"
+route = "firmware"
+
+[[device]]
+id = "ps2"
+name = "PS/2 keyboard and pointer"
+bus = "platform"
+route = "native"
+driver = "ps2d"
+stage = "initfs"
+
+[[device]]
+id = "serial"
+name = "16550 serial console"
+bus = "platform"
+route = "firmware"
+
+[[device]]
+id = "sound"
+name = "HDA sound"
+bus = "pci"
+ids = ["8086:293e"]
+class = "040300"
+route = "native"
+driver = "ihdad"
+stage = "rootfs"
+
+[[device]]
+id = "usb"
+name = "qemu-xhci (no USB device attached)"
+bus = "pci"
+ids = ["1b36:000d"]
+class = "0c0330"
+route = "native"
+driver = "xhcid"
+stage = "rootfs"
+
+[[device]]
+id = "tpm"
+name = "Optional TPM CRB with swtpm"
+bus = "platform"
+route = "native"
+driver = "tpmd"
+stage = "rootfs"
+needs = ["tpm-check-service"]
+
+[[feature]]
+id = "boot"
+name = "Graphical boot"
+checks = []
+
+[[feature]]
+id = "serial-console"
+name = "Serial console and shells"
+checks = []
+device = "serial"
+
+[[feature]]
+id = "display"
+name = "Display, 2D"
+checks = []
+device = "display"
+
+[[feature]]
+id = "opengl"
+name = "OpenGL"
+checks = []
+device = "display"
+
+[[feature]]
+id = "vulkan"
+name = "Vulkan"
+checks = []
+device = "display"
+
+[[feature]]
+id = "second-display"
+name = "Second display"
+checks = []
+device = "display"
+
+[[feature]]
+id = "disk"
+name = "Disk"
+checks = []
+device = "disk"
+
+[[feature]]
+id = "network"
+name = "Network"
+checks = []
+device = "network"
+
+[[feature]]
+id = "sound"
+name = "Sound playback"
+checks = []
+device = "sound"
+
+[[feature]]
+id = "microphone"
+name = "Microphone"
+checks = []
+device = "sound"
+
+[[feature]]
+id = "keyboard"
+name = "Keyboard"
+checks = []
+device = "ps2"
+
+[[feature]]
+id = "pointer"
+name = "Pointer"
+checks = []
+device = "ps2"
+
+[[feature]]
+id = "usb"
+name = "USB"
+checks = []
+device = "usb"
+
+[[feature]]
+id = "tpm"
+name = "TPM"
+checks = []
+device = "tpm"
+
+[[feature]]
+id = "iommu"
+name = "IOMMU translation (strict mode not shown)"
+checks = []
+
+[[feature]]
+id = "power-off"
+name = "Power off"
+checks = []
+
+[[feature]]
+id = "installer"
+name = "Installer"
+checks = []

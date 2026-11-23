@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+[[profile]]
+name = "qemu/q35"
+title = "QEMU q35"
+kind = "vm"
+arch = ["x86_64"]
+match = [{ "hypervisor" = ["KVMKVMKVM", "Linux KVM Hv"], "pci_all" = ["8086:29c0", "1234:1111"] }]
+
+[[profile]]
+name = "qemu/q35-venus"
+title = "QEMU q35 with virtio-gpu and Venus"
+kind = "vm"
+arch = ["x86_64"]
+match = [{ "hypervisor" = ["KVMKVMKVM", "Linux KVM Hv"], "pci_all" = ["8086:29c0", "1af4:1050"] }]
+
+[[profile]]
+name = "qemu/q35-virtio"
+title = "QEMU q35 with virtio devices"
+kind = "vm"
+arch = ["x86_64"]
+match = [{ "hypervisor" = ["KVMKVMKVM", "Linux KVM Hv"], "pci_all" = ["8086:29c0", "1af4:1050"] }]

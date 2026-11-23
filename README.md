@@ -10,7 +10,7 @@ The rest of the system (kernel, C library, system services, file system) lives i
 
 ## Status
 
-Nothing runs from here yet. FerrionOS's own drivers move in with FerrionOS's monorepo cutover. The driver host's first slice is Linux's virtio-gpu driver inside FerrionOS in a virtual machine, compared pixel for pixel with FerrionOS's own `virtio-gpud` and with a Linux guest on the same device; the AMD GPU driver for real hardware follows, then `nouveau` with Mesa's NVK for NVIDIA. There are no profiles yet.
+FerrionOS's own drivers move in with its monorepo cutover. The driver host's first slice is Linux's virtio-gpu driver inside FerrionOS in a virtual machine, compared pixel for pixel with FerrionOS's own `virtio-gpud` and with a Linux guest on the same device; real-hardware drivers follow. [Hardware profiles](profiles/README.md) lists the QEMU profiles and their generated what-works tables; `python3 scripts/profile.py schema` defines their format.
 
 ## Licenses
 

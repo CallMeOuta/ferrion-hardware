@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+[[device]]
+id = "display"
+name = "virtio-gpu"
+bus = "pci"
+ids = ["1af4:1050"]
+class = "030000"
+route = "native"
+driver = "virtio-gpud"
+stage = "initfs"

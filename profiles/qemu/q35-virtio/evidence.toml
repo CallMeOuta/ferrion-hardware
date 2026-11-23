@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+[[run]]
+check = "boot"
+verdict = "pass"
+passes = 20
+runs = 20
+date = "2026-11-21"
+ferrion = "6e7491a3a"
+hardware = "unknown"
+config = "x86_64/desktop"
+make = ["gpu=virtio"]
+conditions = []
+qemu = "unknown"
+record = "none"
+imported_from = "FerrionOS build/LANES.md: BootFirmwareText"
+
+[[run]]
+check = "gpu-flip"
+verdict = "pass"
+passes = 1
+runs = 1
+date = "2026-11-21"
+ferrion = "053315daf"
+hardware = "unknown"
+config = "x86_64/desktop"
+make = ["gpu=virtio"]
+conditions = ["600/600 flips in reported check"]
+qemu = "unknown"
+record = "none"
+imported_from = "FerrionOS build/LANES.md: gp6-flip"
+
+[[run]]
+check = "gpu-heads"
+verdict = "pass"
+passes = 2
+runs = 2
+date = "2026-11-21"
+ferrion = "62bc2ff81"
+hardware = "unknown"
+config = "x86_64/desktop"
+make = ["gpu=multi"]
+conditions = []
+qemu = "unknown"
+record = "none"
+imported_from = "FerrionOS build/LANES.md: gp3 comparison"

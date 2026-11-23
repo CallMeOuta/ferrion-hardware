@@ -1,0 +1,45 @@
+# SPDX-License-Identifier: GPL-2.0-only
+include = ["../q35/profile.toml", "../../../common/gpu/virtio.toml"]
+
+[profile]
+format = 1
+name = "qemu/q35-venus"
+title = "QEMU q35 with virtio-gpu and Venus"
+kind = "vm"
+arch = ["x86_64"]
+boot = "uefi"
+
+[[match]]
+hypervisor = ["KVMKVMKVM", "Linux KVM Hv"]
+pci_all = ["8086:29c0", "1af4:1050"]
+
+[vm]
+tool = "qemu"
+make = ["gpu=venus"]
+host_needs = ["KVM", "OVMF", "Linux 6.13 or later", "QEMU with egl-headless", "virtio-vga-gl with hostmem, blob and venus"]
+
+[iommu]
+unit = "none"
+
+[[feature]]
+id = "boot"
+name = "Graphical boot"
+checks = ["boot"]
+
+[[feature]]
+id = "display"
+name = "Display, 2D"
+checks = ["gpu-flip", "gpu-context", "gpu-blob", "gpu-submit", "gpu-syncobj"]
+device = "display"
+
+[[feature]]
+id = "vulkan"
+name = "Vulkan"
+checks = ["vk-exact"]
+device = "display"
+
+[[feature]]
+id = "opengl"
+name = "OpenGL"
+checks = ["gl-exact"]
+device = "display"

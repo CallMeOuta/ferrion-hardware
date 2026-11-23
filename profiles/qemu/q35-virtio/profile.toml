@@ -1,0 +1,62 @@
+# SPDX-License-Identifier: GPL-2.0-only
+include = ["../../../common/platform/qemu-q35.toml", "../../../common/gpu/virtio.toml"]
+
+[profile]
+format = 1
+name = "qemu/q35-virtio"
+title = "QEMU q35 with virtio devices"
+kind = "vm"
+arch = ["x86_64"]
+boot = "uefi"
+
+[[match]]
+hypervisor = ["KVMKVMKVM", "Linux KVM Hv"]
+pci_all = ["8086:29c0", "1af4:1050"]
+
+[vm]
+tool = "qemu"
+make = ["gpu=virtio", "disk=virtio", "net=virtio"]
+host_needs = ["KVM", "OVMF"]
+
+[iommu]
+unit = "none"
+
+[[device]]
+id = "disk"
+name = "virtio-blk disk"
+bus = "pci"
+ids = ["1af4:1001", "1af4:1042"]
+class = "010000"
+route = "native"
+driver = "virtio-blkd"
+stage = "initfs"
+
+[[device]]
+id = "network"
+name = "virtio-net network"
+bus = "pci"
+ids = ["1af4:1000", "1af4:1041"]
+class = "020000"
+route = "native"
+driver = "virtio-netd"
+stage = "rootfs"
+
+[[feature]]
+id = "boot"
+name = "Graphical boot"
+checks = ["boot"]
+conditions = ["gpu=virtio only; all three virtio devices together not shown"]
+
+[[feature]]
+id = "display"
+name = "Display, 2D"
+checks = ["gpu-flip"]
+device = "display"
+conditions = ["gpu=virtio only"]
+
+[[feature]]
+id = "second-display"
+name = "Second display"
+checks = ["gpu-heads"]
+device = "display"
+conditions = ["gpu=multi, not this profile default"]
