@@ -298,11 +298,11 @@ name = "inputd"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "common",
  "daemon",
  "libredox",
  "log",
  "orbclient",
+ "redox-log",
  "redox-scheme",
  "redox_syscall",
  "scheme-utils",

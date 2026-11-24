@@ -11,10 +11,10 @@ crate-type = ["staticlib"]
 path = "src/lib.rs"
 
 [dependencies]
-common = { path = "../base/drivers/common" }
+common = { path = "../../drivers/common" }
 daemon = { path = "../base/daemon" }
-driver-graphics = { path = "../base/drivers/graphics/driver-graphics" }
-pcid = { path = "../base/drivers/pcid" }
+driver-graphics = { path = "../../drivers/graphics/driver-graphics" }
+pcid = { path = "../../drivers/pcid" }
 drm-sys = "0.8.1"
 libc = "0.2.181"
 libredox = "0.2.0"
@@ -22,8 +22,12 @@ log = "0.4"
 redox_event = "0.5.0"
 redox_syscall = { version = "0.9.5", features = ["std"] }
 
-[patch."https://gitlab.redox-os.org/redox-os/relibc.git"]
+[patch."https://github.com/CallMeOuta/FerrionOS.git"]
+daemon = { path = "../base/daemon" }
+graphics-ipc = { path = "../base/graphics-ipc" }
+inputd = { path = "../base/inputd" }
 redox-ioctl = { path = "../relibc/redox-ioctl" }
+scheme-utils = { path = "../base/scheme-utils" }
 
 [profile.release]
 panic = "abort"
