@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 #![feature(once_cell_try)]
 
 use std::convert::TryFrom;

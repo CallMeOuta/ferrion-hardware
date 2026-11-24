@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::ops::Deref;
 use std::sync::mpsc::Sender;
 use std::sync::{Arc, Weak};

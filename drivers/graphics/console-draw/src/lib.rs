@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::cell::RefCell;
 use std::collections::{BTreeMap, VecDeque};
 use std::convert::TryFrom;

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-only AND MIT
 [package]
 name = "amlserde"
 description = "AML symbol serialization/deserialization library"

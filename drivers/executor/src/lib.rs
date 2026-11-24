@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 #![feature(negative_impls)]
 
 mod task;

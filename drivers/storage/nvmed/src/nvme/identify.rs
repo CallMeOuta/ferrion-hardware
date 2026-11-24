@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use common::dma::Dma;
 
 use super::{Nvme, NvmeCmd, NvmeNamespace};

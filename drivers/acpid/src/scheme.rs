@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use core::str;
 use std::convert::{TryFrom, TryInto};
 use std::str::FromStr;

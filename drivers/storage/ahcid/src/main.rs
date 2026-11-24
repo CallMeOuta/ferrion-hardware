@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::io::{Read, Write};
 use std::os::fd::AsRawFd;
 use std::usize;

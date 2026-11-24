@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use common::io::Mmio;
 
 #[repr(C, packed)]

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use pci_types::capability::{MultipleMessageSupport, PciCapability};
 use pci_types::{ConfigRegionAccess, EndpointHeader};
 use pcid_interface::PciFunction;

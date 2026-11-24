@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-only AND MIT
 # QEMU presents virtio-fs as mass storage, class 0x01 (subclass 0x80).
 [[drivers]]
 name = "virtio-fs"

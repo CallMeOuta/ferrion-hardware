@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-only AND MIT
 [package]
 name = "virtio-blkd"
 description = "VirtIO block (storage) driver"

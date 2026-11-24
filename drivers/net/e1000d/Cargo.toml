@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-only AND MIT
 [package]
 name = "e1000d"
 description = "Intel Gigabit ethernet driver"

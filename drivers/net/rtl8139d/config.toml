@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-only AND MIT
 [[drivers]]
 name = "RTL8139 NIC"
 class = 0x02

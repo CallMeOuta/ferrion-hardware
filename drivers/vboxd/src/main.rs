@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 //#![deny(warnings)]
 
 use std::fs::File;

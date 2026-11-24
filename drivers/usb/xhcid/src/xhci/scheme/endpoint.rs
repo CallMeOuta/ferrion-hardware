@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::io::{self, Seek};
 
 use common::io::Io;

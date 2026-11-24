@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-only AND MIT
 [package]
 name = "rtl8168d"
 description = "Realtek 8168 ethernet driver"

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 // TODO: Get RTC information from acpid.
 use common::io::{Io, Pio};
 

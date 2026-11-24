@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use common::io::{Io, Mmio};
 
 /// Represents the memory-mapped Capability Registers of the XHCI

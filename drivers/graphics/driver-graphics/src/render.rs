@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only
 //! The render side of a GPU (FerrionOS).
 //!
 //! A GPU's scheme has two names: `display.<driver>`, whose root opens display handles for a

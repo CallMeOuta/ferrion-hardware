@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 // This code is informed by the QEMU implementation found here:
 // https://github.com/qemu/qemu/blob/master/hw/input/vmmouse.c
 //

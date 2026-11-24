@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::cell::RefCell;
 use std::io;
 use std::mem::size_of;

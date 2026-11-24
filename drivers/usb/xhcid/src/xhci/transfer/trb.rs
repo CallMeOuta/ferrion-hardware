@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::{fmt, mem};
 
 use common::io::{Io, Mmio};

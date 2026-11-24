@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::process;
 
 use driver_block::{DiskScheme, ExecutorTrait, TrivialExecutor};

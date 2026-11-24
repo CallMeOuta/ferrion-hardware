@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only
 //! The requests a render handle serves (FerrionOS): those of Linux's virtio-gpu driver that
 //! Mesa's Venus driver makes, with the checks and errors of Linux v7.3's
 //! `drivers/gpu/drm/virtio/virtgpu_ioctl.c`. Every count, number and name a client sends is

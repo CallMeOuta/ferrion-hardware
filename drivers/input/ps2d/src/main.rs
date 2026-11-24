@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 #[macro_use]
 extern crate bitflags;
 extern crate orbclient;

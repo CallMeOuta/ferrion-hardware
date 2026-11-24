@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 #![feature(iter_next_chunk)]
 #![feature(non_exhaustive_omitted_patterns_lint)]
 

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 //! Fbbootlogd renders the boot log and presents it on VT1.
 //!
 //! When the bootloader boots quietly (`QUIET=1` in the kernel environment) it draws a boot splash

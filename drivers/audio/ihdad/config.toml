@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-only AND MIT
 [[drivers]]
 name = "Intel HD Audio"
 class = 0x04

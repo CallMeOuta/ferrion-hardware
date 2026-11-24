@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 //! IRQ helpers.
 //!
 //! This module allows easy handling of the `/scheme/irq` scheme, and allocating interrupt vectors

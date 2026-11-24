@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use inputd::ProducerHandle;
 use rehid::usage_tables::{GenericDesktopUsage, UsagePage};
 

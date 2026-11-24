@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use xhcid_interface::{EndpDesc, XhciClientHandle};
 
 #[rustfmt::skip]

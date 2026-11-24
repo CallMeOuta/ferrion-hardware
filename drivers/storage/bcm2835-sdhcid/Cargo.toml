@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-only AND MIT
 [package]
 name = "bcm2835-sdhcid"
 description = "BCM2835 storage controller driver"

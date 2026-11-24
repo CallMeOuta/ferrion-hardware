@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 //! `virtio-gpu` is a virtio based graphics adapter. It can operate in 2D mode and in 3D mode.
 //!
 //! XXX: 3D mode will offload rendering ops to the host gpu and therefore requires a GPU with 3D support

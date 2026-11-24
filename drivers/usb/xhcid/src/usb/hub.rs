@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 #[repr(C, packed)]
 #[derive(Clone, Copy, Debug)]
 pub struct HubDescriptorV2 {

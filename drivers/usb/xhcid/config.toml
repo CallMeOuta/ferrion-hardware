@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-only AND MIT
 [[drivers]]
 name = "XHCI"
 class = 0x0C

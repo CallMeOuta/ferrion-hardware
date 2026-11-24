@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use common::io::{Io, Pio};
 
 const BGA_INDEX_XRES: u16 = 1;

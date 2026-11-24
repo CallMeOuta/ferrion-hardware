@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-only AND MIT
 [package]
 name = "pcid-spawner"
 description = "PCI-based device driver spawner daemon"

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 //! The Universal Serial Bus (USB) Module
 //!
 //! The implementations in this module are common to all USB interfaces (though individual elements

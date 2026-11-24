@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use core::cell::UnsafeCell;
 use core::fmt::Debug;
 use core::marker::PhantomData;

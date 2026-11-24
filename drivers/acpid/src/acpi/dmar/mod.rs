@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 //! DMA Remapping Table -- `DMAR`. This is Intel's implementation of IOMMU functionality, known as
 //! VT-d.
 //!

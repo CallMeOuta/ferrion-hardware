@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 //! Disk scheme replacement when making live disk
 
 #![feature(int_roundings)]

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 //! The eXtensible Host Controller Interface (XHCI) Daemon Interface
 //!
 //! This crate implements the driver interface for interacting with the Redox xhcid daemon from

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use pci_types::capability::PciCapabilityAddress;
 use pci_types::ConfigRegionAccess;
 use serde::{Deserialize, Serialize};

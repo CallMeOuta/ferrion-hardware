@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::fmt::Write;
 
 use pci_types::device_type::{DeviceType, UsbType};

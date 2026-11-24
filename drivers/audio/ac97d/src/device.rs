@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use audiod::{NUM_SUB_BUFFS, SUB_BUFF_SIZE};
 use common::dma::Dma;
 use common::io::{Io, Mmio, Pio};

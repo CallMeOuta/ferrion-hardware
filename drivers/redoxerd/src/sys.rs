@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 pub fn exit_success() {
     imp::exit(true);
 }

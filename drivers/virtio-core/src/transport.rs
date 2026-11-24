@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use core::sync::atomic::{AtomicU16, Ordering};
 use std::collections::{HashMap, VecDeque};
 use std::future::Future;

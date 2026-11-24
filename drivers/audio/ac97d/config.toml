@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-only AND MIT
 [[drivers]]
 name = "AC97 Audio"
 class = 0x04

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use driver_graphics::kms::connector::{KmsConnectorDriver, KmsConnectorStatus};
 use driver_graphics::kms::crtc::{KmsCrtc, KmsCrtcDriver, KmsCrtcState};
 use driver_graphics::kms::objects::{KmsObjectId, KmsObjects};

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 pub mod connector;
 pub mod crtc;
 pub mod framebuffer;

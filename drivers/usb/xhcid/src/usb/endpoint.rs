@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use plain::Plain;
 
 /// The descriptor for a USB Endpoint.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::error::Error;
 use std::fs;
 use std::process::Command;

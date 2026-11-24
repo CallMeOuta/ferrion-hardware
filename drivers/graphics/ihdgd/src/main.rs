@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 #![feature(drop_guard)]
 
 use std::io::{Read, Write};

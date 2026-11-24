@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::ptr;
 use std::sync::Arc;
 use std::sync::atomic::{AtomicUsize, Ordering};

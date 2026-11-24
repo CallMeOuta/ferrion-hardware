@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only
 use std::cmp::Reverse;
 use std::collections::{BTreeMap, BinaryHeap, HashMap};
 use std::ffi::c_char;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 //! The eXtensible Host Controller Interface (XHCI) Module
 //!
 //! This module implements the XHCI functionality of Redox's USB driver daemon.

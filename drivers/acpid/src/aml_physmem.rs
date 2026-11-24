@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::collections::hash_map::Entry;
 use std::fmt::LowerHex;
 use std::ptr::NonNull;

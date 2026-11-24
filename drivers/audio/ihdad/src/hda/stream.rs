@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::cmp::min;
 use std::ptr::copy_nonoverlapping;
 use std::result;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 //! Implements the "Device" USB Descriptor.
 //!
 //! This descriptor is described in USB32 section 9.6.1

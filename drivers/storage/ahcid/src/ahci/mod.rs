@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use common::io::Io;
 use driver_block::Disk;
 use log::{error, info};

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::time::{Duration, Instant};
 
 /// Represents an amount of time for a driver to give up to the OS scheduler.

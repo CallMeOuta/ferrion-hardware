@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only
 use std::collections::VecDeque;
 use std::future::{Future, poll_fn};
 use std::pin::Pin;

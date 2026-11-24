@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only
 //! The 3D side of virtio-gpu that render handles use (FerrionOS): the virgl, blob and
 //! context-init features, the capsets read from the device at start, and contexts. Linux's
 //! `drivers/gpu/drm/virtio/virtgpu_vq.c` (MIT) is the reference for the commands.

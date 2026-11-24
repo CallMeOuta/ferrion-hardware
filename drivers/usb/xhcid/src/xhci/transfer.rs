@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::convert::TryFrom;
 use std::ops::{Add, Deref, Div, Rem};
 use std::{cmp, fmt};

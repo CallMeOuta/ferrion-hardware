@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use common::io::{Io, MmioPtr};
 use drm_sys::drm_mode_modeinfo;
 use ihdgd_macros::define_regs;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::mem::{self, MaybeUninit};
 use std::ops::{Deref, DerefMut};
 use std::ptr;

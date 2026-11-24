@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only
 use std::sync::Arc;
 
 use redox_ioctl::virtgpu;

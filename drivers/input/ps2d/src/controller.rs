@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 //! PS/2 controller, see:
 //! - https://wiki.osdev.org/I8042_PS/2_Controller
 //! - http://www.mcamafia.de/pdf/ibm_hitrc07.pdf

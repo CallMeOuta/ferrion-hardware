@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::collections::{BTreeMap, HashMap, VecDeque};
 use std::fmt::Debug;
 use std::slice;

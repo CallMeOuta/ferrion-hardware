@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 //! Provides the File Descriptor Scheme Interface to the XHCI.
 //!
 //! This file implements the basic unix file operations that are used to interface with the XHCI

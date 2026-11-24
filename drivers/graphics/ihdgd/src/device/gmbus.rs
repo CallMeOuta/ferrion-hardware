@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use common::io::{Io, MmioPtr};
 use common::timeout::Timeout;
 use embedded_hal::blocking::i2c::{self, Operation, SevenBitAddress, Transactional};

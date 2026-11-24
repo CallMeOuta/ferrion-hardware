@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::cell::{OnceCell, RefCell};
 use std::convert::{TryFrom, TryInto};
 use std::fmt;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::mem::DropGuard;
 use std::sync::Arc;
 

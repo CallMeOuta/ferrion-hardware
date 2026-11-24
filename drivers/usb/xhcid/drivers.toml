@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-only AND MIT
 #TODO: causes XHCI errors
 #[[drivers]]
 #name = "SCSI over USB"

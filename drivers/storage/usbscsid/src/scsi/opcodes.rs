@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 #[repr(u8)]
 pub enum Opcode {
     TestUnitReady = 0x00,

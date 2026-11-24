@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 //! The eXtensible Host Controller Interface (XHCI) Daemon
 //!
 //! This crate provides the executable xhcid daemon that implements the driver for interacting with

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use anyhow::{Context, Result};
 
 // TODO: Do not use target architecture to distinguish these.

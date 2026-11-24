@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::future::Future;
 use std::io::prelude::*;
 use std::os::unix::io::AsRawFd;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::fs::{self, OpenOptions};
 use std::io;
 use std::os::unix::io::{FromRawFd, IntoRawFd, RawFd};

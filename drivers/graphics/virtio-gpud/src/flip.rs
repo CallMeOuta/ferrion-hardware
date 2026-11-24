@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only
 use common::dma::Dma;
 use driver_graphics::kms::framebuffer::KmsFramebuffer;
 use driver_graphics::kms::objects::{KmsObjectId, KmsObjects};

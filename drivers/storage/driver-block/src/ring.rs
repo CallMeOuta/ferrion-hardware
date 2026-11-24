@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::cmp;
 use std::collections::BTreeMap;
 use std::convert::TryFrom;

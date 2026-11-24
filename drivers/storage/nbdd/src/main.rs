@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 //! Disk scheme implementing the NBD (Network Block Device) protocol.
 //!
 //! <https://github.com/NetworkBlockDevice/nbd/blob/master/doc/proto.md>

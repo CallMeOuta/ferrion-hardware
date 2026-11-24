@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 //! This crate provides various abstractions for use by all drivers in the Redox drivers repo.
 //!
 //! This includes direct memory access via [dma], and Scatter-Gather List support via [sgl].  It also

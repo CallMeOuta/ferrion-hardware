@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::ffi::c_char;
 use std::fmt::Debug;
 use std::mem;

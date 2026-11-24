@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::ops::{Deref, Shl};
 use std::str::FromStr;
 use std::sync::atomic::{AtomicU64, Ordering};

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use anyhow::{Context, Result};
 use rehid::report_desc::REPORT_DESC_TY;
 use xhcid_interface::{

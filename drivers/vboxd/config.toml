@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-only AND MIT
 [[drivers]]
 name = "VirtualBox Guest Device"
 class = 0x08

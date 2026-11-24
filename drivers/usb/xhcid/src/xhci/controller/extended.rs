@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::ops::Range;
 use std::ptr::NonNull;
 use std::{fmt, mem, ptr, slice};

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::fs;
 
 use console_draw::ConsoleFont;

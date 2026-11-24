@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::cell::{Cell, RefCell};
 use std::collections::{BTreeSet, VecDeque};
 use std::rc::Rc;

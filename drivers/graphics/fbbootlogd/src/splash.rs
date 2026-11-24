@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only
 //! The boot splash fbbootlogd draws instead of the log when the bootloader passes `QUIET=1`: the
 //! background color, the FerrionOS mark where the login screen shows it next, and a progress bar
 //! that moves only when a boot event shows up in the log.

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only AND MIT
 #![deny(trivial_numeric_casts, unused_allocation)]
 
 use std::collections::BTreeMap;

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: GPL-2.0-only
 use std::collections::HashMap;
 
 use redox_ioctl::virtgpu;
