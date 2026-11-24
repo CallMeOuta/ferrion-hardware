@@ -57,18 +57,15 @@ impl<const N: usize> Xhci<N> {
 
             debug!("Sending command with cycle bit {}", u8::from(cycle));
 
-            {
-                let command_trb = &mut command_ring.trbs[cmd_index];
-                f(command_trb, cycle);
-            }
+            f(&mut command_ring.trbs[cmd_index], !cycle);
 
-            // get the future here before awaiting, to destroy the lock before deadlock
-            let command_trb = &command_ring.trbs[cmd_index];
-            self.next_command_completion_event_trb(
+            let next_event = self.next_command_completion_event_trb(
                 &*command_ring,
-                command_trb,
+                &command_ring.trbs[cmd_index],
                 EventDoorbell::new(self, 0, 0),
-            )
+            );
+            command_ring.trbs[cmd_index].set_cycle(cycle);
+            next_event
         };
 
         let trbs = next_event.await;
@@ -106,8 +103,8 @@ impl<const N: usize> Xhci<N> {
             let ring = endpoint_state.ring().ok_or(Error::new(EIO))?;
 
             let first_index = ring.next_index();
-            let (cmd, cycle) = (&mut ring.trbs[first_index], ring.cycle);
-            cmd.setup(setup, tk, cycle);
+            let first_cycle = ring.cycle;
+            ring.trbs[first_index].setup(setup, tk, !first_cycle);
 
             if tk != TransferKind::NoData {
                 loop {
@@ -130,13 +127,15 @@ impl<const N: usize> Xhci<N> {
             let ent = false;
             cmd.status(interrupter, input, ioc, ch, ent, cycle);
 
-            self.next_transfer_event_trb(
+            let future = self.next_transfer_event_trb(
                 RingId::default_control_pipe(port_num),
                 ring,
                 &ring.trbs[first_index],
                 &ring.trbs[last_index],
                 EventDoorbell::new(self, usize::from(slot), Self::def_control_endp_doorbell()),
-            )
+            );
+            ring.trbs[first_index].set_cycle(first_cycle);
+            future
         };
 
         let trbs = future.await;
@@ -202,36 +201,36 @@ impl<const N: usize> Xhci<N> {
             ),
         };
 
-        let future = loop {
-            let last_index = ring.next_index();
-            let (trb, cycle) = (&mut ring.trbs[last_index], ring.cycle);
+        let first_index = ring.next_index();
+        let first_cycle = ring.cycle;
+        let mut last_index = first_index;
+        let mut cycle = !first_cycle;
+        while let ControlFlow::Continue = d(&mut ring.trbs[last_index], cycle) {
+            last_index = ring.next_index();
+            cycle = ring.cycle;
+        }
 
-            match d(trb, cycle) {
-                ControlFlow::Break => {
-                    break self.next_transfer_event_trb(
-                        RingId {
-                            port: port_num,
-                            endpoint_num: endp_num,
-                            stream_id,
-                        },
-                        ring,
-                        //TODO: find first TRB
-                        &ring.trbs[last_index],
-                        &ring.trbs[last_index],
-                        EventDoorbell::new(
-                            self,
-                            usize::from(slot),
-                            if has_streams {
-                                doorbell_data_stream
-                            } else {
-                                doorbell_data_no_stream
-                            },
-                        ),
-                    );
-                }
-                ControlFlow::Continue => continue,
-            }
-        };
+        let future = self.next_transfer_event_trb(
+            RingId {
+                port: port_num,
+                endpoint_num: endp_num,
+                stream_id,
+            },
+            ring,
+            //TODO: find first TRB
+            &ring.trbs[last_index],
+            &ring.trbs[last_index],
+            EventDoorbell::new(
+                self,
+                usize::from(slot),
+                if has_streams {
+                    doorbell_data_stream
+                } else {
+                    doorbell_data_no_stream
+                },
+            ),
+        );
+        ring.trbs[first_index].set_cycle(first_cycle);
 
         drop(port_state);
 

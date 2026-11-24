@@ -19,21 +19,30 @@ use crate::xhci::device::enumerator::DeviceEnumerationRequest;
 use crate::xhci::doorbell::Doorbell;
 use crate::xhci::{EndpNum, PortId, Xhci};
 
-/// Short-term states (as in, they are removed when the waker is consumed, but probably pushed back
-/// by the future unless it completed).
+#[derive(Debug, Default)]
+struct Waiter {
+    message: Option<NextEventTrb>,
+    waker: Option<task::Waker>,
+}
+
 #[derive(Debug)]
 pub struct State {
-    waker: task::Waker,
     kind: StateKind,
-    message: Arc<Mutex<Option<NextEventTrb>>>,
+    waiter: Arc<Mutex<Waiter>>,
     is_isoch_or_vf: bool,
 }
 
 impl State {
-    fn finish(self, message: Option<NextEventTrb>) {
-        *self.message.lock().unwrap() = message;
-        trace!("Waking up future with waker: {:?}", self.waker);
-        self.waker.wake();
+    fn finish(self, message: NextEventTrb) {
+        let waker = {
+            let mut waiter = self.waiter.lock().unwrap();
+            assert!(waiter.message.is_none(), "event waiter finished twice");
+            waiter.message = Some(message);
+            waiter.waker.take()
+        };
+        if let Some(waker) = waker {
+            waker.wake();
+        }
     }
 }
 
@@ -422,10 +431,10 @@ impl<const N: usize> IrqReactor<N> {
                         };
 
                         // TODO: Validate the command TRB.
-                        state.finish(Some(NextEventTrb {
+                        state.finish(NextEventTrb {
                             src_trb: Some(command_trb.clone()),
                             event_trb: trb.clone(),
-                        }));
+                        });
 
                         return;
                     } else if trb.completion_trb_pointer().is_none() {
@@ -452,10 +461,10 @@ impl<const N: usize> IrqReactor<N> {
                                     let src_trb = self.hci.get_transfer_trb(phys_ptr, ring_id);
                                     // Give the source transfer TRB together with the event TRB, to the future.
                                     let state = self.states.remove(index);
-                                    state.finish(Some(NextEventTrb {
+                                    state.finish(NextEventTrb {
                                         src_trb: src_trb,
                                         event_trb: trb.clone(),
-                                    }));
+                                    });
                                     return;
                                 }
                             }
@@ -481,18 +490,21 @@ impl<const N: usize> IrqReactor<N> {
                     if self.hci.with_ring(ring_id, |_ring| ()).is_none() {
                         log::debug!("State {} is a dead transfer", index);
                         let state = self.states.remove(index);
-                        state.finish(Some(NextEventTrb {
+                        state.finish(NextEventTrb {
                             src_trb: None,
                             //TODO: don't send this TRB as it may not be related
                             event_trb: trb.clone(),
-                        }));
+                        });
                         continue;
                     }
                 }
 
                 StateKind::Other(trb_type) if trb_type as u8 == trb.trb_type() => {
                     let state = self.states.remove(index);
-                    state.finish(None);
+                    state.finish(NextEventTrb {
+                        src_trb: None,
+                        event_trb: trb.clone(),
+                    });
                     return;
                 }
 
@@ -520,10 +532,10 @@ impl<const N: usize> IrqReactor<N> {
                 continue;
             }
             let state = self.states.remove(index);
-            state.finish(Some(NextEventTrb {
+            state.finish(NextEventTrb {
                 event_trb: trb.clone(),
                 src_trb: None,
-            }));
+            });
         }
     }
     /// Checks if an event TRB is a Host Controller Event, with the completion code Event Ring
@@ -553,12 +565,6 @@ impl<const N: usize> IrqReactor<N> {
     }
 }
 
-struct FutureState {
-    message: Arc<Mutex<Option<NextEventTrb>>>,
-    is_isoch_or_vf: bool,
-    state_kind: StateKind,
-}
-
 pub struct EventDoorbell {
     dbs: Arc<Mutex<&'static mut [Doorbell]>>,
     index: usize,
@@ -582,13 +588,9 @@ impl EventDoorbell {
     }
 }
 
-enum EventTrbFuture {
-    Pending {
-        state: FutureState,
-        sender: Sender<State>,
-        doorbell_opt: Option<EventDoorbell>,
-    },
-    Finished,
+struct EventTrbFuture {
+    waiter: Arc<Mutex<Waiter>>,
+    doorbell_opt: Option<EventDoorbell>,
 }
 
 impl Future for EventTrbFuture {
@@ -596,39 +598,17 @@ impl Future for EventTrbFuture {
 
     fn poll(self: Pin<&mut Self>, context: &mut task::Context) -> task::Poll<Self::Output> {
         let this = self.get_mut();
-        trace!("Start poll!");
-        let message = match this {
-            &mut Self::Pending {
-                ref state,
-                ref sender,
-                ref mut doorbell_opt,
-            } => match state.message.lock().unwrap().take() {
-                Some(message) => message,
-
-                None => {
-                    // Register state with IRQ reactor
-                    trace!("Send state {:X?}", state.state_kind);
-                    sender
-                        .send(State {
-                            message: Arc::clone(&state.message),
-                            is_isoch_or_vf: state.is_isoch_or_vf,
-                            kind: state.state_kind,
-                            waker: context.waker().clone(),
-                        })
-                        .expect("IRQ reactor thread unexpectedly stopped");
-
-                    // Doorbell must be rung after sending state
-                    if let Some(doorbell) = doorbell_opt.take() {
-                        doorbell.ring();
-                    }
-                    return task::Poll::Pending;
-                }
-            },
-            &mut Self::Finished => panic!("Polling finished EventTrbFuture again."),
-        };
-        trace!("finished!");
-        *this = Self::Finished;
-        task::Poll::Ready(message)
+        {
+            let mut waiter = this.waiter.lock().unwrap();
+            if let Some(message) = waiter.message.take() {
+                return task::Poll::Ready(message);
+            }
+            waiter.waker = Some(context.waker().clone());
+        }
+        if let Some(doorbell) = this.doorbell_opt.take() {
+            doorbell.ring();
+        }
+        task::Poll::Pending
     }
 }
 
@@ -682,19 +662,15 @@ impl<const N: usize> Xhci<N> {
         let is_isoch_or_vf = last_trb.trb_type() == TrbType::Isoch as u8;
         let first_phys_ptr = ring.trb_phys_ptr(self.cap.ac64(), first_trb);
         let last_phys_ptr = ring.trb_phys_ptr(self.cap.ac64(), last_trb);
-        EventTrbFuture::Pending {
-            state: FutureState {
-                is_isoch_or_vf,
-                state_kind: StateKind::Transfer {
-                    ring_id,
-                    first_phys_ptr,
-                    last_phys_ptr,
-                },
-                message: Arc::new(Mutex::new(None)),
+        self.register_event_waiter(
+            StateKind::Transfer {
+                ring_id,
+                first_phys_ptr,
+                last_phys_ptr,
             },
-            sender: self.irq_reactor_sender.clone(),
-            doorbell_opt: Some(doorbell),
-        }
+            is_isoch_or_vf,
+            Some(doorbell),
+        )
     }
     pub fn next_command_completion_event_trb(
         &self,
@@ -709,18 +685,13 @@ impl<const N: usize> Xhci<N> {
         if !trb.is_command_trb() {
             panic!("Invalid TRB type given to next_command_completion_event_trb(): {} (TRB {:?}. Expected command TRB.", trb.trb_type(), trb)
         }
-        EventTrbFuture::Pending {
-            state: FutureState {
-                // This is only possible for transfers if they are isochronous, or for Force Event TRBs (virtualization).
-                is_isoch_or_vf: false,
-                state_kind: StateKind::CommandCompletion {
-                    phys_ptr: command_ring.trb_phys_ptr(self.cap.ac64(), trb),
-                },
-                message: Arc::new(Mutex::new(None)),
+        self.register_event_waiter(
+            StateKind::CommandCompletion {
+                phys_ptr: command_ring.trb_phys_ptr(self.cap.ac64(), trb),
             },
-            sender: self.irq_reactor_sender.clone(),
-            doorbell_opt: Some(doorbell),
-        }
+            false,
+            Some(doorbell),
+        )
     }
     pub fn next_misc_event_trb(
         &self,
@@ -737,14 +708,26 @@ impl<const N: usize> Xhci<N> {
         if !valid_trb_types.contains(&(trb_type as u8)) {
             panic!("Invalid TRB type given to next_misc_event_trb(): {:?}. Only event TRB types that are neither transfer events or command completion events can be used.", trb_type)
         }
-        EventTrbFuture::Pending {
-            state: FutureState {
-                is_isoch_or_vf: false,
-                state_kind: StateKind::Other(trb_type),
-                message: Arc::new(Mutex::new(None)),
-            },
-            sender: self.irq_reactor_sender.clone(),
-            doorbell_opt: None,
+        self.register_event_waiter(StateKind::Other(trb_type), false, None)
+    }
+    fn register_event_waiter(
+        &self,
+        kind: StateKind,
+        is_isoch_or_vf: bool,
+        doorbell_opt: Option<EventDoorbell>,
+    ) -> EventTrbFuture {
+        let waiter = Arc::new(Mutex::new(Waiter::default()));
+        trace!("Register event waiter {:X?}", kind);
+        self.irq_reactor_sender
+            .send(State {
+                kind,
+                waiter: Arc::clone(&waiter),
+                is_isoch_or_vf,
+            })
+            .expect("IRQ reactor thread unexpectedly stopped");
+        EventTrbFuture {
+            waiter,
+            doorbell_opt,
         }
     }
 }

@@ -127,11 +127,11 @@ impl<const N: usize> Xhci<N> {
                 .expect("no ring for the default control pipe");
 
             let first_index = ring.next_index();
-            let (cmd, cycle) = (&mut ring.trbs[first_index], ring.cycle);
-            cmd.setup(
+            let first_cycle = ring.cycle;
+            ring.trbs[first_index].setup(
                 usb::Setup::get_descriptor(kind, value, index, len as u16),
                 TransferKind::In,
-                cycle,
+                !first_cycle,
             );
 
             let (cmd, cycle) = ring.next();
@@ -148,13 +148,15 @@ impl<const N: usize> Xhci<N> {
             let ent = false;
             cmd.status(interrupter, input, ioc, ch, ent, cycle);
 
-            self.next_transfer_event_trb(
+            let future = self.next_transfer_event_trb(
                 RingId::default_control_pipe(port),
                 &ring,
                 &ring.trbs[first_index],
                 &ring.trbs[last_index],
                 EventDoorbell::new(self, usize::from(slot), Self::def_control_endp_doorbell()),
-            )
+            );
+            ring.trbs[first_index].set_cycle(first_cycle);
+            future
         };
 
         debug!("Waiting for the next transfer event TRB...");

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-2.0-only AND MIT
+use std::sync::atomic::{fence, Ordering};
 use std::{fmt, mem};
 
 use common::io::{Io, Mmio};
@@ -398,6 +399,11 @@ impl Trb {
 
     pub fn cycle(&self) -> bool {
         self.control.readf(0x01)
+    }
+
+    pub fn set_cycle(&mut self, cycle: bool) {
+        fence(Ordering::SeqCst);
+        self.control.writef(0x01, cycle);
     }
 
     pub fn status(
