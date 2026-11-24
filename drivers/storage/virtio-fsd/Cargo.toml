@@ -1,0 +1,30 @@
+[package]
+name = "virtio-fsd"
+version = "0.1.0"
+edition = "2024"
+authors = ["MJ Pooladkhay <mj@pooladkhay.com>"]
+
+[dependencies]
+async-lock = "3.4"
+bitflags.workspace = true
+thiserror.workspace = true
+zerocopy.workspace = true
+futures.workspace = true
+fuse-abi = { version = "0.2.0", features = ["linux", "zerocopy", "num_enum"] }
+
+daemon = { path = "../../../daemon" }
+virtio-core = { path = "../../virtio-core" }
+pcid = { path = "../../pcid" }
+common = { path = "../../common" }
+scheme-utils = { path = "../../../scheme-utils" }
+
+redox-path.workspace = true
+log.workspace = true
+libredox.workspace = true
+redox-scheme = { workspace = true, features = ["std"] }
+redox_event.workspace = true
+redox_syscall.workspace = true
+plain.workspace = true
+
+[lints]
+workspace = true
