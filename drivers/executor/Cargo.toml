@@ -8,6 +8,7 @@ edition = "2024"
 license = "GPL-2.0-only AND MIT"
 
 [dependencies]
+libredox.workspace = true
 log.workspace = true
 redox_event.workspace = true
 slab.workspace = true

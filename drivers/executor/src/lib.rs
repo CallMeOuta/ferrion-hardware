@@ -56,6 +56,7 @@ impl<Hw: Hardware, T> JoinHandle<Hw, T> {
 }
 
 type EventUserData = usize;
+const MAX_NEXT_EVENT_EINTR_RETRIES: usize = 64;
 
 pub trait Hardware: Sized + 'static {
     type CmdId: Clone + Copy + Debug + Hash + Eq + PartialEq;
@@ -288,7 +289,22 @@ impl<Hw: Hardware> LocalExecutor<Hw> {
         retval.borrow_mut().take().unwrap()
     }
     fn react(&self) {
-        let event = self.queue.next_event().expect("failed to get next event");
+        let mut eintr_retries: usize = 0;
+        let event = loop {
+            match self.queue.next_event() {
+                Ok(event) => break event,
+                Err(err) if err.errno() == libredox::errno::EINTR => {
+                    if eintr_retries >= MAX_NEXT_EVENT_EINTR_RETRIES {
+                        panic!(
+                            "executor: event queue wait exceeded MAX_NEXT_EVENT_EINTR_RETRIES ({MAX_NEXT_EVENT_EINTR_RETRIES})"
+                        );
+                    }
+                    eintr_retries += 1;
+                    log::warn!("executor: event queue wait interrupted; retrying");
+                }
+                Err(err) => panic!("failed to get next event: {err}"),
+            }
+        };
 
         if event.user_data != 0 {
             let Some((task, flags_ptr)) = self.external_event.borrow_mut().remove(&event.user_data)
