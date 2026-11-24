@@ -529,6 +529,7 @@ impl Device {
                 continue;
             };
             let connector_id = objects.add_connector(
+                driver_graphics::kms::connector::DRM_MODE_CONNECTOR_Unknown,
                 Connector {
                     ddi_idx: ddi.index,
                     ddi_name: ddi.name,

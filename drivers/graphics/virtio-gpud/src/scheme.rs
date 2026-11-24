@@ -9,7 +9,9 @@ use std::task::{Context, Poll, Waker};
 
 use common::dma::Dma;
 use common::sgl;
-use driver_graphics::kms::connector::{KmsConnectorDriver, KmsConnectorStatus};
+use driver_graphics::kms::connector::{
+    DRM_MODE_CONNECTOR_VIRTUAL, KmsConnectorDriver, KmsConnectorStatus,
+};
 use driver_graphics::kms::crtc::{KmsCrtc, KmsCrtcState};
 use driver_graphics::kms::framebuffer::KmsFramebuffer;
 use driver_graphics::kms::objects::{KmsObjectId, KmsObjects};
@@ -422,7 +424,12 @@ impl<'a> GraphicsAdapter for VirtGpuAdapter<'a> {
                 Some((VirtGpuPlane { is_cursor: true }, ())),
             );
 
-            objects.add_connector(VirtGpuConnector { scanout_id }, (), &[crtc]);
+            objects.add_connector(
+                DRM_MODE_CONNECTOR_VIRTUAL,
+                VirtGpuConnector { scanout_id },
+                (),
+                &[crtc],
+            );
         }
     }
 

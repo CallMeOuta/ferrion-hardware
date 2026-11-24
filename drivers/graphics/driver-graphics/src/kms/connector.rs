@@ -3,9 +3,10 @@ use std::ffi::c_char;
 use std::fmt::Debug;
 use std::sync::Mutex;
 
+pub use drm_sys::{DRM_MODE_CONNECTOR_Unknown, DRM_MODE_CONNECTOR_VIRTUAL};
 use drm_sys::{
-    DRM_MODE_CONNECTOR_Unknown, DRM_MODE_DPMS_OFF, DRM_MODE_DPMS_ON, DRM_MODE_DPMS_STANDBY,
-    DRM_MODE_DPMS_SUSPEND, DRM_MODE_TYPE_PREFERRED, drm_mode_modeinfo,
+    DRM_MODE_DPMS_OFF, DRM_MODE_DPMS_ON, DRM_MODE_DPMS_STANDBY, DRM_MODE_DPMS_SUSPEND,
+    DRM_MODE_TYPE_PREFERRED, drm_mode_modeinfo,
 };
 use piaf::{ExtensionLibrary, VideoMode, capabilities_from_edid, parse_edid};
 use syscall::Result;
@@ -20,6 +21,7 @@ use crate::kms::rc_object::KmsRcObjectRef;
 impl<T: GraphicsAdapter> KmsObjects<T> {
     pub fn add_connector(
         &mut self,
+        connector_type: u32,
         driver_data: T::Connector,
         driver_data_state: <T::Connector as KmsConnectorDriver>::State,
         crtcs: &[KmsObjectId],
@@ -36,13 +38,29 @@ impl<T: GraphicsAdapter> KmsObjects<T> {
         });
         self.encoders.push(encoder_id);
 
+        let connector_type_id = self
+            .connectors
+            .iter()
+            .filter(|&&id| {
+                self.get_connector(id)
+                    .unwrap()
+                    .lock()
+                    .unwrap()
+                    .connector_type
+                    == connector_type
+            })
+            .count()
+            .checked_add(1)
+            .and_then(|count| u32::try_from(count).ok())
+            .expect("connector_type_id overflow");
+
         let connector_index = self.connectors.len();
         let connector_id = self.add(Mutex::new(KmsConnector {
             connector_index,
             encoder_id,
             modes: vec![],
-            connector_type: DRM_MODE_CONNECTOR_Unknown,
-            connector_type_id: self.connectors.len() as u32, // FIXME maybe pick unique id within connector type?
+            connector_type,
+            connector_type_id,
             connection: KmsConnectorStatus::Unknown,
             mm_width: 0,
             mm_height: 0,

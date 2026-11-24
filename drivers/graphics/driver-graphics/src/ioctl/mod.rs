@@ -97,8 +97,8 @@ pub(crate) fn call_ioctl<T: GraphicsAdapter>(
                 .unwrap();
             data.set_encoders_ptr(&[connector.encoder_id.0]);
             data.set_modes_ptr(&connector.modes);
-            data.set_connector_type(data.connector_type());
-            data.set_connector_type_id(data.connector_type_id());
+            data.set_connector_type(connector.connector_type);
+            data.set_connector_type_id(connector.connector_type_id);
             data.set_connection(connector.connection as u32);
             data.set_mm_width(connector.mm_width);
             data.set_mm_height(connector.mm_height);

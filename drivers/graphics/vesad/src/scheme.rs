@@ -47,6 +47,7 @@ impl GraphicsAdapter for FbAdapter {
             let (crtc, _primary_plane_id) = objects.add_crtc((), (), (), (), None);
 
             objects.add_connector(
+                driver_graphics::kms::connector::DRM_MODE_CONNECTOR_Unknown,
                 Connector {
                     width: framebuffer.width as u32,
                     height: framebuffer.height as u32,
