@@ -83,13 +83,13 @@ static_assertions = "1.1.0"
 thiserror = "2"
 toml = "1"
 zerocopy = { version = "0.8", features = ["derive"] }
-audiod = { git = "https://github.com/CallMeOuta/FerrionOS.git", rev = "1343f7f8dce00901dd7d590ac9bd3d4c777c764e" }
-config = { git = "https://github.com/CallMeOuta/FerrionOS.git", rev = "1343f7f8dce00901dd7d590ac9bd3d4c777c764e" }
-daemon = { git = "https://github.com/CallMeOuta/FerrionOS.git", rev = "1343f7f8dce00901dd7d590ac9bd3d4c777c764e" }
-graphics-ipc = { git = "https://github.com/CallMeOuta/FerrionOS.git", rev = "1343f7f8dce00901dd7d590ac9bd3d4c777c764e" }
-inputd = { git = "https://github.com/CallMeOuta/FerrionOS.git", rev = "1343f7f8dce00901dd7d590ac9bd3d4c777c764e" }
-redox-ioctl = { git = "https://github.com/CallMeOuta/FerrionOS.git", rev = "1343f7f8dce00901dd7d590ac9bd3d4c777c764e" }
-scheme-utils = { git = "https://github.com/CallMeOuta/FerrionOS.git", rev = "1343f7f8dce00901dd7d590ac9bd3d4c777c764e" }
+audiod = { git = "https://github.com/CallMeOuta/FerrionOS.git", rev = "a9cdb4af47c8dd166f6dd83b60b90033041c02b7" }
+config = { git = "https://github.com/CallMeOuta/FerrionOS.git", rev = "a9cdb4af47c8dd166f6dd83b60b90033041c02b7" }
+daemon = { git = "https://github.com/CallMeOuta/FerrionOS.git", rev = "a9cdb4af47c8dd166f6dd83b60b90033041c02b7" }
+graphics-ipc = { git = "https://github.com/CallMeOuta/FerrionOS.git", rev = "a9cdb4af47c8dd166f6dd83b60b90033041c02b7" }
+inputd = { git = "https://github.com/CallMeOuta/FerrionOS.git", rev = "a9cdb4af47c8dd166f6dd83b60b90033041c02b7" }
+redox-ioctl = { git = "https://github.com/CallMeOuta/FerrionOS.git", rev = "a9cdb4af47c8dd166f6dd83b60b90033041c02b7" }
+scheme-utils = { git = "https://github.com/CallMeOuta/FerrionOS.git", rev = "a9cdb4af47c8dd166f6dd83b60b90033041c02b7" }
 
 [workspace.lints.rust]
 missing_docs = "allow"

@@ -217,7 +217,7 @@ checksum = "1505bd5d3d116872e7271a6d4e16d81d0c8570876c8de68093a09ac269d8aac0"
 [[package]]
 name = "audiod"
 version = "0.1.0"
-source = "git+https://github.com/CallMeOuta/FerrionOS.git?rev=1343f7f8dce00901dd7d590ac9bd3d4c777c764e#1343f7f8dce00901dd7d590ac9bd3d4c777c764e"
+source = "git+https://github.com/CallMeOuta/FerrionOS.git?rev=a9cdb4af47c8dd166f6dd83b60b90033041c02b7#a9cdb4af47c8dd166f6dd83b60b90033041c02b7"
 dependencies = [
  "anyhow",
  "daemon",
@@ -427,7 +427,7 @@ dependencies = [
 [[package]]
 name = "config"
 version = "0.0.0"
-source = "git+https://github.com/CallMeOuta/FerrionOS.git?rev=1343f7f8dce00901dd7d590ac9bd3d4c777c764e#1343f7f8dce00901dd7d590ac9bd3d4c777c764e"
+source = "git+https://github.com/CallMeOuta/FerrionOS.git?rev=a9cdb4af47c8dd166f6dd83b60b90033041c02b7#a9cdb4af47c8dd166f6dd83b60b90033041c02b7"
 
 [[package]]
 name = "console-draw"
@@ -495,7 +495,7 @@ checksum = "f27ae1dd37df86211c42e150270f82743308803d90a6f6e6651cd730d5e1732f"
 [[package]]
 name = "daemon"
 version = "0.0.0"
-source = "git+https://github.com/CallMeOuta/FerrionOS.git?rev=1343f7f8dce00901dd7d590ac9bd3d4c777c764e#1343f7f8dce00901dd7d590ac9bd3d4c777c764e"
+source = "git+https://github.com/CallMeOuta/FerrionOS.git?rev=a9cdb4af47c8dd166f6dd83b60b90033041c02b7#a9cdb4af47c8dd166f6dd83b60b90033041c02b7"
 dependencies = [
  "libc",
  "libredox",
@@ -860,7 +860,7 @@ dependencies = [
 [[package]]
 name = "graphics-ipc"
 version = "0.1.0"
-source = "git+https://github.com/CallMeOuta/FerrionOS.git?rev=1343f7f8dce00901dd7d590ac9bd3d4c777c764e#1343f7f8dce00901dd7d590ac9bd3d4c777c764e"
+source = "git+https://github.com/CallMeOuta/FerrionOS.git?rev=a9cdb4af47c8dd166f6dd83b60b90033041c02b7#a9cdb4af47c8dd166f6dd83b60b90033041c02b7"
 dependencies = [
  "drm",
  "drm-sys",
@@ -1045,7 +1045,7 @@ dependencies = [
 [[package]]
 name = "inputd"
 version = "0.1.0"
-source = "git+https://github.com/CallMeOuta/FerrionOS.git?rev=1343f7f8dce00901dd7d590ac9bd3d4c777c764e#1343f7f8dce00901dd7d590ac9bd3d4c777c764e"
+source = "git+https://github.com/CallMeOuta/FerrionOS.git?rev=a9cdb4af47c8dd166f6dd83b60b90033041c02b7#a9cdb4af47c8dd166f6dd83b60b90033041c02b7"
 dependencies = [
  "anyhow",
  "daemon",
@@ -1507,7 +1507,7 @@ source = "git+https://github.com/jackpot51/range-alloc.git#23493c401729c96173558
 [[package]]
 name = "redox-ioctl"
 version = "0.1.0"
-source = "git+https://github.com/CallMeOuta/FerrionOS.git?rev=1343f7f8dce00901dd7d590ac9bd3d4c777c764e#1343f7f8dce00901dd7d590ac9bd3d4c777c764e"
+source = "git+https://github.com/CallMeOuta/FerrionOS.git?rev=a9cdb4af47c8dd166f6dd83b60b90033041c02b7#a9cdb4af47c8dd166f6dd83b60b90033041c02b7"
 dependencies = [
  "drm-sys",
  "redox_syscall 0.9.5",
@@ -1747,7 +1747,7 @@ dependencies = [
 [[package]]
 name = "scheme-utils"
 version = "0.0.0"
-source = "git+https://github.com/CallMeOuta/FerrionOS.git?rev=1343f7f8dce00901dd7d590ac9bd3d4c777c764e#1343f7f8dce00901dd7d590ac9bd3d4c777c764e"
+source = "git+https://github.com/CallMeOuta/FerrionOS.git?rev=a9cdb4af47c8dd166f6dd83b60b90033041c02b7#a9cdb4af47c8dd166f6dd83b60b90033041c02b7"
 dependencies = [
  "libredox",
  "redox-scheme",
