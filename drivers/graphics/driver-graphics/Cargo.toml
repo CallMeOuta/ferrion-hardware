@@ -12,13 +12,13 @@ piaf.workspace = true
 log.workspace = true
 redox-ioctl.workspace = true
 redox-scheme.workspace = true
-scheme-utils = { path = "../../../scheme-utils" }
+scheme-utils.workspace = true
 redox_syscall.workspace = true
 libredox.workspace = true
 
 common = { path = "../../common" }
-graphics-ipc = { path = "../graphics-ipc"}
-inputd = { path = "../../inputd" }
+graphics-ipc.workspace = true
+inputd.workspace = true
 
 [lints]
 workspace = true

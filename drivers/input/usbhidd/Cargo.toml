@@ -5,7 +5,7 @@ description = "USB HID driver"
 version = "0.1.0"
 authors = ["4lDO2 <4lDO2@protonmail.com>"]
 edition = "2018"
-license = "MIT"
+license = "GPL-2.0-only AND MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -22,7 +22,7 @@ smallvec.workspace = true
 xhcid = { path = "../../usb/xhcid" }
 
 common = { path = "../../common" }
-inputd = { path = "../../inputd" }
+inputd.workspace = true
 
 [lints]
 workspace = true

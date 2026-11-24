@@ -14,7 +14,7 @@ anyhow.workspace = true
 libc.workspace = true
 
 common = { path = "../../common" }
-daemon = { path = "../../../daemon" }
+daemon.workspace = true
 driver-graphics = { path = "../driver-graphics" }
 virtio-core = { path = "../../virtio-core" }
 pcid = { path = "../../pcid" }

@@ -8,6 +8,7 @@ left-out = ["drivers/graphics/graphics-ipc", "drivers/inputd", "drivers/net/ixgb
 "LICENSE-MIT" = "cb46b697c3fd9d27d7bfe1b1ad48f8a58a284984504c6eb215ae2164538df7cb"
 
 [unmarked]
+"Cargo.lock" = "GPL-2.0-only"
 "LICENSE-MIT" = "license text"
 "storage/partitionlib/resources/disk.img" = "GPL-2.0-only AND MIT"
 "storage/partitionlib/resources/disk_mbr.img" = "GPL-2.0-only AND MIT"

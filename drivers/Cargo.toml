@@ -1,0 +1,102 @@
+# SPDX-License-Identifier: GPL-2.0-only
+[workspace]
+resolver = "2"
+members = [
+    "common",
+    "executor",
+    "acpid",
+    "hwd",
+    "pcid",
+    "pcid-spawner",
+    "rtcd",
+    "vboxd",
+    "virtio-core",
+    "audio/ac97d",
+    "audio/ihdad",
+    "audio/sb16d",
+    "graphics/console-draw",
+    "graphics/drawbench",
+    "graphics/fbbootlogd",
+    "graphics/driver-graphics",
+    "graphics/fbcond",
+    "graphics/ihdgd",
+    "graphics/vesad",
+    "graphics/virtio-gpud",
+    "input/ps2d",
+    "input/usbhidd",
+    "net/driver-network",
+    "net/e1000d",
+    "net/rtl8139d",
+    "net/rtl8168d",
+    "net/virtio-netd",
+    "redoxerd",
+    "storage/ahcid",
+    "storage/bcm2835-sdhcid",
+    "storage/driver-block",
+    "storage/ided",
+    "storage/lived",
+    "storage/nbdd",
+    "storage/nvmed",
+    "storage/usbscsid",
+    "storage/virtio-blkd",
+    "storage/virtio-fsd",
+    "usb/xhcid",
+    "usb/usbctl",
+    "usb/usbhubd",
+]
+
+[workspace.dependencies]
+acpi =  { git = "https://gitlab.redox-os.org/redox-os/acpi.git", branch = "redox-6.x" }
+anyhow = "1"
+bitflags = "2"
+clap = "4"
+drm = "0.15.0"
+drm-ffi = "0.9.1"
+drm-fourcc = "2.2.0"
+drm-sys = "0.8.1"
+env_logger = "0.11"
+piaf = "0.7.0"
+fdt = "0.2.0-alpha3"
+futures = { version = "0.3", features = ["executor"] }
+libc = "0.2.181"
+log = "0.4"
+libredox = "0.2.0"
+orbclient = { git = "https://gitlab.redox-os.org/redox-os/orbclient.git" }
+psf-rs = "2.2.0"
+parking_lot = "0.12"
+pico-args = "0.5"
+plain = "0.2.3"
+redox_event = "0.5.0"
+redox-log = { git = "https://gitlab.redox-os.org/redox-os/redox-log.git" }
+redox-path = "0.4.1"
+redox-scheme = { git = "https://gitlab.redox-os.org/redox-os/redox-scheme.git", default-features = false }
+redox_syscall = { version = "0.9.5",  features = ["std"] }
+redox-rings = { git = "https://gitlab.redox-os.org/redox-os/redox-rings.git", features = ["userspace", "sync"] }
+redox_termios = "0.1.4"
+ron = "0.12"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+slab = "0.4.9"
+smallvec = "1"
+spin = "0.12"
+static_assertions = "1.1.0"
+thiserror = "2"
+toml = "1"
+zerocopy = { version = "0.8", features = ["derive"] }
+audiod = { git = "https://github.com/CallMeOuta/FerrionOS.git", rev = "1343f7f8dce00901dd7d590ac9bd3d4c777c764e" }
+config = { git = "https://github.com/CallMeOuta/FerrionOS.git", rev = "1343f7f8dce00901dd7d590ac9bd3d4c777c764e" }
+daemon = { git = "https://github.com/CallMeOuta/FerrionOS.git", rev = "1343f7f8dce00901dd7d590ac9bd3d4c777c764e" }
+graphics-ipc = { git = "https://github.com/CallMeOuta/FerrionOS.git", rev = "1343f7f8dce00901dd7d590ac9bd3d4c777c764e" }
+inputd = { git = "https://github.com/CallMeOuta/FerrionOS.git", rev = "1343f7f8dce00901dd7d590ac9bd3d4c777c764e" }
+redox-ioctl = { git = "https://github.com/CallMeOuta/FerrionOS.git", rev = "1343f7f8dce00901dd7d590ac9bd3d4c777c764e" }
+scheme-utils = { git = "https://github.com/CallMeOuta/FerrionOS.git", rev = "1343f7f8dce00901dd7d590ac9bd3d4c777c764e" }
+
+[workspace.lints.rust]
+missing_docs = "allow"
+
+[workspace.lints.clippy]
+cast_lossless = "warn"
+missing_safety_doc = "warn"
+perf = { level = "deny", priority = -1 }
+precedence = "deny"
+unused_io_amount = "warn"

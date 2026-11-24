@@ -5,7 +5,7 @@ description = "Asynchronous framework for queue-based hardware interfaces"
 authors = ["4lDO2 <4lDO2@protonmail.com>"]
 version = "0.1.0"
 edition = "2024"
-license = "MIT"
+license = "GPL-2.0-only AND MIT"
 
 [dependencies]
 log.workspace = true

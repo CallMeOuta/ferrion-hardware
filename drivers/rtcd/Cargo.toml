@@ -5,7 +5,7 @@ description = "x86 Real Time Clock daemon"
 version = "0.1.0"
 authors = ["4lDO2 <4lDO2@protonmail.com>"]
 edition = "2018"
-license = "MIT"
+license = "GPL-2.0-only AND MIT"
 
 
 [dependencies]

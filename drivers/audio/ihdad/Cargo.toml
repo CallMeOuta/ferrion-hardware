@@ -14,12 +14,12 @@ redox_syscall.workspace = true
 spin.workspace = true
 redox-rings.workspace = true
 
-audiod = { path = "../../../audiod" }
+audiod.workspace = true
 common = { path = "../../common" }
-daemon = { path = "../../../daemon" }
+daemon.workspace = true
 pcid = { path = "../../pcid" }
 redox-scheme.workspace = true
-scheme-utils = { path = "../../../scheme-utils" }
+scheme-utils.workspace = true
 
 [lints]
 workspace = true

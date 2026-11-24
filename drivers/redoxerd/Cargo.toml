@@ -15,7 +15,7 @@ redox_event.workspace = true
 redox_syscall.workspace = true
 redox_termios.workspace = true
 common = { path = "../common" }
-daemon = { path = "../../daemon" }
+daemon.workspace = true
 qemu-exit = "4.0"
 
 [lints]

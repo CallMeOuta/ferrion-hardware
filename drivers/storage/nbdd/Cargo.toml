@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 anyhow.workspace = true
 libredox.workspace = true
-daemon = { path = "../../../daemon" }
+daemon.workspace = true
 redox_syscall = { workspace = true, features = ["std"] }
 redox_event.workspace = true
 driver-block = { path = "../driver-block" }

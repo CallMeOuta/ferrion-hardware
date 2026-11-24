@@ -14,7 +14,7 @@ libredox.workspace = true
 
 amlserde = { path = "../amlserde" }
 common = { path = "../common" }
-daemon = { path = "../../daemon" }
+daemon.workspace = true
 
 [lints]
 workspace = true

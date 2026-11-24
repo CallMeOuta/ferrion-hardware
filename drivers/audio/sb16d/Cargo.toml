@@ -10,12 +10,12 @@ bitflags.workspace = true
 common = { path = "../../common" }
 libredox.workspace = true
 log.workspace = true
-daemon = { path = "../../../daemon" }
+daemon.workspace = true
 redox_event.workspace = true
 redox_syscall.workspace = true
 spin.workspace = true
 redox-scheme.workspace = true
-scheme-utils = { path = "../../../scheme-utils" }
+scheme-utils.workspace = true
 
 [lints]
 workspace = true

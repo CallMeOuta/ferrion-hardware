@@ -22,7 +22,7 @@ plain.workspace = true
 log.workspace = true
 redox_event.workspace = true
 redox-scheme.workspace = true
-scheme-utils = { path = "../../../scheme-utils" }
+scheme-utils.workspace = true
 redox_syscall.workspace = true
 serde.workspace = true
 serde_json.workspace = true
@@ -30,9 +30,9 @@ smallvec = { workspace = true, features = ["serde"] }
 thiserror.workspace = true
 toml.workspace = true
 
-config = { path = "../../../config" }
+config.workspace = true
 common = { path = "../../common" }
-daemon = { path = "../../../daemon" }
+daemon.workspace = true
 pcid = { path = "../../pcid" }
 libredox.workspace = true
 regex = "1.10.6"

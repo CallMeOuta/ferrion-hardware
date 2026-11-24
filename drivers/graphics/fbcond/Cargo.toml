@@ -11,13 +11,13 @@ orbclient.workspace = true
 redox_event.workspace = true
 redox_syscall.workspace = true
 redox-scheme.workspace = true
-scheme-utils = { path = "../../../scheme-utils" }
+scheme-utils.workspace = true
 
 common = { path = "../../common" }
 console-draw = { path = "../console-draw" }
-daemon = { path = "../../../daemon" }
-graphics-ipc = { path = "../graphics-ipc" }
-inputd = { path = "../../inputd" }
+daemon.workspace = true
+graphics-ipc.workspace = true
+inputd.workspace = true
 libredox.workspace = true
 psf-rs.workspace = true
 serde.workspace = true

@@ -19,7 +19,7 @@ range-alloc = { git = "https://github.com/jackpot51/range-alloc.git" }
 void = "1.0"
 
 common = { path = "../../common" }
-daemon = { path = "../../../daemon" }
+daemon.workspace = true
 driver-graphics = { path = "../driver-graphics" }
 ihdgd_macros = { path = "ihdgd_macros"}
 pcid = { path = "../../pcid" }

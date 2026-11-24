@@ -11,7 +11,7 @@ log.workspace = true
 redox_syscall = { workspace = true, features = ["std"] }
 
 common = { path = "../../common" }
-daemon = { path = "../../../daemon" }
+daemon.workspace = true
 driver-block = { path = "../driver-block" }
 pcid = { path = "../../pcid" }
 libredox.workspace = true

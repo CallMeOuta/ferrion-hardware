@@ -7,8 +7,8 @@ edition = "2021"
 [dependencies]
 drm.workspace = true
 
-graphics-ipc = { path = "../graphics-ipc" }
-inputd = { path = "../../inputd" }
+graphics-ipc.workspace = true
+inputd.workspace = true
 
 [lints]
 workspace = true

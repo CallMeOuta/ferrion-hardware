@@ -13,7 +13,7 @@ futures.workspace = true
 virtio-core = { path = "../../virtio-core" }
 pcid = { path = "../../pcid" }
 common = { path = "../../common" }
-daemon = { path = "../../../daemon" }
+daemon.workspace = true
 driver-network = { path = "../driver-network" }
 
 redox_syscall.workspace = true

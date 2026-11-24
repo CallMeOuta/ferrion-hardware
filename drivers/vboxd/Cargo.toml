@@ -12,7 +12,7 @@ redox_event.workspace = true
 redox_syscall.workspace = true
 
 common = { path = "../common" }
-daemon = { path = "../../daemon" }
+daemon.workspace = true
 pcid = { path = "../pcid" }
 
 [lints]

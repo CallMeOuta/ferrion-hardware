@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: GPL-2.0-only
+[toolchain]
+channel = "nightly-2026-05-24"
+components = ["rust-src"]

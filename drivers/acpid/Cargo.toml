@@ -25,10 +25,10 @@ serde.workspace = true
 
 amlserde = { path = "../amlserde" }
 common = { path = "../common" }
-daemon = { path = "../../daemon" }
+daemon.workspace = true
 libredox.workspace = true
 redox-scheme.workspace = true
-scheme-utils = { path = "../../scheme-utils" }
+scheme-utils.workspace = true
 
 [lints]
 workspace = true

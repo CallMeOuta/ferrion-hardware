@@ -13,11 +13,11 @@ zerocopy.workspace = true
 futures.workspace = true
 fuse-abi = { version = "0.2.0", features = ["linux", "zerocopy", "num_enum"] }
 
-daemon = { path = "../../../daemon" }
+daemon.workspace = true
 virtio-core = { path = "../../virtio-core" }
 pcid = { path = "../../pcid" }
 common = { path = "../../common" }
-scheme-utils = { path = "../../../scheme-utils" }
+scheme-utils.workspace = true
 
 redox-path.workspace = true
 log.workspace = true

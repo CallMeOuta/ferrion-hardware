@@ -10,7 +10,7 @@ redox_syscall.workspace = true
 redox_event.workspace = true
 
 common = { path = "../../common" }
-daemon = { path = "../../../daemon" }
+daemon.workspace = true
 driver-graphics = { path = "../driver-graphics" }
 libredox.workspace = true
 

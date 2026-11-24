@@ -12,9 +12,9 @@ redox_event.workspace = true
 redox_syscall.workspace = true
 
 console-draw = { path = "../console-draw" }
-daemon = { path = "../../../daemon" }
-graphics-ipc = { path = "../graphics-ipc" }
-inputd = { path = "../../inputd" }
+daemon.workspace = true
+graphics-ipc.workspace = true
+inputd.workspace = true
 libredox.workspace = true
 
 [lints]

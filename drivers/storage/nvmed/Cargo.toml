@@ -18,7 +18,7 @@ smallvec.workspace = true
 
 executor = { path = "../../executor" }
 common = { path = "../../common" }
-daemon = { path = "../../../daemon" }
+daemon.workspace = true
 driver-block = { path = "../driver-block" }
 partitionlib = { path = "../partitionlib" }
 pcid = { path = "../../pcid" }

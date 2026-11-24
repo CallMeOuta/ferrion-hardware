@@ -12,7 +12,7 @@ drm-ffi.workspace = true
 orbclient.workspace = true
 psf-rs.workspace = true
 
-graphics-ipc = { path = "../graphics-ipc" }
+graphics-ipc.workspace = true
 
 [features]
 default = []

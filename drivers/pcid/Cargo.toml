@@ -22,12 +22,12 @@ pci_types = "0.10.1"
 pico-args = { workspace = true, features = ["combined-flags"] }
 plain.workspace = true
 redox-scheme.workspace = true
-scheme-utils = { path = "../../scheme-utils" }
+scheme-utils.workspace = true
 redox_syscall.workspace = true
 serde.workspace = true
 
 common = { path = "../common" }
-daemon = { path = "../../daemon" }
+daemon.workspace = true
 libredox.workspace = true
 
 [lints]

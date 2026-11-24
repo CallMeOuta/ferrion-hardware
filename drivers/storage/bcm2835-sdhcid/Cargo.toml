@@ -10,7 +10,7 @@ edition = "2021"
 [dependencies]
 fdt.workspace = true
 common = { path = "../../common" }
-daemon = { path = "../../../daemon" }
+daemon.workspace = true
 driver-block = { path = "../driver-block" }
 
 libredox.workspace = true
