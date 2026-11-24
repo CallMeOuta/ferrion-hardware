@@ -166,47 +166,84 @@ impl<T: GraphicsAdapter> KmsConnector<T> {
         self.modes = vec![modeinfo_for_size(width, height)];
     }
 
+    pub fn prefer_size(&mut self, width: u32, height: u32) {
+        let matches = |mode: &drm_mode_modeinfo| {
+            u32::from(mode.hdisplay) == width && u32::from(mode.vdisplay) == height
+        };
+        match self.modes.iter().position(matches) {
+            Some(index) => {
+                let mode = self.modes.remove(index);
+                self.modes.insert(0, mode);
+            }
+            None => self.modes.insert(0, modeinfo_for_size(width, height)),
+        }
+        for (index, mode) in self.modes.iter_mut().enumerate() {
+            if index == 0 {
+                mode.type_ |= DRM_MODE_TYPE_PREFERRED;
+            } else {
+                mode.type_ &= !DRM_MODE_TYPE_PREFERRED;
+            }
+        }
+    }
+
     fn update_from_edid(&mut self, edid: &[u8]) {
         let library = ExtensionLibrary::with_standard_handlers();
-        let parsed = parse_edid(edid, &library).unwrap(); // TODO: error handling
+        let parsed = match parse_edid(edid, &library) {
+            Ok(parsed) => parsed,
+            Err(err) => {
+                log::error!("unreadable EDID: {err:?}");
+                self.modes.clear();
+                return;
+            }
+        };
         let caps = capabilities_from_edid(&parsed, &library);
 
-        if let Some(first_detailed_timing) = caps.preferred_timing {
-            self.mm_width = first_detailed_timing.width.into();
-            self.mm_height = first_detailed_timing.height.into();
-        } else {
-            log::error!("No edid timing descriptor detected");
+        if let Some(size) = caps.preferred_image_size_mm {
+            self.mm_width = size.0.into();
+            self.mm_height = size.1.into();
         }
 
         self.modes = caps
-            .supported_modes
+            .preferred_timing
             .iter()
+            .chain(caps.supported_modes.iter())
             .filter_map(modeinfo_for_detailed_timing)
             .collect::<Vec<_>>();
+        let mut seen = Vec::with_capacity(self.modes.len());
+        self.modes.retain(|mode| {
+            let key = (mode.hdisplay, mode.vdisplay, mode.vrefresh);
+            let fresh = !seen.contains(&key);
+            seen.push(key);
+            fresh
+        });
 
-        // First detailed timing descriptor indicates preferred mode.
         for mode in self.modes.iter_mut().skip(1) {
-            mode.flags &= !DRM_MODE_TYPE_PREFERRED;
+            mode.type_ &= !DRM_MODE_TYPE_PREFERRED;
         }
     }
 }
 
 pub fn modeinfo_for_detailed_timing(timing: &VideoMode) -> Option<drm_mode_modeinfo> {
     let hdisplay = timing.width;
-    let Some(hblank) = timing.h_blank else {
-        return None; // TODO: or fallback default?
-    };
-    let htotal = hdisplay + hblank;
-    let hsync_start = hdisplay + timing.h_front_porch;
-    let hsync_end = hsync_start + timing.h_sync_width;
+    let hblank = timing.h_blank?;
+    let htotal = hdisplay.checked_add(hblank)?;
+    let hsync_start = hdisplay.checked_add(timing.h_front_porch)?;
+    let hsync_end = hsync_start.checked_add(timing.h_sync_width)?;
     let vdisplay = timing.height;
-    let vtotal = vdisplay + (u16::from(timing.v_border) + u16::from(timing.v_border));
-    let vsync_start = vdisplay + timing.v_front_porch;
-    let vsync_end = vsync_start + timing.v_sync_width;
+    let vsync_start = vdisplay.checked_add(timing.v_front_porch)?;
+    let vsync_end = vsync_start.checked_add(timing.v_sync_width)?;
 
-    let Some(clock) = timing.pixel_clock_khz else {
-        return None; // TODO: or fallback default?
-    };
+    let clock = timing.pixel_clock_khz?;
+    let rate = timing.refresh_rate?;
+    let line_rate = u64::from(htotal) * u64::from(rate.numer());
+    if line_rate == 0 {
+        return None;
+    }
+    let pixels_per_frame = u64::from(clock) * 1000 * u64::from(rate.denom());
+    let vtotal = u16::try_from((pixels_per_frame + line_rate / 2) / line_rate).ok()?;
+    if vtotal < vsync_end {
+        return None;
+    }
     let vrefresh = (clock * 1000) / (u32::from(htotal) * u32::from(vtotal));
 
     let mut flags = 0;

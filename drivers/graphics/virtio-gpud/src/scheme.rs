@@ -85,7 +85,7 @@ impl fmt::Debug for VirtGpuFramebuffer {
 
 impl DrmBuffer for VirtGpuFramebuffer {
     fn size(&self) -> usize {
-        (self.width * self.height * 4) as usize
+        (self.width as usize * self.height as usize * 4).next_multiple_of(syscall::PAGE_SIZE)
     }
 }
 
@@ -154,27 +154,20 @@ impl<'a> VirtGpuAdapter<'a> {
                 info.rect.height
             );
 
-            // We must ignore info.enabled. All displays other than the first one are not
-            // enabled at startup according to QEMU, yet we can set a framebuffer for them
-            // just fine.
-
-            if info.rect.width == 0 || info.rect.height == 0 {
-                // QEMU gives all displays other than the first a zero width and height, but trying
-                // to attach a zero sized framebuffer to the display will result an error, so
-                // default to 640x480px.
-                self.displays[i].width = 640;
-                self.displays[i].height = 480;
-                // If we fake a size, then the EDID would need to be faked as well,
-                // but we don't have any code to do that.
-                self.has_edid = false;
-            } else {
-                self.displays[i].width = info.rect.width;
-                self.displays[i].height = info.rect.height;
+            let display = &mut self.displays[i];
+            display.edid.clear();
+            if info.enabled == 0 || info.rect.width == 0 || info.rect.height == 0 {
+                display.width = 0;
+                display.height = 0;
+                continue;
             }
+            display.width = info.rect.width;
+            display.height = info.rect.height;
 
             if self.has_edid {
                 let edid = self.get_edid(i as u32).await?;
-                self.displays[i].edid = edid.edid[..edid.size as usize].to_vec();
+                let size = (edid.size as usize).min(edid.edid.len());
+                self.displays[i].edid = edid.edid[..size].to_vec();
             }
         }
 
@@ -464,16 +457,25 @@ impl<'a> GraphicsAdapter for VirtGpuAdapter<'a> {
         id: KmsObjectId,
     ) -> syscall::Result<()> {
         futures::executor::block_on(async {
-            let mut connector = objects.get_connector(id)?.lock().unwrap();
-            let display = &self.displays[connector.driver_data.scanout_id as usize];
+            let scanout = objects.get_connector(id)?.lock().unwrap().driver_data.scanout_id;
+            let display = &self.displays[scanout as usize];
 
-            connector.connection = KmsConnectorStatus::Connected;
+            if display.width == 0 || display.height == 0 {
+                let mut connector = objects.get_connector(id)?.lock().unwrap();
+                connector.connection = KmsConnectorStatus::Disconnected;
+                connector.modes.clear();
+                return Ok(());
+            }
 
-            if self.has_edid {
-                drop(connector);
+            if !display.edid.is_empty() {
                 objects.set_connector_edid(id, display.edid.clone());
-            } else {
+            }
+            let mut connector = objects.get_connector(id)?.lock().unwrap();
+            connector.connection = KmsConnectorStatus::Connected;
+            if display.edid.is_empty() {
                 connector.update_from_size(display.width, display.height);
+            } else {
+                connector.prefer_size(display.width, display.height);
             }
             Ok(())
         })

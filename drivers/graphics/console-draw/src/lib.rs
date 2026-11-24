@@ -577,7 +577,12 @@ impl TextScreen {
     }
 
     pub fn handle_display_event(&mut self, map: &mut V2DisplayMap) -> io::Result<()> {
-        for event in map.display_handle.redox_receive_events()? {
+        let events = match map.display_handle.redox_receive_events() {
+            Ok(events) => events,
+            Err(err) if err.kind() == io::ErrorKind::WouldBlock => return Ok(()),
+            Err(err) => return Err(err),
+        };
+        for event in events {
             match event {
                 RedoxDrmEvent::RedoxConnectorHotplug(event) => {
                     self.handle_connector_hotplug(map, Some(event))?;
@@ -597,6 +602,9 @@ impl TextScreen {
         event: Option<RedoxDrmEventConnectorHotplug>,
     ) -> io::Result<()> {
         let crtc_connector_map = V2DisplayMap::map_connectors_to_crtcs(&map.display_handle, event)?;
+        if crtc_connector_map.is_empty() {
+            return Ok(());
+        }
 
         let preferred_sizes =
             crtc_connector_map
@@ -645,18 +653,22 @@ impl TextScreen {
             self.redraw(&mut console_map, true)
         });
 
-        for (crtc, fb, connector, preferred_mode) in new_mapping {
+        for (crtc, fb, connector, preferred_mode) in &new_mapping {
             map.display_handle.set_crtc(
-                crtc,
-                Some(fb),
+                *crtc,
+                Some(*fb),
                 (0, 0),
-                &[connector],
-                Some(preferred_mode),
+                &[*connector],
+                Some(*preferred_mode),
             )?;
         }
 
         if event.is_some() {
-            for (_crtc, fb, buffer) in old_displays {
+            for (crtc, fb, buffer) in old_displays {
+                if !new_mapping.iter().any(|(new_crtc, ..)| *new_crtc == crtc) {
+                    map.display_handle
+                        .set_crtc(crtc, None, (0, 0), &[], None)?;
+                }
                 buffer.destroy(&map.display_handle)?;
                 let _ = map.display_handle.destroy_framebuffer(fb);
             }
