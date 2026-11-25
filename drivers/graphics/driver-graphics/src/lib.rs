@@ -261,6 +261,7 @@ impl<T: GraphicsAdapter> GraphicsScheme<T> {
 
         let mut objects = KmsObjects::new();
         adapter.init(&mut objects);
+        objects.load_edid_overrides();
         for connector_id in objects.connector_ids().to_vec() {
             adapter.probe_connector(&mut objects, connector_id).unwrap();
         }

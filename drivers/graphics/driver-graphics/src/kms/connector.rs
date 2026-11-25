@@ -1,7 +1,155 @@
 // SPDX-License-Identifier: GPL-2.0-only AND MIT
 use std::ffi::c_char;
 use std::fmt::Debug;
+use std::fs;
+use std::io::{self, Read};
+use std::path::Path;
 use std::sync::Mutex;
+
+pub const FIRMWARE_EDID_DIR: &str = "/usr/lib/firmware/edid";
+
+pub fn connector_type_name(connector_type: u32) -> &'static str {
+    match connector_type {
+        0 => "Unknown",
+        1 => "VGA",
+        2 => "DVI-I",
+        3 => "DVI-D",
+        4 => "DVI-A",
+        5 => "Composite",
+        6 => "SVIDEO",
+        7 => "LVDS",
+        8 => "Component",
+        9 => "9PinDIN",
+        10 => "DP",
+        11 => "HDMI-A",
+        12 => "HDMI-B",
+        13 => "TV",
+        14 => "eDP",
+        15 => "Virtual",
+        16 => "DSI",
+        17 => "DPI",
+        18 => "Writeback",
+        19 => "SPI",
+        20 => "USB",
+        _ => "Unknown",
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct EdidOverride {
+    pub path: String,
+    pub data: Vec<u8>,
+}
+
+fn read_connector_edid_override(connector_name: &str) -> Option<EdidOverride> {
+    let candidate = Path::new(FIRMWARE_EDID_DIR).join(format!("{connector_name}.edid"));
+    match fs::symlink_metadata(&candidate) {
+        Ok(_) => {}
+        Err(err) if err.kind() == io::ErrorKind::NotFound => return None,
+        Err(err) => {
+            log::warn!(
+                "connector {connector_name}: ignoring EDID override {}: {err}",
+                candidate.display()
+            );
+            return None;
+        }
+    }
+
+    let canonical_dir = match fs::canonicalize(FIRMWARE_EDID_DIR) {
+        Ok(dir) => dir,
+        Err(err) => {
+            log::warn!(
+                "connector {connector_name}: ignoring EDID override {}: {err}",
+                candidate.display()
+            );
+            return None;
+        }
+    };
+    let canonical_target = match fs::canonicalize(&candidate) {
+        Ok(path) => path,
+        Err(err) => {
+            log::warn!(
+                "connector {connector_name}: ignoring EDID override {}: {err}",
+                candidate.display()
+            );
+            return None;
+        }
+    };
+    if !canonical_target.starts_with(&canonical_dir) {
+        log::warn!(
+            "connector {connector_name}: ignoring EDID override {} (resolves outside {FIRMWARE_EDID_DIR})",
+            candidate.display()
+        );
+        return None;
+    }
+
+    let meta = match fs::metadata(&canonical_target) {
+        Ok(meta) => meta,
+        Err(err) => {
+            log::warn!(
+                "connector {connector_name}: ignoring EDID override {}: {err}",
+                candidate.display()
+            );
+            return None;
+        }
+    };
+    if !meta.is_file() {
+        log::warn!(
+            "connector {connector_name}: ignoring EDID override {} (not a regular file)",
+            candidate.display()
+        );
+        return None;
+    }
+    let max_bytes = edid::MAX_EDID_OVERRIDE_BYTES as u64;
+    if meta.len() == 0 || meta.len() > max_bytes {
+        log::warn!(
+            "connector {connector_name}: ignoring EDID override {} (size {} outside 1..={max_bytes})",
+            candidate.display(),
+            meta.len()
+        );
+        return None;
+    }
+
+    let file = match fs::File::open(&canonical_target) {
+        Ok(file) => file,
+        Err(err) => {
+            log::warn!(
+                "connector {connector_name}: ignoring EDID override {}: {err}",
+                candidate.display()
+            );
+            return None;
+        }
+    };
+    let mut data = Vec::with_capacity(meta.len() as usize);
+    if let Err(err) = file.take(max_bytes + 1).read_to_end(&mut data) {
+        log::warn!(
+            "connector {connector_name}: ignoring EDID override {}: {err}",
+            candidate.display()
+        );
+        return None;
+    }
+    if data.is_empty() || data.len() > edid::MAX_EDID_OVERRIDE_BYTES {
+        log::warn!(
+            "connector {connector_name}: ignoring EDID override {} (size {} outside 1..={})",
+            candidate.display(),
+            data.len(),
+            edid::MAX_EDID_OVERRIDE_BYTES
+        );
+        return None;
+    }
+    if let Err(err) = edid::decode_all(&data) {
+        log::warn!(
+            "connector {connector_name}: ignoring invalid EDID override {}: {err:?}",
+            candidate.display()
+        );
+        return None;
+    }
+
+    Some(EdidOverride {
+        path: candidate.display().to_string(),
+        data,
+    })
+}
 
 pub use drm_sys::{DRM_MODE_CONNECTOR_Unknown, DRM_MODE_CONNECTOR_VIRTUAL};
 use drm_sys::{
@@ -67,6 +215,7 @@ impl<T: GraphicsAdapter> KmsObjects<T> {
             subpixel: DrmSubpixelOrder::Unknown,
             properties: KmsConnector::base_properties(),
             edid: None,
+            edid_override: None,
             state: KmsConnectorState {
                 dpms: KmsDpms::On,
                 crtc_id: KmsObjectId::INVALID,
@@ -93,7 +242,48 @@ impl<T: GraphicsAdapter> KmsObjects<T> {
         self.get(id)
     }
 
+    pub fn load_edid_overrides(&mut self) {
+        let ids = self.connectors.clone();
+        for id in ids {
+            let name = self.get_connector(id).unwrap().lock().unwrap().name();
+            let loaded = read_connector_edid_override(&name);
+            self.get_connector(id).unwrap().lock().unwrap().edid_override = loaded;
+        }
+    }
+
+    pub fn apply_connector_edid_override(&mut self, id: KmsObjectId) -> bool {
+        let (name, path, data, should_log) = {
+            let connector = self.get_connector(id).unwrap().lock().unwrap();
+            let Some(ov) = connector.edid_override.as_ref() else {
+                return false;
+            };
+            let should_log = connector.modes.is_empty()
+                || connector.edid.as_ref().map(|b| b.data()) != Some(ov.data.as_slice());
+            (
+                connector.name(),
+                ov.path.clone(),
+                ov.data.clone(),
+                should_log,
+            )
+        };
+        if should_log {
+            log::info!(
+                "connector {name}: applying EDID override {path} ({} bytes)",
+                data.len()
+            );
+        }
+        self.set_connector_edid_raw(id, data);
+        true
+    }
+
     pub fn set_connector_edid(&mut self, id: KmsObjectId, edid: Vec<u8>) {
+        if self.apply_connector_edid_override(id) {
+            return;
+        }
+        self.set_connector_edid_raw(id, edid);
+    }
+
+    fn set_connector_edid_raw(&mut self, id: KmsObjectId, edid: Vec<u8>) {
         let mut connector = self.get_connector(id).unwrap().lock().unwrap();
         connector.update_from_edid(&edid);
 
@@ -139,6 +329,7 @@ pub struct KmsConnector<T: GraphicsAdapter> {
     pub subpixel: DrmSubpixelOrder,
     pub properties: Vec<KmsPropertyData<Self>>,
     pub edid: Option<KmsRcObjectRef<KmsBlob>>,
+    pub edid_override: Option<EdidOverride>,
     pub state: KmsConnectorState<T>,
     pub driver_data: T::Connector,
 }
@@ -180,6 +371,18 @@ define_object_props!(object, KmsConnector<T: GraphicsAdapter> {
 });
 
 impl<T: GraphicsAdapter> KmsConnector<T> {
+    pub fn name(&self) -> String {
+        format!(
+            "{}-{}",
+            connector_type_name(self.connector_type),
+            self.connector_type_id
+        )
+    }
+
+    pub fn has_edid_override(&self) -> bool {
+        self.edid_override.is_some()
+    }
+
     pub fn update_from_size(&mut self, width: u32, height: u32) {
         self.modes = vec![modeinfo_for_size(width, height)];
     }
@@ -229,6 +432,12 @@ impl<T: GraphicsAdapter> KmsConnector<T> {
             log::warn!(
                 "EDID mode list exceeded {}; truncating",
                 edid::MAX_EDID_MODES
+            );
+        }
+        if decoded.displayid_timings_truncated {
+            log::warn!(
+                "DisplayID timing block exceeded {}; truncating",
+                edid::MAX_DISPLAYID_TIMINGS
             );
         }
 

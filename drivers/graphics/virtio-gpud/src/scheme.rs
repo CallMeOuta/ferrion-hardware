@@ -485,12 +485,14 @@ impl<'a> GraphicsAdapter for VirtGpuAdapter<'a> {
                 return Ok(());
             }
 
-            if !display.edid.is_empty() {
+            let override_applied = objects.apply_connector_edid_override(id);
+            if !override_applied && !display.edid.is_empty() {
                 objects.set_connector_edid(id, display.edid.clone());
             }
             let mut connector = objects.get_connector(id)?.lock().unwrap();
             connector.connection = KmsConnectorStatus::Connected;
-            if display.edid.is_empty() {
+            if override_applied {
+            } else if display.edid.is_empty() {
                 connector.update_from_size(display.width, display.height);
             } else {
                 connector.prefer_size(display.width, display.height);

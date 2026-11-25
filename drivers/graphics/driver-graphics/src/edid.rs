@@ -2,6 +2,7 @@
 
 pub const EDID_BLOCK_SIZE: usize = 128;
 pub const MAX_EDID_EXTENSION_BLOCKS: usize = 8;
+pub const MAX_EDID_OVERRIDE_BYTES: usize = EDID_BLOCK_SIZE * (1 + MAX_EDID_EXTENSION_BLOCKS);
 pub const MAX_EDID_TOTAL_BLOCKS: usize = 256;
 pub const MAX_CTA_DATA_BLOCKS: usize = 32;
 pub const MAX_CTA_VICS: usize = 31;
@@ -492,6 +493,7 @@ pub struct DecodedEdid {
     pub modes: [ModeTiming; MAX_EDID_MODES],
     pub mode_count: usize,
     pub modes_truncated: bool,
+    pub displayid_timings_truncated: bool,
     pub extensions_truncated: bool,
     pub bad_extension_blocks: usize,
     pub mm_width: u32,
@@ -502,6 +504,7 @@ struct ModeList {
     modes: [ModeTiming; MAX_EDID_MODES],
     count: usize,
     truncated: bool,
+    displayid_timings_truncated: bool,
 }
 
 impl ModeList {
@@ -510,6 +513,7 @@ impl ModeList {
             modes: [ModeTiming::ZERO; MAX_EDID_MODES],
             count: 0,
             truncated: false,
+            displayid_timings_truncated: false,
         }
     }
 
@@ -798,7 +802,11 @@ fn parse_displayid_extension(
             } else {
                 TimingSource::DisplayIdType7
             };
-            let count = (len / 20).min(MAX_DISPLAYID_TIMINGS);
+            let total_timings = len / 20;
+            if total_timings > MAX_DISPLAYID_TIMINGS {
+                list.displayid_timings_truncated = true;
+            }
+            let count = total_timings.min(MAX_DISPLAYID_TIMINGS);
             for i in 0..count {
                 let d = &block[data_start + i * 20..data_start + (i + 1) * 20];
                 let flags = d[3];
@@ -987,6 +995,7 @@ pub fn decode_all(edid: &[u8]) -> Result<DecodedEdid, EdidError> {
         modes: list.modes,
         mode_count: list.count,
         modes_truncated: list.truncated,
+        displayid_timings_truncated: list.displayid_timings_truncated,
         extensions_truncated,
         bad_extension_blocks,
         mm_width,
