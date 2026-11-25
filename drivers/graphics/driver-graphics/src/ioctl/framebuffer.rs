@@ -4,10 +4,20 @@ use std::collections::HashMap;
 use drm_fourcc::DrmFourcc;
 use syscall::{EINVAL, ENOENT, Error};
 
-use crate::handle::DumbEntry;
-use crate::kms::framebuffer::{KmsFramebuffer, disable_planes_with_fb};
+use crate::handle::{DumbEntry, ImportedBlob};
+use crate::kms::framebuffer::{FramebufferBacking, KmsFramebuffer, disable_planes_with_fb};
 use crate::kms::objects::{KmsObjectId, KmsObjects};
 use crate::{Damage, DrmHandle, GraphicsAdapter, VtState};
+
+const DRM_MODE_FB_MODIFIERS: u32 = 1 << 1;
+const DRM_FORMAT_MOD_LINEAR: u64 = 0;
+
+fn is_supported_blob_format(format: DrmFourcc) -> bool {
+    matches!(
+        format,
+        DrmFourcc::Xrgb8888 | DrmFourcc::Argb8888 | DrmFourcc::Xbgr8888 | DrmFourcc::Abgr8888
+    )
+}
 
 pub(super) fn mode_get_fb<T: GraphicsAdapter>(
     objects: &mut KmsObjects<T>,
@@ -15,18 +25,19 @@ pub(super) fn mode_get_fb<T: GraphicsAdapter>(
     mut data: redox_ioctl::drm::DrmModeFbCmd<'_>,
 ) -> Result<usize, Error> {
     let fb = objects.get_framebuffer(KmsObjectId(data.fb_id()))?;
+    let buffer = fb.dumb_buffer().ok_or(Error::new(EINVAL))?;
 
     let (bpp, depth) = match fb.pixel_format {
         DrmFourcc::Xrgb8888 => (32, 24),
         DrmFourcc::Argb8888 => (32, 32),
-        _ => todo!(),
+        _ => return Err(Error::new(EINVAL)),
     };
 
     let id = handle.alloc_buffer_id()?;
     handle.buffers.insert(
         id,
         DumbEntry {
-            buffer: fb.buffer.clone(),
+            buffer: buffer.clone(),
             writable: true,
         },
     );
@@ -61,15 +72,13 @@ pub(super) fn mode_add_fb<T: GraphicsAdapter>(
         _ => return Err(Error::new(EINVAL)),
     };
 
-    // FIXME enforce driver reported framebuffer size requirements
-
     let driver_data = adapter.create_framebuffer(buffer);
     let fb = objects.add_framebuffer(KmsFramebuffer {
         width: data.width(),
         height: data.height(),
         pixel_format,
         pitch: data.pitch(),
-        buffer: buffer.clone(),
+        backing: FramebufferBacking::Dumb(buffer.clone()),
         driver_data,
     });
     let fb_id = fb.id();
@@ -141,23 +150,84 @@ pub(super) fn mode_add_fb2<T: GraphicsAdapter>(
     handle: &mut DrmHandle<T>,
     mut data: redox_ioctl::drm::DrmModeFbCmd2<'_>,
 ) -> Result<usize, Error> {
-    // FIXME handle multi-plane framebuffers
+    let flags = data.flags();
+    if flags & !DRM_MODE_FB_MODIFIERS != 0 {
+        return Err(Error::new(EINVAL));
+    }
+    let width = data.width();
+    let height = data.height();
+    let (min_w, max_w, min_h, max_h) = adapter.min_max_fb_size();
+    if width == 0
+        || height == 0
+        || width < min_w
+        || width > max_w
+        || height < min_h
+        || height > max_h
+    {
+        return Err(Error::new(EINVAL));
+    }
 
-    let buffer = &handle
-        .buffers
-        .get(&data.handles()[0])
-        .ok_or(Error::new(EINVAL))?
-        .buffer;
+    let handles = data.handles();
+    let pitches = data.pitches();
+    let offsets = data.offsets();
+    let modifiers = data.modifier();
+    if handles[1..].iter().any(|&h| h != 0)
+        || pitches[1..].iter().any(|&p| p != 0)
+        || offsets[1..].iter().any(|&o| o != 0)
+    {
+        return Err(Error::new(EINVAL));
+    }
+    let has_modifiers = (flags & DRM_MODE_FB_MODIFIERS) != 0;
+    if has_modifiers && modifiers[0] != DRM_FORMAT_MOD_LINEAR {
+        return Err(Error::new(EINVAL));
+    }
 
-    // FIXME enforce driver reported framebuffer size requirements
+    let pixel_format = DrmFourcc::try_from(data.pixel_format()).map_err(|_| Error::new(EINVAL))?;
+    let pitch = pitches[0];
+    let offset = offsets[0];
 
-    let driver_data = adapter.create_framebuffer(buffer);
+    let (backing, driver_data) = if let Some(entry) = handle.buffers.get(&handles[0]) {
+        if offset != 0 {
+            return Err(Error::new(EINVAL));
+        }
+        let driver_data = adapter.create_framebuffer(&entry.buffer);
+        (FramebufferBacking::Dumb(entry.buffer.clone()), driver_data)
+    } else if let Some(entry) = handle.imported_blobs.get(&handles[0]) {
+        if !adapter.supports_blob_scanout() || !is_supported_blob_format(pixel_format) {
+            return Err(Error::new(EINVAL));
+        }
+        let min_row = u64::from(width).checked_mul(4).ok_or(Error::new(EINVAL))?;
+        if u64::from(pitch) < min_row || pitch % 4 != 0 {
+            return Err(Error::new(EINVAL));
+        }
+        let image_bytes = u64::from(pitch)
+            .checked_mul(u64::from(height))
+            .ok_or(Error::new(EINVAL))?;
+        let end = u64::from(offset)
+            .checked_add(image_bytes)
+            .ok_or(Error::new(EINVAL))?;
+        if end > entry.blob.info().size {
+            return Err(Error::new(EINVAL));
+        }
+        let driver_data = adapter.create_blob_framebuffer(&entry.blob)?;
+        (
+            FramebufferBacking::Blob {
+                blob: entry.blob.clone(),
+                offset,
+                modifier: DRM_FORMAT_MOD_LINEAR,
+            },
+            driver_data,
+        )
+    } else {
+        return Err(Error::new(EINVAL));
+    };
+
     let fb = objects.add_framebuffer(KmsFramebuffer {
-        width: data.width(),
-        height: data.height(),
-        pixel_format: DrmFourcc::try_from(data.pixel_format()).map_err(|_| Error::new(EINVAL))?,
-        pitch: data.pitches()[0],
-        buffer: buffer.clone(),
+        width,
+        height,
+        pixel_format,
+        pitch,
+        backing,
         driver_data,
     });
     let fb_id = fb.id();
@@ -174,23 +244,42 @@ pub(super) fn mode_get_fb2<T: GraphicsAdapter>(
     mut data: redox_ioctl::drm::DrmModeFbCmd2<'_>,
 ) -> Result<usize, Error> {
     let fb = objects.get_framebuffer(KmsObjectId(data.fb_id()))?;
-
-    let id = handle.alloc_buffer_id()?;
-    handle.buffers.insert(
-        id,
-        DumbEntry {
-            buffer: fb.buffer.clone(),
-            writable: true,
-        },
-    );
+    let (id, offset, modifier) = match &fb.backing {
+        FramebufferBacking::Dumb(buffer) => {
+            let id = handle.alloc_buffer_id()?;
+            handle.buffers.insert(
+                id,
+                DumbEntry {
+                    buffer: buffer.clone(),
+                    writable: true,
+                },
+            );
+            (id, 0u32, 0u64)
+        }
+        FramebufferBacking::Blob {
+            blob,
+            offset,
+            modifier,
+        } => {
+            let id = handle.alloc_buffer_id()?;
+            handle.imported_blobs.insert(
+                id,
+                ImportedBlob {
+                    blob: blob.clone(),
+                    writable: false,
+                },
+            );
+            (id, *offset, *modifier)
+        }
+    };
 
     data.set_width(fb.width);
     data.set_height(fb.height);
     data.set_pixel_format(fb.pixel_format as u32);
     data.set_handles([id, 0, 0, 0]);
     data.set_pitches([fb.pitch, 0, 0, 0]);
-    data.set_offsets([0; 4]);
-    data.set_modifier([0; 4]);
+    data.set_offsets([offset, 0, 0, 0]);
+    data.set_modifier([modifier, 0, 0, 0]);
     Ok(0)
 }
 

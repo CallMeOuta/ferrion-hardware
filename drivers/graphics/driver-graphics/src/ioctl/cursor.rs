@@ -5,7 +5,7 @@ use drm_fourcc::DrmFourcc;
 use drm_sys::{DRM_MODE_CURSOR_BO, DRM_MODE_CURSOR_MOVE};
 use syscall::{EINVAL, ENXIO, Error};
 
-use crate::kms::framebuffer::KmsFramebuffer;
+use crate::kms::framebuffer::{FramebufferBacking, KmsFramebuffer};
 use crate::kms::objects::{KmsObjectId, KmsObjects, KmsRect};
 use crate::{Damage, DrmHandle, GraphicsAdapter, VtState};
 
@@ -101,7 +101,7 @@ fn cursor_inner<T: GraphicsAdapter>(
                 height,
                 pixel_format: DrmFourcc::Argb8888,
                 pitch: width * 4,
-                buffer: buffer.clone(),
+                backing: FramebufferBacking::Dumb(buffer.clone()),
                 driver_data,
             });
 

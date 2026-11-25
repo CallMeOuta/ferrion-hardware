@@ -5,6 +5,7 @@ use std::sync::Arc;
 use drm_fourcc::DrmFourcc;
 use syscall::Result;
 
+use crate::blob::SharedBlob;
 use crate::kms::objects::{KmsObjectId, KmsObjects};
 use crate::kms::rc_object::{KmsRcObject, KmsRcObjectRef};
 use crate::{GraphicsAdapter, VtState};
@@ -26,13 +27,32 @@ impl<T: GraphicsAdapter> KmsObjects<T> {
 }
 
 #[derive(Debug)]
+pub enum FramebufferBacking<T: GraphicsAdapter> {
+    Dumb(Arc<T::Buffer>),
+    Blob {
+        blob: SharedBlob,
+        offset: u32,
+        modifier: u64,
+    },
+}
+
+#[derive(Debug)]
 pub struct KmsFramebuffer<T: GraphicsAdapter> {
     pub width: u32,
     pub height: u32,
     pub pixel_format: DrmFourcc,
     pub pitch: u32,
-    pub buffer: Arc<T::Buffer>,
+    pub backing: FramebufferBacking<T>,
     pub driver_data: T::Framebuffer,
+}
+
+impl<T: GraphicsAdapter> KmsFramebuffer<T> {
+    pub fn dumb_buffer(&self) -> Option<&Arc<T::Buffer>> {
+        match &self.backing {
+            FramebufferBacking::Dumb(buf) => Some(buf),
+            FramebufferBacking::Blob { .. } => None,
+        }
+    }
 }
 
 pub(crate) fn disable_planes_with_fb<T: GraphicsAdapter>(
@@ -42,7 +62,6 @@ pub(crate) fn disable_planes_with_fb<T: GraphicsAdapter>(
     vts: &mut HashMap<usize, VtState<T>>,
     fb_id: KmsObjectId,
 ) {
-    // Disable planes that use this framebuffer.
     for (vt, vt_data) in vts {
         for (plane_idx, plane_state) in vt_data.plane_state.iter_mut().enumerate() {
             if plane_state.fb.as_ref().map(|fb| fb.id()) != Some(fb_id) {

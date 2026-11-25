@@ -248,6 +248,13 @@ impl VirtGpuRender {
         self.blobs.release_dropped_async(&self.control_queue).await;
     }
 
+    pub async fn flush_submits_async(&mut self) {
+        self.submits.flush_async().await;
+    }
+
+    pub fn flush_submits(&mut self) {
+        self.submits.flush();
+    }
     /// A context number no live context has; 0 is never one.
     fn allocate_context(&mut self) -> u32 {
         loop {

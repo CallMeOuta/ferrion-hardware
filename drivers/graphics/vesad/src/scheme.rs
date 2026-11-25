@@ -142,7 +142,9 @@ impl GraphicsAdapter for FbAdapter {
             let framebuffer = &mut self.framebuffers[framebuffer_id];
 
             if let Some(buffer) = &new_plane_state.fb {
-                buffer.buffer.sync(framebuffer, damage)
+                if let Some(dumb) = buffer.dumb_buffer() {
+                    dumb.sync(framebuffer, damage);
+                }
             } else {
                 let onscreen_ptr = framebuffer.onscreen as *mut u32; // FIXME use as_mut_ptr once stable
                 for row in 0..framebuffer.height {

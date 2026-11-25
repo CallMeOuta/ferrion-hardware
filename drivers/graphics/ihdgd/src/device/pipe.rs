@@ -2,7 +2,7 @@
 use std::sync::Arc;
 
 use common::io::{Io, MmioPtr};
-use driver_graphics::kms::framebuffer::KmsFramebuffer;
+use driver_graphics::kms::framebuffer::{FramebufferBacking, KmsFramebuffer};
 use driver_graphics::kms::objects::KmsObjectId;
 use drm_fourcc::DrmFourcc;
 use ihdgd_macros::define_regs;
@@ -113,7 +113,7 @@ impl Plane {
             height,
             pixel_format: DrmFourcc::Argb8888,
             pitch: stride,
-            buffer: Arc::new(buffer),
+            backing: FramebufferBacking::Dumb(Arc::new(buffer)),
             driver_data: (),
         }
     }
@@ -130,7 +130,10 @@ impl Plane {
         self.size.write((fb.width - 1) | ((fb.height - 1) << 16));
         self.stride.write(stride_64);
 
-        self.surf.write(fb.buffer.gm_offset);
+        let Some(dumb) = fb.dumb_buffer() else {
+            return;
+        };
+        self.surf.write(dumb.gm_offset);
 
         // Disable gamma
         if let Some(color_ctl) = &mut self.color_ctl {

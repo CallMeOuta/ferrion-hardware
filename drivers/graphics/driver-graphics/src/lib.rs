@@ -42,6 +42,7 @@ mod submit;
 mod syncobj;
 
 pub use blob::{BlobCreateParams, BlobInfo, SharedBlob};
+pub use drm_fourcc::DrmFourcc;
 pub use flip::FlipCompletion;
 pub use render::{RenderDevice, RenderFeatures};
 pub use syncobj::{FenceLeaf, SyncFence, Syncobj};
@@ -136,6 +137,14 @@ pub trait GraphicsAdapter: Sized + Debug {
     fn map_dumb_buffer(&mut self, buffer: &Self::Buffer) -> *mut u8;
 
     fn create_framebuffer(&mut self, buffer: &Self::Buffer) -> Self::Framebuffer;
+
+    fn supports_blob_scanout(&self) -> bool {
+        false
+    }
+
+    fn create_blob_framebuffer(&mut self, _blob: &SharedBlob) -> syscall::Result<Self::Framebuffer> {
+        Err(Error::new(EINVAL))
+    }
 
     fn set_crtc(
         &mut self,

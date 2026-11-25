@@ -13,13 +13,13 @@ use driver_graphics::kms::connector::{
     DRM_MODE_CONNECTOR_VIRTUAL, KmsConnectorDriver, KmsConnectorStatus,
 };
 use driver_graphics::kms::crtc::{KmsCrtc, KmsCrtcState};
-use driver_graphics::kms::framebuffer::KmsFramebuffer;
+use driver_graphics::kms::framebuffer::{FramebufferBacking, KmsFramebuffer};
 use driver_graphics::kms::objects::{KmsObjectId, KmsObjects};
 use driver_graphics::kms::plane::{KmsPlane, KmsPlaneDriver, KmsPlaneState};
 use driver_graphics::kms::rc_object::KmsRcObjectRef;
 use driver_graphics::{
     Buffer as DrmBuffer, Damage, DumbBufferConfig, FlipCompletion, GraphicsAdapter, GraphicsScheme,
-    PendingFrame, RenderDevice,
+    PendingFrame, RenderDevice, SharedBlob,
 };
 use syscall::{EINVAL, EIO, ENOMEM, PAGE_SIZE};
 use virtio_core::spec::{Buffer, ChainBuilder, DescriptorFlags};
@@ -98,11 +98,18 @@ impl Drop for VirtGpuFramebuffer {
 }
 
 #[derive(Debug, Clone)]
+pub(crate) enum ActiveBacking {
+    Dumb(#[allow(dead_code)] Arc<VirtGpuFramebuffer>),
+    Blob(#[allow(dead_code)] SharedBlob),
+}
+
+#[derive(Debug, Clone)]
 pub struct Display {
     width: u32,
     height: u32,
     edid: Vec<u8>,
     pub(crate) active_resource: Option<ResourceId>,
+    pub(crate) active_backing: Option<ActiveBacking>,
 }
 
 pub struct VirtGpuAdapter<'a> {
@@ -118,7 +125,7 @@ pub struct VirtGpuAdapter<'a> {
     hidden_cursor: Option<Arc<VirtGpuFramebuffer>>,
     pub(crate) pending_frames: VecDeque<Pin<Box<dyn Future<Output = ()>>>>,
     frame_waker: Waker,
-    render: Option<crate::render::VirtGpuRender>,
+    pub(crate) render: Option<crate::render::VirtGpuRender>,
 }
 
 impl<'a> fmt::Debug for VirtGpuAdapter<'a> {
@@ -147,6 +154,7 @@ impl<'a> VirtGpuAdapter<'a> {
                 height: 0,
                 edid: vec![],
                 active_resource: None,
+                active_backing: None,
             },
         );
         for (i, info) in raw_displays.iter().enumerate() {
@@ -512,6 +520,20 @@ impl<'a> GraphicsAdapter for VirtGpuAdapter<'a> {
         ()
     }
 
+    fn supports_blob_scanout(&self) -> bool {
+        self.render
+            .as_ref()
+            .is_some_and(|render| render.features().resource_blob)
+    }
+
+    fn create_blob_framebuffer(&mut self, _blob: &SharedBlob) -> syscall::Result<Self::Framebuffer> {
+        if self.supports_blob_scanout() {
+            Ok(())
+        } else {
+            Err(syscall::Error::new(EINVAL))
+        }
+    }
+
     fn set_crtc(
         &mut self,
         _objects: &KmsObjects<Self>,
@@ -551,37 +573,67 @@ impl<'a> GraphicsAdapter for VirtGpuAdapter<'a> {
             return Ok(None);
         }
         let queue = self.control_queue.clone();
-        let buffer = fb.buffer.clone();
         let (width, height) = (fb.width, fb.height);
         let pending = PendingFrame::new(self.frame_waker.clone());
         let done = pending.clone();
-        self.pending_frames.push_back(Box::pin(async move {
-            let result = async {
-                let transfer = Dma::new(XferToHost2d::new(
-                    buffer.id,
-                    GpuRect::new(0, 0, width, height),
-                    0,
-                ))?;
-                let header = Self::send_control(&queue, transfer).await?;
-                if header.ty != CommandTy::RespOkNodata {
-                    return Err(refused(header.ty));
-                }
-                let flush = Dma::new(ResourceFlush::new(buffer.id, damage.into()))?;
-                let header = Self::send_control(&queue, flush).await?;
-                if header.ty != CommandTy::RespOkNodata {
-                    return Err(refused(header.ty));
-                }
-                Ok(0)
+        match &fb.backing {
+            FramebufferBacking::Dumb(buffer) => {
+                let buffer = buffer.clone();
+                self.pending_frames.push_back(Box::pin(async move {
+                    let result = async {
+                        let transfer = Dma::new(XferToHost2d::new(
+                            buffer.id,
+                            GpuRect::new(0, 0, width, height),
+                            0,
+                        ))?;
+                        let header = Self::send_control(&queue, transfer).await?;
+                        if header.ty != CommandTy::RespOkNodata {
+                            return Err(refused(header.ty));
+                        }
+                        let flush = Dma::new(ResourceFlush::new(buffer.id, damage.into()))?;
+                        let header = Self::send_control(&queue, flush).await?;
+                        if header.ty != CommandTy::RespOkNodata {
+                            return Err(refused(header.ty));
+                        }
+                        Ok(0)
+                    }
+                    .await
+                    .map_err(|error| {
+                        syscall::Error::new(match error {
+                            Error::SyscallError(error) => error.errno(),
+                            _ => EIO,
+                        })
+                    });
+                    done.complete(result);
+                }));
             }
-            .await
-            .map_err(|error| {
-                syscall::Error::new(match error {
-                    Error::SyscallError(error) => error.errno(),
-                    _ => EIO,
-                })
-            });
-            done.complete(result);
-        }));
+            FramebufferBacking::Blob { blob, .. } => {
+                if let Some(render) = self.render.as_mut() {
+                    render.flush_submits();
+                }
+                let blob = blob.clone();
+                let res_id = ResourceId::from_raw(blob.res_id());
+                self.pending_frames.push_back(Box::pin(async move {
+                    let result = async {
+                        let _keep = &blob;
+                        let flush = Dma::new(ResourceFlush::new(res_id, damage.into()))?;
+                        let header = Self::send_control(&queue, flush).await?;
+                        if header.ty != CommandTy::RespOkNodata {
+                            return Err(refused(header.ty));
+                        }
+                        Ok(0)
+                    }
+                    .await
+                    .map_err(|error| {
+                        syscall::Error::new(match error {
+                            Error::SyscallError(error) => error.errno(),
+                            _ => EIO,
+                        })
+                    });
+                    done.complete(result);
+                }));
+            }
+        }
         Ok(Some(pending))
     }
 
@@ -645,11 +697,14 @@ impl<'a> GraphicsAdapter for VirtGpuAdapter<'a> {
 
                 if plane.driver_data.is_cursor {
                     if let Some(new_fb) = &new_plane_state.fb {
+                        let Some(cursor_buf) = new_fb.dumb_buffer() else {
+                            return Err(syscall::Error::new(EINVAL));
+                        };
                         if damage.map_or(true, |damage| damage.width != 0 && damage.height != 0)
                             || plane.state.lock().unwrap().fb.as_ref() != Some(new_fb)
                         {
                             self.update_cursor(
-                                &new_fb.buffer,
+                                cursor_buf,
                                 scanout_id,
                                 new_plane_state.crtc_rect.x,
                                 new_plane_state.crtc_rect.y,
@@ -659,7 +714,7 @@ impl<'a> GraphicsAdapter for VirtGpuAdapter<'a> {
                             .await;
                         } else {
                             self.move_cursor(
-                                &new_fb.buffer,
+                                cursor_buf,
                                 scanout_id,
                                 new_plane_state.crtc_rect.x,
                                 new_plane_state.crtc_rect.y,
@@ -685,51 +740,92 @@ impl<'a> GraphicsAdapter for VirtGpuAdapter<'a> {
                     let header = self.send_request(scanout_request).await.unwrap();
                     assert_eq!(header.ty, CommandTy::RespOkNodata);
                     self.displays[scanout_id as usize].active_resource = None;
+                    self.displays[scanout_id as usize].active_backing = None;
                     return Ok(());
                 };
 
-                let req = Dma::new(XferToHost2d::new(
-                    framebuffer.buffer.id,
-                    GpuRect {
+                let flush_rect: GpuRect = damage
+                    .unwrap_or(Damage {
                         x: 0,
                         y: 0,
                         width: framebuffer.width,
                         height: framebuffer.height,
-                    },
-                    0,
-                ))
-                .unwrap();
-                let header = self.send_request(req).await.unwrap();
-                assert_eq!(header.ty, CommandTy::RespOkNodata);
+                    })
+                    .into();
+                match &framebuffer.backing {
+                    FramebufferBacking::Dumb(buf) => {
+                        let req = Dma::new(XferToHost2d::new(
+                            buf.id,
+                            GpuRect {
+                                x: 0,
+                                y: 0,
+                                width: framebuffer.width,
+                                height: framebuffer.height,
+                            },
+                            0,
+                        ))
+                        .unwrap();
+                        let header = self.send_request(req).await.unwrap();
+                        assert_eq!(header.ty, CommandTy::RespOkNodata);
 
-                // FIXME once we support resizing we also need to check that the current and target size match
-                if self.displays[scanout_id as usize].active_resource != Some(framebuffer.buffer.id)
-                {
-                    let scanout_request = Dma::new(SetScanout::new(
-                        scanout_id,
-                        framebuffer.buffer.id,
-                        GpuRect::new(0, 0, framebuffer.width, framebuffer.height),
-                    ))
-                    .unwrap();
-                    let header = self.send_request(scanout_request).await.unwrap();
-                    assert_eq!(header.ty, CommandTy::RespOkNodata);
-                    self.displays[scanout_id as usize].active_resource =
-                        Some(framebuffer.buffer.id);
+                        if self.displays[scanout_id as usize].active_resource != Some(buf.id) {
+                            let scanout_request = Dma::new(SetScanout::new(
+                                scanout_id,
+                                buf.id,
+                                GpuRect::new(0, 0, framebuffer.width, framebuffer.height),
+                            ))
+                            .unwrap();
+                            let header = self.send_request(scanout_request).await.unwrap();
+                            assert_eq!(header.ty, CommandTy::RespOkNodata);
+                            self.displays[scanout_id as usize].active_resource = Some(buf.id);
+                            self.displays[scanout_id as usize].active_backing =
+                                Some(ActiveBacking::Dumb(buf.clone()));
+                        }
+
+                        let flush = ResourceFlush::new(buf.id, flush_rect);
+                        let header = self.send_request(Dma::new(flush).unwrap()).await.unwrap();
+                        assert_eq!(header.ty, CommandTy::RespOkNodata);
+                    }
+                    FramebufferBacking::Blob { blob, offset, .. } => {
+                        let format = crate::flip::virtio_gpu_format(framebuffer.pixel_format)
+                            .ok_or(syscall::Error::new(EINVAL))?;
+                        if let Some(render) = self.render.as_mut() {
+                            render.flush_submits_async().await;
+                        }
+                        let res_id = ResourceId::from_raw(blob.res_id());
+                        let rect = GpuRect::new(0, 0, framebuffer.width, framebuffer.height);
+                        let scanout_request = Dma::new(SetScanoutBlob::new(
+                            scanout_id,
+                            res_id,
+                            rect,
+                            framebuffer.width,
+                            framebuffer.height,
+                            format,
+                            framebuffer.pitch,
+                            *offset,
+                        ))
+                        .unwrap();
+                        let header = self.send_request(scanout_request).await.unwrap();
+                        if header.ty != CommandTy::RespOkNodata {
+                            return Err(syscall::Error::new(
+                                if header.ty == CommandTy::RespErrOutOfMemory {
+                                    ENOMEM
+                                } else {
+                                    EINVAL
+                                },
+                            ));
+                        }
+                        self.displays[scanout_id as usize].active_resource = Some(res_id);
+                        self.displays[scanout_id as usize].active_backing =
+                            Some(ActiveBacking::Blob(blob.clone()));
+
+                        let flush = ResourceFlush::new(res_id, flush_rect);
+                        let header = self.send_request(Dma::new(flush).unwrap()).await.unwrap();
+                        if header.ty != CommandTy::RespOkNodata {
+                            return Err(syscall::Error::new(EIO));
+                        }
+                    }
                 }
-
-                let flush = ResourceFlush::new(
-                    framebuffer.buffer.id,
-                    damage
-                        .unwrap_or(Damage {
-                            x: 0,
-                            y: 0,
-                            width: framebuffer.width,
-                            height: framebuffer.height,
-                        })
-                        .into(),
-                );
-                let header = self.send_request(Dma::new(flush).unwrap()).await.unwrap();
-                assert_eq!(header.ty, CommandTy::RespOkNodata);
             }
 
             *plane.state.lock().unwrap() = new_plane_state;

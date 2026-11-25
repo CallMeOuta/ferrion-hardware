@@ -384,6 +384,49 @@ impl SetScanout {
     }
 }
 
+#[repr(C)]
+#[derive(Debug)]
+pub struct SetScanoutBlob {
+    pub header: ControlHeader,
+    pub rect: GpuRect,
+    pub scanout_id: u32,
+    pub resource_id: ResourceId,
+    pub width: u32,
+    pub height: u32,
+    pub format: u32,
+    pub padding: u32,
+    pub strides: [u32; 4],
+    pub offsets: [u32; 4],
+}
+
+const _: () = assert!(size_of::<SetScanoutBlob>() == 96);
+
+impl SetScanoutBlob {
+    pub fn new(
+        scanout_id: u32,
+        resource_id: ResourceId,
+        rect: GpuRect,
+        width: u32,
+        height: u32,
+        format: u32,
+        stride: u32,
+        offset: u32,
+    ) -> Self {
+        Self {
+            header: ControlHeader::with_ty(CommandTy::SetScanoutBlob),
+            rect,
+            scanout_id,
+            resource_id,
+            width,
+            height,
+            format,
+            padding: 0,
+            strides: [stride, 0, 0, 0],
+            offsets: [offset, 0, 0, 0],
+        }
+    }
+}
+
 #[derive(Debug)]
 #[repr(C)]
 pub struct XferToHost2d {
