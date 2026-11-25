@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: GPL-2.0-only AND MIT
-use core::sync::atomic::{AtomicU16, Ordering};
+use core::sync::atomic::{AtomicBool, AtomicU16, Ordering};
 use std::collections::{HashMap, VecDeque};
 use std::future::Future;
 use std::io::{Read, Write};
 use std::os::fd::AsRawFd;
-use std::sync::{Arc, Mutex, Weak};
+use std::sync::{Arc, Mutex, OnceLock, Weak};
 use std::task::{Poll, Waker};
 
 use common::dma::Dma;
@@ -172,6 +172,45 @@ impl Drop for PendingRequest {
     }
 }
 
+const MAX_READY_DRAIN_READS: usize = 64;
+
+struct ReadyNotifier {
+    write_fd: libredox::Fd,
+    pending: AtomicBool,
+}
+
+impl ReadyNotifier {
+    fn signal(&self) {
+        if !self.pending.swap(true, Ordering::SeqCst) {
+            let _ = self.write_fd.write(&[1u8]);
+        }
+    }
+}
+
+pub struct ReadyHandle {
+    read_fd: libredox::Fd,
+    notifier: Arc<ReadyNotifier>,
+}
+
+impl ReadyHandle {
+    pub fn raw_fd(&self) -> usize {
+        self.read_fd.raw()
+    }
+
+    pub fn drain(&self) {
+        let mut buf = [0u8; 64];
+        for _ in 0..MAX_READY_DRAIN_READS {
+            match self.read_fd.read(&mut buf) {
+                Ok(0) => break,
+                Ok(_) => continue,
+                Err(err) if err.is_wouldblock() => break,
+                Err(_) => break,
+            }
+        }
+        self.notifier.pending.store(false, Ordering::SeqCst);
+    }
+}
+
 pub struct Queue {
     queue_index: u16,
     used: Used,
@@ -182,6 +221,7 @@ pub struct Queue {
     consumed_index: AtomicU16,
     completions: Mutex<HashMap<u32, InFlight>>,
     ready: Mutex<VecDeque<Retired>>,
+    ready_notifier: OnceLock<Arc<ReadyNotifier>>,
     drain_lock: Mutex<()>,
     submit_lock: Mutex<()>,
     submit_waiters: Mutex<Vec<Waker>>,
@@ -217,6 +257,7 @@ impl Queue {
             consumed_index: AtomicU16::new(0),
             completions: Mutex::new(HashMap::new()),
             ready: Mutex::new(VecDeque::new()),
+            ready_notifier: OnceLock::new(),
             drain_lock: Mutex::new(()),
             submit_lock: Mutex::new(()),
             submit_waiters: Mutex::new(Vec::new()),
@@ -335,10 +376,32 @@ impl Queue {
 
     /// Harvest every newly-used descriptor chain. Individual futures must not
     /// advance the used-ring bookmark which can race and drop completions.
+    pub fn enable_ready_notifier(&self) -> Result<ReadyHandle, Error> {
+        let read_fd = libredox::Fd::open(
+            "/scheme/pipe",
+            libredox::flag::O_RDONLY | libredox::flag::O_NONBLOCK | libredox::flag::O_CLOEXEC,
+            0,
+        )?;
+        let write_raw = read_fd.dup(b"write")?;
+        let write_fd = libredox::Fd::new(write_raw);
+        write_fd.fcntl(
+            syscall::F_SETFL,
+            (libredox::flag::O_WRONLY | libredox::flag::O_NONBLOCK) as usize,
+        )?;
+        write_fd.fcntl(syscall::F_SETFD, libredox::flag::O_CLOEXEC as usize)?;
+        let notifier = Arc::new(ReadyNotifier {
+            write_fd,
+            pending: AtomicBool::new(false),
+        });
+        assert!(self.ready_notifier.set(notifier.clone()).is_ok());
+        Ok(ReadyHandle { read_fd, notifier })
+    }
+
     pub fn drain_used_ring(&self) {
         let guard = self.drain_lock.lock().unwrap();
         let mut to_wake = Vec::new();
         let mut recycled = false;
+        let mut pushed_ready = false;
 
         loop {
             let consumed = self.consumed_index.load(Ordering::SeqCst);
@@ -356,11 +419,13 @@ impl Queue {
                 self.recycle_chain(table_index);
                 recycled = true;
                 match ticket {
-                    None => self
-                        .ready
-                        .lock()
-                        .unwrap()
-                        .push_back(Retired { buffers, written }),
+                    None => {
+                        self.ready
+                            .lock()
+                            .unwrap()
+                            .push_back(Retired { buffers, written });
+                        pushed_ready = true;
+                    }
                     Some(ticket) => {
                         let mut completion = ticket.lock().unwrap();
                         completion.done = Some(Retired { buffers, written });
@@ -376,6 +441,11 @@ impl Queue {
         }
 
         drop(guard);
+        if pushed_ready {
+            if let Some(notifier) = self.ready_notifier.get() {
+                notifier.signal();
+            }
+        }
         to_wake.into_iter().for_each(Waker::wake);
         if recycled {
             let waiters = core::mem::take(&mut *self.submit_waiters.lock().unwrap());

@@ -101,6 +101,7 @@ fn daemon(
     // > for transmission in that order.
     //
     let rx_queue = device.setup_queue()?;
+    let rx_ready = rx_queue.enable_ready_notifier()?;
     let tx_queue = device.setup_queue()?;
 
     device.transport.run_device();
@@ -124,13 +125,20 @@ fn daemon(
         flags: syscall::EVENT_READ,
         data: 0,
     })?;
+    event_queue.write(&syscall::Event {
+        id: rx_ready.raw_fd(),
+        flags: syscall::EVENT_READ,
+        data: 1,
+    })?;
 
     libredox::call::setrens(0, 0).expect("virtio-netd: failed to enter null namespace");
 
+    rx_ready.drain();
     scheme.tick()?;
 
     loop {
-        event_queue.read(&mut [0; size_of::<syscall::Event>()])?; // Wait for event
+        event_queue.read(&mut [0; size_of::<syscall::Event>()])?;
+        rx_ready.drain();
         scheme.tick()?;
     }
 }
