@@ -26,9 +26,12 @@ pub struct VirtioNet {
 
 const MAX_TX_POOL_BUFFERS: usize = 64;
 const TX_POOL_BUF_LEN: usize = 4096;
+const MAX_TX_RECLAIM_POLLS: usize = 1024;
 
 impl VirtioNet {
     pub fn new(mac_address: [u8; 6], rx: Arc<Queue>, tx: Arc<Queue>) -> Self {
+        tx.set_no_interrupt(true);
+
         // Populate all of the `rx_queue` with buffers to maximize performence.
         for _ in 0..rx.descriptor_len() {
             let buffer = unsafe {
@@ -68,12 +71,15 @@ impl VirtioNet {
         }
     }
 
-    fn reclaim_tx_buffers(&mut self) {
-        for _ in 0..self.tx_pool_cap {
+    fn reclaim_tx_buffers(&mut self) -> bool {
+        let mut reclaimed_oversized = false;
+        for _ in 0..self.tx_pool_cap.saturating_add(2) {
             let Some(used) = self.tx.pop_completed() else {
                 break;
             };
-            if let Some(buf) = used.buffers.into_iter().next() {
+            if used.buffers.len() != 1 {
+                reclaimed_oversized = true;
+            } else if let Some(buf) = used.buffers.into_iter().next() {
                 let dma = buf.into_inner::<Dma<[u8]>>();
                 if self.tx_pool.len() < self.tx_pool_cap {
                     self.tx_pool.push(dma);
@@ -81,6 +87,7 @@ impl VirtioNet {
             }
         }
         assert!(self.tx_pool.len() <= self.tx_pool_cap);
+        reclaimed_oversized
     }
 
     /// Returns the number of bytes read. Returns `0` if the operation would block.
@@ -156,6 +163,14 @@ impl NetworkAdapter for VirtioNet {
         let header_size = size_of::<VirtHeader>();
         let total_len = header_size.saturating_add(buffer.len());
         if total_len <= TX_POOL_BUF_LEN {
+            if self.tx_pool.is_empty() {
+                for _ in 0..MAX_TX_RECLAIM_POLLS {
+                    self.reclaim_tx_buffers();
+                    if !self.tx_pool.is_empty() {
+                        break;
+                    }
+                }
+            }
             if let Some(mut slot) = self.tx_pool.pop() {
                 slot[..header_size].fill(0);
                 slot[header_size..total_len].copy_from_slice(buffer);
@@ -165,6 +180,7 @@ impl NetworkAdapter for VirtioNet {
                 self.tx.post(chain);
                 return Ok(buffer.len());
             }
+            return Err(syscall::Error::new(syscall::EAGAIN));
         }
 
         let header = unsafe { Dma::<VirtHeader>::zeroed()?.assume_init() };
@@ -177,7 +193,12 @@ impl NetworkAdapter for VirtioNet {
             .chain(Buffer::new(payload))
             .build();
 
-        futures::executor::block_on(self.tx.send(chain));
+        self.tx.post(chain);
+        for _ in 0..MAX_TX_RECLAIM_POLLS {
+            if self.reclaim_tx_buffers() {
+                break;
+            }
+        }
         Ok(buffer.len())
     }
 }

@@ -3,6 +3,7 @@ mod scheme;
 
 use std::fs::File;
 use std::io::{Read, Write};
+use std::os::fd::AsRawFd;
 
 use driver_network::NetworkScheme;
 use pcid_interface::PciFunctionHandle;
@@ -100,15 +101,15 @@ fn daemon(
     // > packets, and outgoing packets are enqueued into another
     // > for transmission in that order.
     //
-    let rx_queue = device.setup_queue()?;
-    let rx_ready = rx_queue.enable_ready_notifier()?;
-    let tx_queue = device.setup_queue()?;
+    let (rx_queue, rx_irq) = device.setup_queue_manual_irq()?;
+    let (tx_queue, _tx_irq) = device.setup_queue_manual_irq()?;
 
     device.transport.run_device();
 
     let mut name = pci_config.func.name();
     name.push_str("_virtio_net");
 
+    let mut rx_irq_file = rx_irq.irq_handle().try_clone()?;
     let device = VirtioNet::new(mac_address, rx_queue, tx_queue);
     let mut scheme = NetworkScheme::new(
         move || {
@@ -126,19 +127,27 @@ fn daemon(
         data: 0,
     })?;
     event_queue.write(&syscall::Event {
-        id: rx_ready.raw_fd(),
+        id: rx_irq_file.as_raw_fd() as usize,
         flags: syscall::EVENT_READ,
         data: 1,
     })?;
 
     libredox::call::setrens(0, 0).expect("virtio-netd: failed to enter null namespace");
 
-    rx_ready.drain();
     scheme.tick()?;
 
+    let mut raw = [0u8; size_of::<syscall::Event>()];
     loop {
-        event_queue.read(&mut [0; size_of::<syscall::Event>()])?;
-        rx_ready.drain();
+        let n = event_queue.read(&mut raw)?;
+        if n >= size_of::<syscall::Event>() {
+            let ev = unsafe { core::ptr::read_unaligned(raw.as_ptr().cast::<syscall::Event>()) };
+            if ev.data == 1 {
+                let mut irq_buf = [0u8; size_of::<usize>()];
+                if rx_irq_file.read(&mut irq_buf).unwrap_or(0) == size_of::<usize>() {
+                    let _ = rx_irq_file.write(&irq_buf);
+                }
+            }
+        }
         scheme.tick()?;
     }
 }

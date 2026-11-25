@@ -37,6 +37,12 @@ impl Device {
         self.transport.setup_queue(irq)
     }
 
+    pub fn setup_queue_manual_irq(&self) -> Result<(Arc<Queue>, InterruptVector), Error> {
+        let irq = self.alloc_irq();
+        let queue = self.transport.setup_queue_unattached(&irq)?;
+        Ok((queue, irq))
+    }
+
     /// Next MSI-X vector without a virtqueue.
     ///
     /// For device-config interrupts (`setup_config_notify`).

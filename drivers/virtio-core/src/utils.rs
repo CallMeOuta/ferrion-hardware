@@ -27,6 +27,11 @@ impl<T: Copy> VolatileCell<T> {
     pub fn set(&mut self, value: T) {
         unsafe { core::ptr::write_volatile(self.value.get(), value) }
     }
+
+    #[inline]
+    pub fn set_shared(&self, value: T) {
+        unsafe { core::ptr::write_volatile(self.value.get(), value) }
+    }
 }
 
 impl<T> Debug for VolatileCell<T>
