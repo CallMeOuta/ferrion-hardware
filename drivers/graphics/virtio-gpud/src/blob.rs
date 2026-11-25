@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: GPL-2.0-only
 use std::collections::HashMap;
 use std::fmt;
+use std::sync::mpsc::{self, Receiver, Sender};
 
 use common::dma::Dma;
 use common::{MemoryType, PhysBorrowed, Prot};
-use driver_graphics::{BlobCreateParams, BlobInfo};
+use driver_graphics::{BlobCreateParams, BlobInfo, SharedBlob};
 use syscall::{EINVAL, ENOENT, ENOMEM, PAGE_SIZE};
 use virtio_core::spec::{Buffer, ChainBuilder, DescriptorFlags};
 use virtio_core::transport::{Error, Queue};
@@ -145,11 +146,14 @@ struct VirtGpuBlob {
     blob_mem: u32,
     blob_flags: u32,
     mapped: Option<MappedBlob>,
+    mapped_pages: usize,
 }
 
 pub struct VirtGpuBlobs {
     window: Option<HostVisibleWindow>,
     blobs: HashMap<u32, VirtGpuBlob>,
+    release_tx: Sender<u32>,
+    release_rx: Receiver<u32>,
     logged_first_map: bool,
 }
 
@@ -233,13 +237,13 @@ async fn send_map_blob(
     Ok((written, copy))
 }
 
-fn unmap_on_device(queue: &Queue, resource_id: u32) -> bool {
+async fn unmap_on_device_async(queue: &Queue, resource_id: u32) -> bool {
     let command = ResourceUnmapBlob {
         header: ControlHeader::with_ty(CommandTy::ResourceUnmapBlob),
         resource_id,
         padding: 0,
     };
-    match futures::executor::block_on(send(queue, command)) {
+    match send(queue, command).await {
         Ok(ty) if ty == CommandTy::RespOkNodata as u32 => true,
         Ok(ty) => {
             log::warn!("virtio-gpu: blob {resource_id}: unmap answered {ty:#x}");
@@ -252,15 +256,22 @@ fn unmap_on_device(queue: &Queue, resource_id: u32) -> bool {
     }
 }
 
+fn unmap_on_device(queue: &Queue, resource_id: u32) -> bool {
+    futures::executor::block_on(unmap_on_device_async(queue, resource_id))
+}
+
 impl VirtGpuBlobs {
     pub fn new(region: Option<SharedMemoryRegion>) -> Self {
         let window = region.map(|region| {
             let allocator = WindowAllocator::new(region.length);
             HostVisibleWindow { region, allocator }
         });
+        let (release_tx, release_rx) = mpsc::channel();
         Self {
             window,
             blobs: HashMap::new(),
+            release_tx,
+            release_rx,
             logged_first_map: false,
         }
     }
@@ -269,11 +280,22 @@ impl VirtGpuBlobs {
         self.window.is_some()
     }
 
+    pub async fn release_dropped_async(&mut self, queue: &Queue) {
+        while let Ok(res_id) = self.release_rx.try_recv() {
+            self.destroy_blob_async(queue, res_id).await;
+        }
+    }
+
+    pub fn release_dropped(&mut self, queue: &Queue) {
+        futures::executor::block_on(self.release_dropped_async(queue));
+    }
+
     pub fn create_blob(
         &mut self,
         queue: &Queue,
         params: BlobCreateParams<'_>,
-    ) -> syscall::Result<BlobInfo> {
+    ) -> syscall::Result<SharedBlob> {
+        self.release_dropped(queue);
         if params.blob_mem != VIRTIO_GPU_BLOB_MEM_HOST3D {
             return Err(syscall::Error::new(EINVAL));
         }
@@ -328,21 +350,30 @@ impl VirtGpuBlobs {
                 blob_mem: params.blob_mem,
                 blob_flags: params.blob_flags,
                 mapped: None,
+                mapped_pages: 0,
             },
         );
-        Ok(BlobInfo {
+        let info = BlobInfo {
             res_id: res_id.raw(),
             size: params.size,
             blob_mem: params.blob_mem,
             blob_flags: params.blob_flags,
-        })
+        };
+        Ok(SharedBlob::new(info, self.release_tx.clone()))
     }
 
-    pub fn map_blob(&mut self, queue: &Queue, res_id: u32) -> syscall::Result<usize> {
-        let Some(blob) = self.blobs.get(&res_id) else {
+    pub fn map_blob(
+        &mut self,
+        queue: &Queue,
+        res_id: u32,
+        pages: usize,
+    ) -> syscall::Result<usize> {
+        self.release_dropped(queue);
+        let Some(blob) = self.blobs.get_mut(&res_id) else {
             return Err(syscall::Error::new(ENOENT));
         };
         if let Some(mapped) = &blob.mapped {
+            blob.mapped_pages = blob.mapped_pages.saturating_add(pages);
             return Ok(mapped.mapping.as_ptr() as usize);
         }
         if blob.blob_flags & VIRTIO_GPU_BLOB_FLAG_USE_MAPPABLE == 0 {
@@ -427,30 +458,52 @@ impl VirtGpuBlobs {
                 size,
                 mapping,
             });
+            blob.mapped_pages = blob.mapped_pages.saturating_add(pages);
         }
         Ok(addr)
     }
 
-    pub fn unmap_blob(&mut self, queue: &Queue, res_id: u32) {
-        let Some(mapped) = self.blobs.get_mut(&res_id).and_then(|blob| blob.mapped.take()) else {
+    async fn force_unmap_blob_async(&mut self, queue: &Queue, res_id: u32) {
+        let Some(blob) = self.blobs.get_mut(&res_id) else {
+            return;
+        };
+        blob.mapped_pages = 0;
+        let Some(mapped) = blob.mapped.take() else {
             return;
         };
         let (offset, size) = (mapped.offset, mapped.size);
         drop(mapped.mapping);
-        if unmap_on_device(queue, res_id) {
+        if unmap_on_device_async(queue, res_id).await {
             if let Some(window) = self.window.as_mut() {
                 window.allocator.free(offset, size);
             }
         }
     }
 
-    pub fn destroy_blob(&mut self, queue: &Queue, res_id: u32) {
-        self.unmap_blob(queue, res_id);
+    fn force_unmap_blob(&mut self, queue: &Queue, res_id: u32) {
+        futures::executor::block_on(self.force_unmap_blob_async(queue, res_id));
+    }
+
+    pub fn unmap_blob(&mut self, queue: &Queue, res_id: u32, pages: usize) {
+        let should_unmap = match self.blobs.get_mut(&res_id) {
+            Some(blob) => {
+                blob.mapped_pages = blob.mapped_pages.saturating_sub(pages);
+                blob.mapped_pages == 0
+            }
+            None => return,
+        };
+        if should_unmap {
+            self.force_unmap_blob(queue, res_id);
+        }
+    }
+
+    async fn destroy_blob_async(&mut self, queue: &Queue, res_id: u32) {
+        self.force_unmap_blob_async(queue, res_id).await;
         if self.blobs.remove(&res_id).is_none() {
             return;
         }
         let command = ResourceUnref::new(ResourceId::from_raw(res_id));
-        match futures::executor::block_on(send(queue, command)) {
+        match send(queue, command).await {
             Ok(ty) if ty == CommandTy::RespOkNodata as u32 => {}
             Ok(ty) => log::warn!("virtio-gpu: blob {res_id}: unref answered {ty:#x}"),
             Err(error) => log::warn!("virtio-gpu: blob {res_id}: unref failed: {error:?}"),

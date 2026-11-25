@@ -24,7 +24,7 @@ use scheme_utils::{
 use syscall::schemev2::NewFdFlags;
 use syscall::{EINVAL, Error, EventFlags, Result};
 
-use crate::buffer::DrmBuffer;
+use crate::buffer::{BlobBuffer, DrmBuffer};
 use crate::handle::DrmHandle;
 use crate::kms::connector::{KmsConnectorDriver, KmsConnectorState};
 use crate::kms::crtc::{KmsCrtc, KmsCrtcDriver, KmsCrtcState};
@@ -41,7 +41,7 @@ mod render;
 mod submit;
 mod syncobj;
 
-pub use blob::{BlobCreateParams, BlobInfo};
+pub use blob::{BlobCreateParams, BlobInfo, SharedBlob};
 pub use flip::FlipCompletion;
 pub use render::{RenderDevice, RenderFeatures};
 pub use syncobj::{FenceLeaf, SyncFence, Syncobj};
@@ -432,6 +432,7 @@ resource_scheme! {
         Control(Control<T>),
         DrmHandle(DrmHandle<T>),
         DrmBuffer(DrmBuffer<T>),
+        BlobBuffer(BlobBuffer<T>),
         RenderRoot(render::RenderRoot<T>),
         RenderHandle(render::RenderHandle<T>),
         SyncobjFd(syncobj::SyncobjFd<T>),

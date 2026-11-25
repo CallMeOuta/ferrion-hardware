@@ -664,7 +664,7 @@ fn daemon(daemon: daemon::Daemon, mut pcid_handle: PciFunctionHandle) -> anyhow:
                 scheme
                     .tick()
                     .expect("virtio-gpud: failed to process scheme events");
-                futures::executor::block_on(scheme.adapter().unref_all_delayed());
+                futures::executor::block_on(scheme.adapter_mut().unref_all_delayed());
             }
             Source::FrameCompletion => {
                 let mut bytes = [0; 64];
@@ -680,7 +680,7 @@ fn daemon(daemon: daemon::Daemon, mut pcid_handle: PciFunctionHandle) -> anyhow:
                 scheme
                     .tick()
                     .expect("virtio-gpud: failed to complete frame requests");
-                futures::executor::block_on(scheme.adapter().unref_all_delayed());
+                futures::executor::block_on(scheme.adapter_mut().unref_all_delayed());
             }
             Source::Interrupt => loop {
                 let before_gen = device.transport.config_generation();

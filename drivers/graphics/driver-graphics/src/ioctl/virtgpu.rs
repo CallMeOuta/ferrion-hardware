@@ -39,7 +39,7 @@ pub(crate) fn call_render_ioctl<T>(
         drm::GET_CAP => drm::DrmGetCap::with(payload, |data| render_get_cap(data)),
         virtgpu::GEM_CLOSE => virtgpu::GemClose::with(payload, |data| {
             let bo_handle = data.handle();
-            handle.blobs.gem_close(device, data)?;
+            handle.blobs.gem_close(data)?;
             handle.known_resources.remove(&bo_handle);
             handle.resource_fences.remove(&bo_handle);
             Ok(0)

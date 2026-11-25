@@ -90,7 +90,11 @@ fn cursor_inner<T: GraphicsAdapter>(
         if handle_id == 0 {
             new_state.fb = None;
         } else {
-            let buffer = handle.buffers.get(&handle_id).ok_or(Error::new(EINVAL))?;
+            let buffer = &handle
+                .buffers
+                .get(&handle_id)
+                .ok_or(Error::new(EINVAL))?
+                .buffer;
             let driver_data = adapter.create_framebuffer(buffer);
             let fb = objects.add_framebuffer(KmsFramebuffer {
                 width,

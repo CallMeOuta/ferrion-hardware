@@ -148,18 +148,26 @@ impl SubmitQueue {
         }
     }
 
-    pub fn flush(&mut self) {
+    pub async fn flush_async(&mut self) {
         if self.unplaced.is_empty() {
             return;
         }
-        futures::executor::block_on(poll_fn(|cx| {
+        poll_fn(|cx| {
             self.place(cx.waker());
             if self.unplaced.is_empty() {
                 Poll::Ready(())
             } else {
                 Poll::Pending
             }
-        }));
+        })
+        .await;
+    }
+
+    pub fn flush(&mut self) {
+        if self.unplaced.is_empty() {
+            return;
+        }
+        futures::executor::block_on(self.flush_async());
     }
 
     pub fn poll_pending(&mut self, cx: &mut Context<'_>) {

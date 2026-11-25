@@ -203,7 +203,10 @@ impl<'a> VirtGpuAdapter<'a> {
         Ok(())
     }
 
-    pub(crate) async fn unref_all_delayed(&self) {
+    pub(crate) async fn unref_all_delayed(&mut self) {
+        if let Some(render) = self.render.as_mut() {
+            render.release_dropped_blobs_async().await;
+        }
         while let Ok(resource_id) = self.unref_rx.try_recv() {
             let request = Dma::new(ResourceUnref::new(resource_id)).unwrap();
 

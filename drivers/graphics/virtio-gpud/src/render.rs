@@ -12,7 +12,7 @@ use std::sync::Arc;
 use std::task::{Context, Waker};
 
 use common::dma::Dma;
-use driver_graphics::{BlobCreateParams, BlobInfo, FenceLeaf, RenderDevice, RenderFeatures};
+use driver_graphics::{BlobCreateParams, FenceLeaf, RenderDevice, RenderFeatures, SharedBlob};
 use syscall::{EINVAL, EIO, ENOMEM};
 use virtio_core::spec::{Buffer, ChainBuilder, DescriptorFlags};
 use virtio_core::transport::{Error, Queue};
@@ -243,6 +243,11 @@ impl VirtGpuRender {
         self.submits.poll_pending(cx);
     }
 
+    pub async fn release_dropped_blobs_async(&mut self) {
+        self.submits.flush_async().await;
+        self.blobs.release_dropped_async(&self.control_queue).await;
+    }
+
     /// A context number no live context has; 0 is never one.
     fn allocate_context(&mut self) -> u32 {
         loop {
@@ -331,24 +336,19 @@ impl RenderDevice for VirtGpuRender {
         }
     }
 
-    fn create_blob(&mut self, params: BlobCreateParams<'_>) -> syscall::Result<BlobInfo> {
+    fn create_blob(&mut self, params: BlobCreateParams<'_>) -> syscall::Result<SharedBlob> {
         self.submits.flush();
         self.blobs.create_blob(&self.control_queue, params)
     }
 
-    fn map_blob(&mut self, res_id: u32) -> syscall::Result<usize> {
+    fn map_blob(&mut self, res_id: u32, pages: usize) -> syscall::Result<usize> {
         self.submits.flush();
-        self.blobs.map_blob(&self.control_queue, res_id)
+        self.blobs.map_blob(&self.control_queue, res_id, pages)
     }
 
-    fn unmap_blob(&mut self, res_id: u32) {
+    fn unmap_blob(&mut self, res_id: u32, pages: usize) {
         self.submits.flush();
-        self.blobs.unmap_blob(&self.control_queue, res_id);
-    }
-
-    fn destroy_blob(&mut self, res_id: u32) {
-        self.submits.flush();
-        self.blobs.destroy_blob(&self.control_queue, res_id);
+        self.blobs.unmap_blob(&self.control_queue, res_id, pages);
     }
 
     fn submit_3d(

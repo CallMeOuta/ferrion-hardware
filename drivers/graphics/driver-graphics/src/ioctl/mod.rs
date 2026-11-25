@@ -3,9 +3,10 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use std::task::Waker;
 
-use redox_ioctl::drm as ipc;
+use redox_ioctl::{drm as ipc, virtgpu as vg_ipc};
 use syscall::{EINVAL, ENOENT, Error};
 
+use crate::handle::{DumbEntry, ImportedBlob};
 use crate::kms::objects::{KmsObjectId, KmsObjects};
 use crate::{
     Buffer, DrmHandle, GraphicsAdapter, GraphicsResource, MAP_FAKE_OFFSET_MULTIPLIER, VtState,
@@ -39,6 +40,19 @@ pub(crate) fn call_ioctl<T: GraphicsAdapter>(
         }
         ipc::SET_VERSION => ipc::DrmSetVersion::with(payload, |data| {
             driver_info::set_version(adapter, handle, data)
+        }),
+        vg_ipc::GEM_CLOSE => vg_ipc::GemClose::with(payload, |data| {
+            if data.pad() != 0 {
+                return Err(Error::new(EINVAL));
+            }
+            let bo_handle = data.handle();
+            if handle.buffers.remove(&bo_handle).is_some()
+                || handle.imported_blobs.remove(&bo_handle).is_some()
+            {
+                Ok(0)
+            } else {
+                Err(Error::new(EINVAL))
+            }
         }),
         ipc::GET_CAP => ipc::DrmGetCap::with(payload, |data| driver_info::get_cap(adapter, data)),
         ipc::SET_CLIENT_CAP => ipc::DrmSetClientCap::with(payload, |data| {
@@ -155,16 +169,20 @@ pub(crate) fn call_ioctl<T: GraphicsAdapter>(
                 return Err(Error::new(EINVAL));
             }
 
+            let id = handle.alloc_buffer_id()?;
             let (buffer, pitch) = adapter.create_dumb_buffer(data.width(), data.height())?;
 
             data.set_pitch(pitch);
             data.set_size(buffer.size() as u64);
 
-            handle.next_buffer_id += 1;
-            handle
-                .buffers
-                .insert(handle.next_buffer_id, Arc::new(buffer));
-            data.set_handle(handle.next_buffer_id as u32);
+            handle.buffers.insert(
+                id,
+                DumbEntry {
+                    buffer: Arc::new(buffer),
+                    writable: true,
+                },
+            );
+            data.set_handle(id);
             Ok(0)
         }),
         ipc::MODE_MAP_DUMB => ipc::DrmModeMapDumb::with(payload, |mut data| {
@@ -174,13 +192,13 @@ pub(crate) fn call_ioctl<T: GraphicsAdapter>(
 
             let buffer_id = data.handle();
 
-            if !handle.buffers.contains_key(&buffer_id) {
+            let Some(entry) = handle.buffers.get(&buffer_id) else {
                 return Err(Error::new(ENOENT));
-            }
+            };
 
             // A buffer number and a position inside the buffer share the map offset, so a
             // buffer larger than MAP_FAKE_OFFSET_MULTIPLIER cannot be mapped this way.
-            if handle.buffers[&buffer_id].size() > MAP_FAKE_OFFSET_MULTIPLIER {
+            if entry.buffer.size() > MAP_FAKE_OFFSET_MULTIPLIER {
                 return Err(Error::new(EINVAL));
             }
 
@@ -240,20 +258,65 @@ pub(crate) fn call_ioctl_handles<T: GraphicsAdapter>(
     handle: &mut DrmHandle<T>,
     cmd: u64,
     handles: &mut [GraphicsResource<T>],
-    _payload: &mut [u8],
+    payload: &mut [u8],
 ) -> syscall::Result<usize> {
     match cmd {
         ipc::PRIME_FD_TO_HANDLE => {
-            let buffer = match handles {
-                [GraphicsResource::DrmBuffer(drm_buffer)] => drm_buffer.buffer.clone(),
-                _ => return Err(Error::new(EINVAL)),
-            };
-            // FIXME reuse existing id if the client already has a reference to this buffer
-            handle.next_buffer_id += 1;
-            handle.buffers.insert(handle.next_buffer_id, buffer);
-            Ok(handle.next_buffer_id as usize)
+            if payload.len() != 4 {
+                return Err(Error::new(EINVAL));
+            }
+            let flags = u32::from_ne_bytes(payload.try_into().unwrap());
+            if flags != 0 {
+                return Err(Error::new(EINVAL));
+            }
+            match handles {
+                [GraphicsResource::DrmBuffer(drm_buffer)] => {
+                    if let Some((&id, existing)) = handle
+                        .buffers
+                        .iter_mut()
+                        .find(|(_, entry)| Arc::ptr_eq(&entry.buffer, &drm_buffer.buffer))
+                    {
+                        if drm_buffer.writable {
+                            existing.writable = true;
+                        }
+                        return Ok(id as usize);
+                    }
+                    let id = handle.alloc_buffer_id()?;
+                    handle.buffers.insert(
+                        id,
+                        DumbEntry {
+                            buffer: drm_buffer.buffer.clone(),
+                            writable: drm_buffer.writable,
+                        },
+                    );
+                    Ok(id as usize)
+                }
+                [GraphicsResource::BlobBuffer(blob_buffer)] => {
+                    let res_id = blob_buffer.blob.res_id();
+                    if let Some((&id, existing)) = handle
+                        .imported_blobs
+                        .iter_mut()
+                        .find(|(_, entry)| entry.blob.res_id() == res_id)
+                    {
+                        if blob_buffer.writable {
+                            existing.writable = true;
+                        }
+                        return Ok(id as usize);
+                    }
+                    let id = handle.alloc_buffer_id()?;
+                    handle.imported_blobs.insert(
+                        id,
+                        ImportedBlob {
+                            blob: blob_buffer.blob.clone(),
+                            writable: blob_buffer.writable,
+                        },
+                    );
+                    Ok(id as usize)
+                }
+                _ => Err(Error::new(EINVAL)),
+            }
         }
 
-        _ => return Err(Error::new(EINVAL)),
+        _ => Err(Error::new(EINVAL)),
     }
 }

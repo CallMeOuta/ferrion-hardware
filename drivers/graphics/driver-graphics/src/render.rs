@@ -22,7 +22,10 @@ use scheme_utils::{ResourceOpenResult, ResourceSync};
 use syscall::schemev2::NewFdFlags;
 use syscall::{EINVAL, ENODEV, ENOENT, ENOSYS, Error, EventFlags, MODE_CHR, MapFlags, MunmapFlags, Result};
 
-use crate::blob::{BlobCreateParams, BlobInfo, RenderBlobs};
+use crate::blob::{
+    BlobCreateParams, ExportCounter, PRIME_WIRE_ALLOWED, PRIME_WIRE_RDWR, RenderBlobs, SharedBlob,
+};
+use crate::buffer::BlobBuffer;
 use crate::syncobj::{FenceLeaf, SyncFence};
 use crate::{GraphicsAdapter, GraphicsResource, GraphicsSchemeData, ioctl};
 
@@ -59,17 +62,15 @@ pub trait RenderDevice: Debug {
     /// Destroys a context `create_context` made, which stops its work on the host.
     fn destroy_context(&mut self, context_id: u32);
 
-    fn create_blob(&mut self, _params: BlobCreateParams<'_>) -> Result<BlobInfo> {
+    fn create_blob(&mut self, _params: BlobCreateParams<'_>) -> Result<SharedBlob> {
         Err(Error::new(ENOSYS))
     }
 
-    fn map_blob(&mut self, _res_id: u32) -> Result<usize> {
+    fn map_blob(&mut self, _res_id: u32, _pages: usize) -> Result<usize> {
         Err(Error::new(ENOSYS))
     }
 
-    fn unmap_blob(&mut self, _res_id: u32) {}
-
-    fn destroy_blob(&mut self, _res_id: u32) {}
+    fn unmap_blob(&mut self, _res_id: u32, _pages: usize) {}
 
     fn submit_3d(
         &mut self,
@@ -131,6 +132,7 @@ pub(crate) struct RenderHandle<T> {
     pub(crate) pending_waits: HashMap<Id, crate::submit::PendingWait>,
     pub(crate) syncobjs: crate::syncobj::SyncobjTable,
     pub(crate) sync_waits: HashMap<Id, crate::syncobj::PendingWait>,
+    pub(crate) exports: ExportCounter,
     _adapter: PhantomData<T>,
 }
 
@@ -158,6 +160,7 @@ impl<T> RenderHandle<T> {
             pending_waits: HashMap::new(),
             syncobjs: crate::syncobj::SyncobjTable::default(),
             sync_waits: HashMap::new(),
+            exports: ExportCounter::default(),
             _adapter: PhantomData,
         }
     }
@@ -267,6 +270,24 @@ impl<T: GraphicsAdapter> ResourceSync for RenderHandle<T> {
         metadata: &[u64],
         ctx: &CallerCtx,
     ) -> Result<usize> {
+        if metadata[0] == redox_ioctl::drm::PRIME_FD_TO_HANDLE {
+            if payload.len() != 4 {
+                return Err(Error::new(EINVAL));
+            }
+            let flags = u32::from_ne_bytes(payload.try_into().unwrap());
+            if flags != 0 {
+                return Err(Error::new(EINVAL));
+            }
+            let (blob, writable) = match handles {
+                [GraphicsResource::BlobBuffer(blob_buf)] => {
+                    (blob_buf.blob.clone(), blob_buf.writable)
+                }
+                _ => return Err(Error::new(EINVAL)),
+            };
+            let bo_handle = self.blobs.import_blob(blob, writable)?;
+            self.known_resources.insert(bo_handle);
+            return Ok(bo_handle as usize);
+        }
         if metadata[0] != redox_ioctl::virtgpu::EXECBUFFER {
             return crate::syncobj::render_handle_call_with_handles(self, metadata[0], handles, payload);
         }
@@ -290,6 +311,23 @@ impl<T: GraphicsAdapter> ResourceSync for RenderHandle<T> {
         let cmd = buf
             .get(..8)
             .map(|cmd| u64::from_ne_bytes(cmd.try_into().unwrap()));
+        if cmd == Some(redox_ioctl::drm::PRIME_HANDLE_TO_FD) {
+            if buf.len() != 16 {
+                return Err(Error::new(EINVAL));
+            }
+            let bo_handle = u32::from_ne_bytes(buf[8..12].try_into().unwrap());
+            let wire_flags = u32::from_ne_bytes(buf[12..16].try_into().unwrap());
+            if wire_flags & !PRIME_WIRE_ALLOWED != 0 {
+                return Err(Error::new(EINVAL));
+            }
+            let writable = (wire_flags & PRIME_WIRE_RDWR) != 0;
+            let blob = self.blobs.export_blob(bo_handle, writable)?;
+            let guard = self.exports.acquire()?;
+            return Ok(ResourceOpenResult::ThisScheme {
+                data: GraphicsResource::BlobBuffer(BlobBuffer::new(blob, writable, guard)),
+                flags: NewFdFlags::empty(),
+            });
+        }
         if cmd == Some(redox_ioctl::virtgpu::FENCE_DUP_EXECBUFFER) {
             crate::submit::dup_fence(self, buf)
         } else {

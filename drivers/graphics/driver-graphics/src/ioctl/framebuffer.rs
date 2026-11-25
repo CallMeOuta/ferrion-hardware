@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use drm_fourcc::DrmFourcc;
 use syscall::{EINVAL, ENOENT, Error};
 
+use crate::handle::DumbEntry;
 use crate::kms::framebuffer::{KmsFramebuffer, disable_planes_with_fb};
 use crate::kms::objects::{KmsObjectId, KmsObjects};
 use crate::{Damage, DrmHandle, GraphicsAdapter, VtState};
@@ -21,17 +22,21 @@ pub(super) fn mode_get_fb<T: GraphicsAdapter>(
         _ => todo!(),
     };
 
-    handle.next_buffer_id += 1;
-    handle
-        .buffers
-        .insert(handle.next_buffer_id, fb.buffer.clone());
+    let id = handle.alloc_buffer_id()?;
+    handle.buffers.insert(
+        id,
+        DumbEntry {
+            buffer: fb.buffer.clone(),
+            writable: true,
+        },
+    );
 
     data.set_width(fb.width);
     data.set_height(fb.height);
     data.set_pitch(fb.pitch);
     data.set_bpp(bpp);
     data.set_depth(depth);
-    data.set_handle(handle.next_buffer_id);
+    data.set_handle(id);
     Ok(0)
 }
 
@@ -41,10 +46,11 @@ pub(super) fn mode_add_fb<T: GraphicsAdapter>(
     handle: &mut DrmHandle<T>,
     mut data: redox_ioctl::drm::DrmModeFbCmd<'_>,
 ) -> Result<usize, Error> {
-    let buffer = handle
+    let buffer = &handle
         .buffers
         .get(&data.handle())
-        .ok_or(Error::new(EINVAL))?;
+        .ok_or(Error::new(EINVAL))?
+        .buffer;
 
     if data.bpp() != 32 {
         return Err(Error::new(EINVAL));
@@ -137,10 +143,11 @@ pub(super) fn mode_add_fb2<T: GraphicsAdapter>(
 ) -> Result<usize, Error> {
     // FIXME handle multi-plane framebuffers
 
-    let buffer = handle
+    let buffer = &handle
         .buffers
         .get(&data.handles()[0])
-        .ok_or(Error::new(EINVAL))?;
+        .ok_or(Error::new(EINVAL))?
+        .buffer;
 
     // FIXME enforce driver reported framebuffer size requirements
 
@@ -168,15 +175,19 @@ pub(super) fn mode_get_fb2<T: GraphicsAdapter>(
 ) -> Result<usize, Error> {
     let fb = objects.get_framebuffer(KmsObjectId(data.fb_id()))?;
 
-    handle.next_buffer_id += 1;
-    handle
-        .buffers
-        .insert(handle.next_buffer_id, fb.buffer.clone());
+    let id = handle.alloc_buffer_id()?;
+    handle.buffers.insert(
+        id,
+        DumbEntry {
+            buffer: fb.buffer.clone(),
+            writable: true,
+        },
+    );
 
     data.set_width(fb.width);
     data.set_height(fb.height);
     data.set_pixel_format(fb.pixel_format as u32);
-    data.set_handles([handle.next_buffer_id, 0, 0, 0]);
+    data.set_handles([id, 0, 0, 0]);
     data.set_pitches([fb.pitch, 0, 0, 0]);
     data.set_offsets([0; 4]);
     data.set_modifier([0; 4]);
