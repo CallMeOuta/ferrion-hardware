@@ -551,7 +551,6 @@ dependencies = [
  "inputd",
  "libredox",
  "log",
- "piaf",
  "redox-ioctl",
  "redox-scheme",
  "redox_syscall 0.9.5",

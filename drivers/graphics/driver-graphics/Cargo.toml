@@ -8,7 +8,6 @@ edition = "2024"
 [dependencies]
 drm-fourcc.workspace = true
 drm-sys.workspace = true
-piaf.workspace = true
 log.workspace = true
 redox-ioctl.workspace = true
 redox-scheme.workspace = true

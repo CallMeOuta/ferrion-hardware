@@ -33,6 +33,7 @@ use crate::kms::plane::{KmsPlane, KmsPlaneDriver, KmsPlaneState};
 
 mod blob;
 mod buffer;
+pub mod edid;
 pub mod flip;
 mod handle;
 mod ioctl;
@@ -142,7 +143,10 @@ pub trait GraphicsAdapter: Sized + Debug {
         false
     }
 
-    fn create_blob_framebuffer(&mut self, _blob: &SharedBlob) -> syscall::Result<Self::Framebuffer> {
+    fn create_blob_framebuffer(
+        &mut self,
+        _blob: &SharedBlob,
+    ) -> syscall::Result<Self::Framebuffer> {
         Err(Error::new(EINVAL))
     }
 

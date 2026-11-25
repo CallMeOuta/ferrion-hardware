@@ -6,12 +6,12 @@ use std::sync::Mutex;
 pub use drm_sys::{DRM_MODE_CONNECTOR_Unknown, DRM_MODE_CONNECTOR_VIRTUAL};
 use drm_sys::{
     DRM_MODE_DPMS_OFF, DRM_MODE_DPMS_ON, DRM_MODE_DPMS_STANDBY, DRM_MODE_DPMS_SUSPEND,
-    DRM_MODE_TYPE_PREFERRED, drm_mode_modeinfo,
+    DRM_MODE_TYPE_DRIVER, DRM_MODE_TYPE_PREFERRED, drm_mode_modeinfo,
 };
-use piaf::{ExtensionLibrary, VideoMode, capabilities_from_edid, parse_edid};
 use syscall::Result;
 
 use crate::GraphicsAdapter;
+use crate::edid::{self, ModeTiming};
 use crate::kms::objects::{KmsObjectId, KmsObjects};
 use crate::kms::properties::{
     CRTC_ID, DPMS, EDID, KmsBlob, KmsPropertyData, TILE, define_object_props,
@@ -205,108 +205,100 @@ impl<T: GraphicsAdapter> KmsConnector<T> {
     }
 
     fn update_from_edid(&mut self, edid: &[u8]) {
-        let library = ExtensionLibrary::with_standard_handlers();
-        let parsed = match parse_edid(edid, &library) {
-            Ok(parsed) => parsed,
+        let decoded = match edid::decode_all(edid) {
+            Ok(decoded) => decoded,
             Err(err) => {
                 log::error!("unreadable EDID: {err:?}");
                 self.modes.clear();
                 return;
             }
         };
-        let caps = capabilities_from_edid(&parsed, &library);
-
-        if let Some(size) = caps.preferred_image_size_mm {
-            self.mm_width = size.0.into();
-            self.mm_height = size.1.into();
+        if decoded.extensions_truncated {
+            log::warn!(
+                "EDID extension blocks exceed {}; truncating",
+                edid::MAX_EDID_EXTENSION_BLOCKS
+            );
+        }
+        if decoded.bad_extension_blocks > 0 {
+            log::warn!(
+                "skipped {} EDID extension block(s) with bad checksum",
+                decoded.bad_extension_blocks
+            );
+        }
+        if decoded.modes_truncated {
+            log::warn!(
+                "EDID mode list exceeded {}; truncating",
+                edid::MAX_EDID_MODES
+            );
         }
 
-        self.modes = caps
-            .preferred_timing
-            .iter()
-            .chain(caps.supported_modes.iter())
-            .filter_map(modeinfo_for_detailed_timing)
-            .collect::<Vec<_>>();
-        let mut seen = Vec::with_capacity(self.modes.len());
-        self.modes.retain(|mode| {
-            let key = (mode.hdisplay, mode.vdisplay, mode.vrefresh);
-            let fresh = !seen.contains(&key);
-            seen.push(key);
-            fresh
-        });
-
-        for mode in self.modes.iter_mut().skip(1) {
-            mode.type_ &= !DRM_MODE_TYPE_PREFERRED;
+        if decoded.mm_width > 0 && decoded.mm_height > 0 {
+            self.mm_width = decoded.mm_width;
+            self.mm_height = decoded.mm_height;
         }
+
+        let mut modes = Vec::with_capacity(decoded.mode_count + 1);
+        let mut seen = Vec::with_capacity(decoded.mode_count + 1);
+        for timing in
+            std::iter::once(&decoded.preferred).chain(decoded.modes[..decoded.mode_count].iter())
+        {
+            let key = (timing.width, timing.height, timing.refresh_mhz);
+            if seen.contains(&key) {
+                continue;
+            }
+            if let Some(modeinfo) = modeinfo_for_timing(timing, modes.is_empty()) {
+                seen.push(key);
+                modes.push(modeinfo);
+            }
+        }
+        self.modes = modes;
     }
 }
 
-pub fn modeinfo_for_detailed_timing(timing: &VideoMode) -> Option<drm_mode_modeinfo> {
-    let hdisplay = timing.width;
-    let hblank = timing.h_blank?;
-    let htotal = hdisplay.checked_add(hblank)?;
-    let hsync_start = hdisplay.checked_add(timing.h_front_porch)?;
-    let hsync_end = hsync_start.checked_add(timing.h_sync_width)?;
-    let vdisplay = timing.height;
-    let vsync_start = vdisplay.checked_add(timing.v_front_porch)?;
-    let vsync_end = vsync_start.checked_add(timing.v_sync_width)?;
-
-    let clock = timing.pixel_clock_khz?;
-    let rate = timing.refresh_rate?;
-    let line_rate = u64::from(htotal) * u64::from(rate.numer());
-    if line_rate == 0 {
+pub fn modeinfo_for_timing(timing: &ModeTiming, is_preferred: bool) -> Option<drm_mode_modeinfo> {
+    let hdisplay = u16::try_from(timing.width).ok()?;
+    let vdisplay = u16::try_from(timing.height).ok()?;
+    if hdisplay == 0 || vdisplay == 0 || timing.htotal < hdisplay || timing.vtotal < vdisplay {
         return None;
     }
-    let pixels_per_frame = u64::from(clock) * 1000 * u64::from(rate.denom());
-    let vtotal = u16::try_from((pixels_per_frame + line_rate / 2) / line_rate).ok()?;
-    if vtotal < vsync_end {
-        return None;
-    }
-    let vrefresh = (clock * 1000) / (u32::from(htotal) * u32::from(vtotal));
-
+    let vrefresh = timing.refresh_mhz.saturating_add(500) / 1000;
     let mut flags = 0;
-    match timing.sync {
-        Some(piaf::SyncDefinition::DigitalSeparate {
-            v_sync_positive,
-            h_sync_positive,
-        }) => {
-            if v_sync_positive {
-                flags |= drm_sys::DRM_MODE_FLAG_PVSYNC;
-            } else {
-                flags |= drm_sys::DRM_MODE_FLAG_NVSYNC;
-            }
-            if h_sync_positive {
-                flags |= drm_sys::DRM_MODE_FLAG_PHSYNC;
-            } else {
-                flags |= drm_sys::DRM_MODE_FLAG_NHSYNC;
-            }
-        }
-        Some(unsupported) => log::warn!("unsupported sync {:?}", unsupported),
-        None => log::warn!("not a DTD mode"),
+    if let Some(pos) = timing.hsync_pos {
+        flags |= if pos {
+            drm_sys::DRM_MODE_FLAG_PHSYNC
+        } else {
+            drm_sys::DRM_MODE_FLAG_NHSYNC
+        };
     }
+    if let Some(pos) = timing.vsync_pos {
+        flags |= if pos {
+            drm_sys::DRM_MODE_FLAG_PVSYNC
+        } else {
+            drm_sys::DRM_MODE_FLAG_NVSYNC
+        };
+    }
+
+    let type_ = if is_preferred {
+        DRM_MODE_TYPE_DRIVER | DRM_MODE_TYPE_PREFERRED
+    } else {
+        DRM_MODE_TYPE_DRIVER
+    };
 
     let mut modeinfo = drm_mode_modeinfo {
-        // The actual visible display size
         hdisplay,
         vdisplay,
-
-        // These are used to calculate the refresh rate
-        clock,
-        htotal,
-        vtotal,
+        clock: timing.clock_khz,
+        htotal: timing.htotal,
+        vtotal: timing.vtotal,
         vscan: 0,
         vrefresh,
-
-        type_: drm_sys::DRM_MODE_TYPE_DRIVER | drm_sys::DRM_MODE_TYPE_PREFERRED,
+        type_,
         name: [0; 32],
-
-        // These only matter when modesetting physical display adapters. For
-        // those we should be able to parse the EDID blob.
-        hsync_start,
-        hsync_end,
+        hsync_start: timing.hsync_start,
+        hsync_end: timing.hsync_end,
         hskew: 0,
-        vsync_start,
-        vsync_end,
+        vsync_start: timing.vsync_start,
+        vsync_end: timing.vsync_end,
         flags,
     };
 
