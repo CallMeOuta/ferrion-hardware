@@ -28,6 +28,10 @@ pub trait NetworkAdapter {
     // FIXME support back pressure on writes by returning EWOULDBLOCK or not
     // returning from the write syscall until there is room.
     fn write_packet(&mut self, buf: &[u8]) -> Result<usize>;
+
+    fn link_up(&mut self) -> Option<bool> {
+        None
+    }
 }
 
 pub struct NetworkScheme<T: NetworkAdapter> {
@@ -123,6 +127,7 @@ resource_scheme! {
         SchemeRoot(SchemeRoot<T>),
         Data(Data<T>),
         Mac(Mac<T>),
+        Link(Link<T>),
     }
 }
 
@@ -167,6 +172,10 @@ impl<T: NetworkAdapter> ResourceSync for SchemeRoot<T> {
             ),
             "mac" => (
                 NetworkResource::Mac(Mac(PhantomData)),
+                NewFdFlags::POSITIONED,
+            ),
+            "link" => (
+                NetworkResource::Link(Link(PhantomData)),
                 NewFdFlags::POSITIONED,
             ),
             _ => return Err(Error::new(EINVAL)),
@@ -287,6 +296,67 @@ impl<T: NetworkAdapter> ResourceSync for Mac<T> {
     fn fstat(&mut self, _scheme_data: &mut Self::SchemeData, stat: &mut Stat) -> Result<()> {
         stat.st_mode = MODE_FILE | 0o400;
         stat.st_size = 6;
+        Ok(())
+    }
+}
+
+struct Link<T>(PhantomData<T>);
+
+impl<T> std::fmt::Debug for Link<T> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_tuple("Link").finish()
+    }
+}
+
+impl<T: NetworkAdapter> Link<T> {
+    fn status_bytes(adapter: &mut T) -> &'static [u8] {
+        match adapter.link_up() {
+            Some(true) => b"up\n",
+            Some(false) => b"down\n",
+            None => b"unknown\n",
+        }
+    }
+}
+
+impl<T: NetworkAdapter> ResourceSync for Link<T> {
+    type SchemeData = NetworkSchemeData<T>;
+    type ResourceEnum = NetworkResource<T>;
+
+    fn read(
+        &mut self,
+        scheme_data: &mut Self::SchemeData,
+        buf: &mut [u8],
+        offset: u64,
+        _fcntl_flags: u32,
+    ) -> Result<usize> {
+        let state = Self::status_bytes(&mut scheme_data.adapter);
+        let data = usize::try_from(offset)
+            .ok()
+            .and_then(|offset| state.get(offset..))
+            .ok_or(Error::new(EINVAL))?;
+        let i = cmp::min(buf.len(), data.len());
+        buf[..i].copy_from_slice(&data[..i]);
+        Ok(i)
+    }
+
+    fn write(
+        &mut self,
+        _scheme_data: &mut Self::SchemeData,
+        _buf: &[u8],
+        _offset: u64,
+        _fcntl_flags: u32,
+    ) -> Result<usize> {
+        Err(Error::new(EINVAL))
+    }
+
+    fn fpath(&mut self, _scheme_data: &mut Self::SchemeData, w: &mut FpathWriter) -> Result<()> {
+        w.push_str("link");
+        Ok(())
+    }
+
+    fn fstat(&mut self, scheme_data: &mut Self::SchemeData, stat: &mut Stat) -> Result<()> {
+        stat.st_mode = MODE_FILE | 0o400;
+        stat.st_size = Self::status_bytes(&mut scheme_data.adapter).len() as u64;
         Ok(())
     }
 }

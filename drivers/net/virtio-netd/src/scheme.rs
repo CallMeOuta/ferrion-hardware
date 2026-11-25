@@ -6,10 +6,11 @@ use driver_network::NetworkAdapter;
 use virtio_core::spec::{Buffer, ChainBuilder, DescriptorFlags};
 use virtio_core::transport::Queue;
 
-use crate::{VirtHeader, MAX_BUFFER_LEN};
+use crate::{VirtHeader, MAX_BUFFER_LEN, VIRTIO_NET_S_LINK_UP};
 
 pub struct VirtioNet {
     mac_address: [u8; 6],
+    status_space: Option<*const u8>,
 
     /// Reciever Queue.
     rx: Arc<Queue>,
@@ -29,7 +30,12 @@ const TX_POOL_BUF_LEN: usize = 4096;
 const MAX_TX_RECLAIM_POLLS: usize = 1024;
 
 impl VirtioNet {
-    pub fn new(mac_address: [u8; 6], rx: Arc<Queue>, tx: Arc<Queue>) -> Self {
+    pub fn new(
+        mac_address: [u8; 6],
+        status_space: Option<*const u8>,
+        rx: Arc<Queue>,
+        tx: Arc<Queue>,
+    ) -> Self {
         tx.set_no_interrupt(true);
 
         // Populate all of the `rx_queue` with buffers to maximize performence.
@@ -63,6 +69,7 @@ impl VirtioNet {
 
         Self {
             mac_address,
+            status_space,
             rx,
             tx,
             oversized_frames: 0,
@@ -141,6 +148,16 @@ impl VirtioNet {
 impl NetworkAdapter for VirtioNet {
     fn mac_address(&mut self) -> [u8; 6] {
         self.mac_address
+    }
+
+    fn link_up(&mut self) -> Option<bool> {
+        let base = self.status_space?;
+        let status = unsafe {
+            let lo = core::ptr::read_volatile(base.add(6));
+            let hi = core::ptr::read_volatile(base.add(7));
+            u16::from_le_bytes([lo, hi])
+        };
+        Some(status & VIRTIO_NET_S_LINK_UP != 0)
     }
 
     fn available_for_read(&mut self) -> usize {

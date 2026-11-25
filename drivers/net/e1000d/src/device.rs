@@ -121,6 +121,10 @@ impl NetworkAdapter for Intel8254x {
         self.mac_address
     }
 
+    fn link_up(&mut self) -> Option<bool> {
+        Some(unsafe { self.read_reg(STATUS) } & 2 == 2)
+    }
+
     fn available_for_read(&mut self) -> usize {
         let desc = unsafe { &*(self.receive_ring.as_ptr().add(self.receive_index) as *const Rd) };
 

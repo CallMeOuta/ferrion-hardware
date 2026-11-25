@@ -11,6 +11,8 @@ use pcid_interface::PciFunctionHandle;
 use crate::scheme::VirtioNet;
 
 pub const VIRTIO_NET_F_MAC: u32 = 5;
+pub const VIRTIO_NET_F_STATUS: u32 = 16;
+pub const VIRTIO_NET_S_LINK_UP: u16 = 1;
 
 #[derive(Debug)]
 #[repr(C)]
@@ -93,6 +95,13 @@ fn daemon(
         unimplemented!()
     };
 
+    let status_space = if device.transport.check_device_feature(VIRTIO_NET_F_STATUS) {
+        device.transport.ack_driver_feature(VIRTIO_NET_F_STATUS);
+        Some(device_space as *const u8)
+    } else {
+        None
+    };
+
     device.transport.finalize_features();
 
     // Allocate the recieve and transmit queues:
@@ -110,7 +119,7 @@ fn daemon(
     name.push_str("_virtio_net");
 
     let mut rx_irq_file = rx_irq.irq_handle().try_clone()?;
-    let device = VirtioNet::new(mac_address, rx_queue, tx_queue);
+    let device = VirtioNet::new(mac_address, status_space, rx_queue, tx_queue);
     let mut scheme = NetworkScheme::new(
         move || {
             //TODO: do device init in this function to prevent hangs
