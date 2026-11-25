@@ -19,7 +19,13 @@ pub struct VirtioNet {
 
     /// Received frames dropped because they did not fit the reader's buffer.
     oversized_frames: u64,
+
+    tx_pool: Vec<Dma<[u8]>>,
+    tx_pool_cap: usize,
 }
+
+const MAX_TX_POOL_BUFFERS: usize = 64;
+const TX_POOL_BUF_LEN: usize = 4096;
 
 impl VirtioNet {
     pub fn new(mac_address: [u8; 6], rx: Arc<Queue>, tx: Arc<Queue>) -> Self {
@@ -38,12 +44,43 @@ impl VirtioNet {
             rx.post(chain);
         }
 
+        let tx_pool_cap = tx
+            .descriptor_len()
+            .saturating_sub(2)
+            .min(MAX_TX_POOL_BUFFERS);
+        let mut tx_pool = Vec::with_capacity(tx_pool_cap);
+        for _ in 0..tx_pool_cap {
+            let buffer = unsafe {
+                Dma::<[u8]>::zeroed_slice(TX_POOL_BUF_LEN)
+                    .unwrap()
+                    .assume_init()
+            };
+            tx_pool.push(buffer);
+        }
+
         Self {
             mac_address,
             rx,
             tx,
             oversized_frames: 0,
+            tx_pool,
+            tx_pool_cap,
         }
+    }
+
+    fn reclaim_tx_buffers(&mut self) {
+        for _ in 0..self.tx_pool_cap {
+            let Some(used) = self.tx.pop_completed() else {
+                break;
+            };
+            if let Some(buf) = used.buffers.into_iter().next() {
+                let dma = buf.into_inner::<Dma<[u8]>>();
+                if self.tx_pool.len() < self.tx_pool_cap {
+                    self.tx_pool.push(dma);
+                }
+            }
+        }
+        assert!(self.tx_pool.len() <= self.tx_pool_cap);
     }
 
     /// Returns the number of bytes read. Returns `0` if the operation would block.
@@ -115,6 +152,21 @@ impl NetworkAdapter for VirtioNet {
     }
 
     fn write_packet(&mut self, buffer: &[u8]) -> syscall::Result<usize> {
+        self.reclaim_tx_buffers();
+        let header_size = size_of::<VirtHeader>();
+        let total_len = header_size.saturating_add(buffer.len());
+        if total_len <= TX_POOL_BUF_LEN {
+            if let Some(mut slot) = self.tx_pool.pop() {
+                slot[..header_size].fill(0);
+                slot[header_size..total_len].copy_from_slice(buffer);
+                let chain = ChainBuilder::new()
+                    .chain(Buffer::new_sized(slot, total_len))
+                    .build();
+                self.tx.post(chain);
+                return Ok(buffer.len());
+            }
+        }
+
         let header = unsafe { Dma::<VirtHeader>::zeroed()?.assume_init() };
 
         let mut payload = unsafe { Dma::<[u8]>::zeroed_slice(buffer.len())?.assume_init() };
