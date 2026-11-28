@@ -1051,7 +1051,6 @@ impl<T: GraphicsAdapter> ResourceSync for SyncFile<T> {
             return Ok(EventFlags::empty());
         }
         if self.fence.is_signaled() {
-            self.notified_read = true;
             Ok(EventFlags::EVENT_READ)
         } else {
             self.notified_read = false;

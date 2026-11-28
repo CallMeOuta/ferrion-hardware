@@ -166,7 +166,6 @@ impl<T: GraphicsAdapter> ResourceSync for DrmHandle<T> {
             self.notified_read = false;
             Ok(EventFlags::empty())
         } else {
-            self.notified_read = true;
             Ok(EventFlags::EVENT_READ)
         }
     }
